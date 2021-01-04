@@ -1,0 +1,70 @@
+{
+    "name": "chronhub/projector",
+    "description": "cqrs es ddd",
+    "keywords": [],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "steph bug",
+            "email": "chronhub@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "^8.0",
+        "chronhub/foundation": "dev-main",
+        "chronhub/chronicler": "dev-main",
+        "marc-mabe/php-enum": "^4.4.0",
+        "ext-pdo": "*",
+        "ext-json": "*",
+        "ext-pcntl": "*"
+    },
+    "require-dev": {
+        "jetbrains/phpstorm-attributes": "9999999-dev",
+        "laravel/framework": "^8.2",
+        "nunomaduro/larastan": "0.6.x-dev",
+        "orchestra/testbench": "9999999-dev",
+        "phpspec/prophecy-phpunit": "dev-master",
+        "phpstan/phpstan": "0.12.x-dev",
+        "phpunit/phpunit": "^9.4",
+        "roave/security-advisories": "dev-master"
+    },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/chronhub/foundation.git"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/chronhub/contracts.git"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/chronhub/chronicler.git"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Chronhub\\Projector\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Chronhub\\Projector\\Tests\\": "tests"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "laravel": {
+            "providers": [],
+            "dont-discover": [
+                "Chronhub\\Projector\\ProjectorServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "dev"
+}

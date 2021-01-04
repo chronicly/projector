@@ -1,0 +1,116 @@
+<?php
+declare(strict_types=1);
+
+namespace Chronhub\Projector\Projecting\Factory;
+
+use Chronhub\Contracts\Projecting\ContextualEventHandler;
+use Chronhub\Contracts\Query\ProjectionQueryFilter;
+use Closure;
+
+// todo assert
+final class ContextBuilder
+{
+    public ?Closure $initCallback = null;
+    public Closure|array $eventHandlers;
+    public array $streamsNames;
+    public array $categories;
+    public ProjectionQueryFilter $queryFilter;
+
+    public function bindEventHandlers(ContextualEventHandler $eventHandler): void
+    {
+        if (is_callable($this->eventHandlers)) {
+            $this->eventHandlers = Closure::bind($this->eventHandlers, $eventHandler);
+        } else {
+            foreach ($this->eventHandlers as $eventName => &$handler) {
+                $handler = Closure::bind($handler, $eventHandler);
+            }
+        }
+    }
+
+    public function bindInitCallback(ContextualEventHandler $eventHandler): array
+    {
+        if ($this->initCallback instanceof Closure) {
+            $callback = Closure::bind($this->initCallback, $eventHandler);
+
+            $this->initCallback = $callback();
+
+            return $this->initCallback;
+        }
+
+        return [];
+    }
+
+    public function initialize(Closure $initCallback): self
+    {
+        $this->initCallback = $initCallback;
+
+        return $this;
+    }
+
+    public function withQueryFilter(ProjectionQueryFilter $queryFilter): self
+    {
+        $this->queryFilter = $queryFilter;
+
+        return $this;
+    }
+
+    public function fromStreams(string ...$streamNames): self
+    {
+        $this->streamsNames = $streamNames;
+
+        return $this;
+    }
+
+    public function fromCategories(string ...$categories): self
+    {
+        $this->categories = $categories;
+
+        return $this;
+    }
+
+    public function fromAll(): self
+    {
+        $this->streamsNames = ['all' => true];
+
+        return $this;
+    }
+
+    public function when(array $eventHandlers): self
+    {
+        $this->eventHandlers = $eventHandlers;
+
+        return $this;
+    }
+
+    public function whenAny(Closure $eventHandler): self
+    {
+        $this->eventHandlers = $eventHandler;
+
+        return $this;
+    }
+
+    public function getInitCallback(): ?Closure
+    {
+        return $this->initCallback;
+    }
+
+    public function getEventHandlers(): closure|array
+    {
+        return $this->eventHandlers;
+    }
+
+    public function getStreamsNames(): array
+    {
+        return $this->streamsNames;
+    }
+
+    public function getCategories(): array
+    {
+        return $this->categories;
+    }
+
+    public function getQueryFilter(): ?ProjectionQueryFilter
+    {
+        return $this->queryFilter;
+    }
+}
