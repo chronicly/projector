@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Chronhub\Projector;
 
 use Illuminate\Support\ServiceProvider;
+use Chronhub\Contracts\Manager\ProjectorServiceManager as ServiceManager;
 
 final class ProjectorServiceProvider extends ServiceProvider
 {
@@ -15,8 +16,8 @@ final class ProjectorServiceProvider extends ServiceProvider
             return;
         }
 
-        $this->app->singleton(ProjectorServiceManager::class);
-        $this->app->alias(ProjectorServiceManager::class, 'projector');
+        $this->app->singleton(ServiceManager::class, ProjectorServiceManager::class);
+        $this->app->alias(ServiceManager::class, 'projector');
     }
 
     public function boot(): void
@@ -41,7 +42,7 @@ final class ProjectorServiceProvider extends ServiceProvider
 
     public function provides(): array
     {
-        return [ProjectorServiceManager::class, 'projector'];
+        return [ServiceManager::class, 'projector'];
     }
 
     private function getConfigPath(): string
