@@ -10,7 +10,7 @@ use Closure;
 // todo assert
 final class ContextBuilder
 {
-    public ?Closure $initCallback = null;
+    public Closure|array $initCallback;
     public Closure|array $eventHandlers;
     public array $streamsNames;
     public array $categories;
@@ -18,7 +18,7 @@ final class ContextBuilder
 
     public function bindEventHandlers(ContextualEventHandler $eventHandler): void
     {
-        if (is_callable($this->eventHandlers)) {
+        if ($this->eventHandlers instanceof Closure) {
             $this->eventHandlers = Closure::bind($this->eventHandlers, $eventHandler);
         } else {
             foreach ($this->eventHandlers as $eventName => &$handler) {
@@ -32,9 +32,11 @@ final class ContextBuilder
         if ($this->initCallback instanceof Closure) {
             $callback = Closure::bind($this->initCallback, $eventHandler);
 
-            $this->initCallback = $callback();
+            $result = $callback();
 
-            return $this->initCallback;
+            $this->initCallback = $result;
+
+            return $result;
         }
 
         return [];

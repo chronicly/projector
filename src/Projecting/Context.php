@@ -66,7 +66,7 @@ class Context implements ProjectorContext
         $this->isStopped = $stopProjection;
     }
 
-    public function currentStreamName(): string
+    public function currentStreamName(): ?string
     {
         return $this->currentStreamName;
     }
@@ -101,6 +101,11 @@ class Context implements ProjectorContext
         return $this->keepRunning;
     }
 
+    public function withKeepRunning(bool $keepRunning): void
+    {
+        $this->keepRunning = $keepRunning;
+    }
+
     public function dispatchSignal(): void
     {
         if ($this->option->dispatchSignal()) {
@@ -109,7 +114,7 @@ class Context implements ProjectorContext
     }
 
     #[Pure]
-    public function initCallback(): ?Closure
+    public function initCallback(): Closure|array
     {
         return $this->builder->getInitCallback();
     }
