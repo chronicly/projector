@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace Chronhub\Projector\Projecting\Concern;
 
 use Chronhub\Contracts\Projecting\ContextualEventHandler;
-use Chronhub\Projector\Projecting\PipeProcessing;
+use Chronhub\Projector\Projecting\ProjectorRunner;
 
 trait HasPersistentProjector
 {
@@ -14,7 +14,7 @@ trait HasPersistentProjector
 
         $this->context->setUp($this->builder, $this->createContextualEventHandler());
 
-        $processor = new PipeProcessing($this, $this->chronicler, $this->alias, $this->repository);
+        $processor = new ProjectorRunner($this, $this->chronicler, $this->alias, $this->repository);
 
         $processor->process($this->context);
     }

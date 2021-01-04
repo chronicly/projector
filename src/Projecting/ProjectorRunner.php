@@ -18,12 +18,12 @@ use Chronhub\Projector\Projecting\Pipe\PreparePersistentRunner;
 use Chronhub\Projector\Projecting\Pipe\PrepareQueryRunner;
 use Chronhub\Projector\Projecting\Pipe\UpdateProjectionStatusAndPositions;
 
-final class PipeProcessing
+final class ProjectorRunner
 {
     public function __construct(private Projector $projector,
                                 private Chronicler $chronicler,
                                 private MessageAlias $alias,
-                                private ProjectorRepository $repository)
+                                private ?ProjectorRepository $repository)
     {
     }
 
@@ -39,7 +39,9 @@ final class PipeProcessing
                     ->then(fn(ProjectorContext $context): bool => $context->isStopped());
             } while ($context->keepRunning() && !$isStopped);
         } finally {
-            $this->repository->releaseLock();
+            if ($this->repository) {
+                $this->repository->releaseLock();
+            }
         }
     }
 
@@ -51,7 +53,7 @@ final class PipeProcessing
         if (!$this->projector instanceof PersistentProjector) {
             return [
                 new PrepareQueryRunner(),
-                new HandleStreamEvent($this->chronicler, $this->alias, $this->repository),
+                new HandleStreamEvent($this->chronicler, $this->alias, null),
                 new DispatchSignal()
             ];
         }

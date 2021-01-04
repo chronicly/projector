@@ -12,18 +12,22 @@ use Chronhub\Contracts\Projecting\ReadModel;
 use Chronhub\Contracts\Query\ProjectionQueryScope;
 use Chronhub\Contracts\Support\JsonEncoder;
 use Chronhub\Foundation\Exception\QueryFailure;
-use Chronhub\Projector\Exception\RuntimeException;
 use Chronhub\Projector\Projecting\Concern\HasReadProjectorManager;
+use Chronhub\Projector\Projecting\Context;
 use Chronhub\Projector\Projecting\Factory\EventCounter;
 use Chronhub\Projector\Projecting\Factory\InMemoryState;
 use Chronhub\Projector\Projecting\Factory\Option;
 use Chronhub\Projector\Projecting\Factory\ProjectionStatus;
 use Chronhub\Projector\Projecting\Factory\StreamCache;
 use Chronhub\Projector\Projecting\Factory\StreamPosition;
+use Chronhub\Projector\Projecting\PersistentContext;
 use Chronhub\Projector\Projecting\Projection\ProjectionRepository;
 use Chronhub\Projector\Projecting\Projection\ProjectProjection;
 use Chronhub\Projector\Projecting\ProjectionContext;
 use Chronhub\Projector\Projecting\ProjectorRepository;
+use Chronhub\Projector\Projecting\Query\ProjectQuery;
+use Chronhub\Projector\Projecting\ReadModel\ProjectReadModel;
+use Chronhub\Projector\Projecting\ReadModel\ReadModelRepository;
 use Illuminate\Database\QueryException;
 
 final class ProjectorManager implements \Chronhub\Contracts\Projecting\ProjectorManager
@@ -42,7 +46,17 @@ final class ProjectorManager implements \Chronhub\Contracts\Projecting\Projector
 
     public function createQuery(array $options = []): ProjectorFactory
     {
-        throw new RuntimeException("todo");
+        $options = empty($options) ? $this->options : $options;
+        $option = new Option(...$options);
+
+        $context = new Context(
+            $option,
+            new StreamPosition($this->eventStreamProvider),
+            new InMemoryState(),
+            ProjectionStatus::IDLE(),
+        );
+
+        return new ProjectQuery($context, $this->chronicler, $this->messageAlias);
     }
 
     public function createProjection(string $streamName, array $options = []): ProjectorFactory
@@ -51,7 +65,7 @@ final class ProjectorManager implements \Chronhub\Contracts\Projecting\Projector
         $option = new Option(...$options);
 
         $context = new ProjectionContext(
-            new Option(...$options),
+            $option,
             new StreamPosition($this->eventStreamProvider),
             new InMemoryState(),
             ProjectionStatus::IDLE(),
@@ -72,7 +86,26 @@ final class ProjectorManager implements \Chronhub\Contracts\Projecting\Projector
 
     public function createReadModelProjection(string $streamName, ReadModel $readModel, array $options = []): ProjectorFactory
     {
-        throw new RuntimeException("todo");
+        $options = empty($options) ? $this->options : $options;
+        $option = new Option(...$options);
+
+        $context = new PersistentContext(
+            $option,
+            new StreamPosition($this->eventStreamProvider),
+            new InMemoryState(),
+            ProjectionStatus::IDLE(),
+            new EventCounter()
+        );
+
+        $repository = new ProjectorRepository(
+            $context, $this->projectionProvider, $this->jsonEncoder, $streamName
+        );
+
+        $decorator = new ReadModelRepository($repository, $readModel);
+
+        return new ProjectReadModel(
+            $context, $decorator, $this->chronicler, $this->messageAlias, $streamName, $readModel
+        );
     }
 
     public function stop(string $streamName): void
