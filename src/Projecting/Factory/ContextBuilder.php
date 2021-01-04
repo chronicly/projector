@@ -13,7 +13,6 @@ final class ContextBuilder
     public Closure|array $initCallback;
     public Closure|array $eventHandlers;
     public array $streamsNames;
-    public array $categories;
     public ProjectionQueryFilter $queryFilter;
 
     public function bindEventHandlers(ContextualEventHandler $eventHandler): void
@@ -58,21 +57,21 @@ final class ContextBuilder
 
     public function fromStreams(string ...$streamNames): self
     {
-        $this->streamsNames = $streamNames;
+        $this->streamsNames['names'] = $streamNames;
 
         return $this;
     }
 
     public function fromCategories(string ...$categories): self
     {
-        $this->categories = $categories;
+        $this->streamsNames['categories'] = $categories;
 
         return $this;
     }
 
     public function fromAll(): self
     {
-        $this->streamsNames = ['all' => true];
+        $this->streamsNames['all'] = true;
 
         return $this;
     }
@@ -91,12 +90,12 @@ final class ContextBuilder
         return $this;
     }
 
-    public function getInitCallback(): ?Closure
+    public function getInitCallback(): Closure|array
     {
         return $this->initCallback;
     }
 
-    public function getEventHandlers(): closure|array
+    public function getEventHandlers(): Closure|array
     {
         return $this->eventHandlers;
     }
@@ -104,11 +103,6 @@ final class ContextBuilder
     public function getStreamsNames(): array
     {
         return $this->streamsNames;
-    }
-
-    public function getCategories(): array
-    {
-        return $this->categories;
     }
 
     public function getQueryFilter(): ?ProjectionQueryFilter

@@ -5,7 +5,6 @@ namespace Chronhub\Projector\Projecting\Factory;
 
 use Chronhub\Contracts\Model\EventStreamProvider;
 use Chronhub\Contracts\Projecting\StreamPosition as Position;
-use Chronhub\Contracts\Stream\NamedStream;
 use Chronhub\Projector\Exception\RuntimeException;
 
 final class StreamPosition implements Position
@@ -78,11 +77,6 @@ final class StreamPosition implements Position
     private function assertStreamNamesExists(array $streamNames): void
     {
         $remoteStreams = $this->eventStreamProvider->filterByStreams($streamNames);
-
-        $remoteStreams = array_map(
-            fn(NamedStream $streamName): string => $streamName->toString(),
-            $remoteStreams
-        );
 
         if (count($streamNames) !== count($remoteStreams)) {
             $message = "One or many stream names were not found in event stream table,\n";

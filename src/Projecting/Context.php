@@ -132,12 +132,6 @@ class Context implements ProjectorContext
     }
 
     #[Pure]
-    public function categories(): array
-    {
-        return $this->builder->getCategories();
-    }
-
-    #[Pure]
     public function queryFilter(): ProjectionQueryFilter
     {
         return $this->builder->getQueryFilter();
