@@ -86,7 +86,9 @@ final class HandleStreamEvent implements Pipe
                 $streamEvent->eventWithHeaders(), $context->state()->getState()
             );
 
-            $context->state()->setState($projectionState);
+            if (is_array($projectionState)) {
+                $context->state()->setState($projectionState);
+            }
 
             if ($this->isPersistent) {
                 $this->persistOnReachedCounter($context);

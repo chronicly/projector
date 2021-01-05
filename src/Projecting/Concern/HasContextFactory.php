@@ -10,7 +10,7 @@ use Closure;
 
 trait HasContextFactory
 {
-    protected Closure|array|null $initCallback = null;
+    protected Closure|null $initCallback = null;
     protected Closure|array|null $eventHandlers = null;
     protected array $streamsNames = [];
     protected ?ProjectionQueryFilter $queryFilter = null;
@@ -92,7 +92,7 @@ trait HasContextFactory
         $this->keepRunning = $keepRunning;
     }
 
-    public function initCallback(): Closure|array
+    public function initCallback(): ?Closure
     {
         return $this->initCallback;
     }
