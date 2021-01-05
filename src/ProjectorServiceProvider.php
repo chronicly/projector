@@ -3,10 +3,11 @@ declare(strict_types=1);
 
 namespace Chronhub\Projector;
 
+use Illuminate\Contracts\Support\DeferrableProvider;
 use Illuminate\Support\ServiceProvider;
 use Chronhub\Contracts\Manager\ProjectorServiceManager as ServiceManager;
 
-final class ProjectorServiceProvider extends ServiceProvider
+final class ProjectorServiceProvider extends ServiceProvider implements DeferrableProvider
 {
     public function register(): void
     {
@@ -17,7 +18,7 @@ final class ProjectorServiceProvider extends ServiceProvider
         }
 
         $this->app->singleton(ServiceManager::class, ProjectorServiceManager::class);
-        $this->app->alias(ServiceManager::class, 'projector');
+        $this->app->alias(ServiceManager::class, 'projector.manager');
     }
 
     public function boot(): void
@@ -42,7 +43,7 @@ final class ProjectorServiceProvider extends ServiceProvider
 
     public function provides(): array
     {
-        return [ServiceManager::class, 'projector'];
+        return [ServiceManager::class, 'projector.manager'];
     }
 
     private function getConfigPath(): string

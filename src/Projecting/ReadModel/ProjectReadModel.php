@@ -22,11 +22,11 @@ final class ProjectReadModel implements PersistentReadModelProjector, ProjectorF
 
     #[Pure]
     public function __construct(protected PersistentProjectorContext $context,
-                                        protected ProjectorRepository $repository,
-                                        protected Chronicler $chronicler,
-                                        protected MessageAlias $messageAlias,
-                                        protected string $streamName,
-                                        private ReadModel $readModel)
+                                protected ProjectorRepository $repository,
+                                protected Chronicler $chronicler,
+                                protected MessageAlias $messageAlias,
+                                protected string $streamName,
+                                private ReadModel $readModel)
     {
         $this->builder = new ContextBuilder();
     }

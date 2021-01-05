@@ -5,7 +5,7 @@ namespace Chronhub\Projector\ReadModel;
 
 use Illuminate\Database\ConnectionInterface;
 
-abstract class ReadModelConnection extends AbstractReadModel
+abstract class AbstractReadModelConnection extends AbstractReadModel
 {
     use HasConnectionOperation, HasReadModelConnection;
 

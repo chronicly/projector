@@ -42,6 +42,8 @@ class Context implements ProjectorContext
 
         $builder->bindEventHandlers($eventHandler);
 
+        $builder->validate();
+
         $this->builder = $builder;
     }
 

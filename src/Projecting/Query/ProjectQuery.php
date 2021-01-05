@@ -56,7 +56,6 @@ final class ProjectQuery implements QueryProjector, ProjectorFactory
 
         $callback = $this->context->initCallback();
 
-        // fixMe callback overridden
         if ($callback instanceof Closure) {
             $state = $callback();
 

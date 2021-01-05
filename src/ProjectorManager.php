@@ -127,6 +127,11 @@ final class ProjectorManager implements \Chronhub\Contracts\Projecting\Projector
         $this->updateProjectionStatus($streamName, $deleteProjectionStatus);
     }
 
+    public function queryScope(): ProjectionQueryScope
+    {
+        return $this->projectionQueryScope;
+    }
+
     private function updateProjectionStatus(string $streamName, ProjectionStatus $projectionStatus): void
     {
         try {
@@ -141,10 +146,5 @@ final class ProjectorManager implements \Chronhub\Contracts\Projecting\Projector
         if (!$result) {
             $this->assertProjectionNameExists($streamName);
         }
-    }
-
-    public function projectionQueryFilter(): ProjectionQueryScope
-    {
-        return $this->projectionQueryScope;
     }
 }

@@ -24,11 +24,11 @@ final class ProjectProjection implements PersistentProjectionProjector, Projecto
     use HasProjectorFactory, HasPersistentProjector;
 
     #[Pure]
-    public function __construct(private ProjectionProjectorContext $context,
-                                        private ProjectorRepository $repository,
-                                        private Chronicler $chronicler,
-                                        private MessageAlias $alias,
-                                        private string $streamName)
+    public function __construct(protected ProjectionProjectorContext $context,
+                                protected ProjectorRepository $repository,
+                                protected Chronicler $chronicler,
+                                protected MessageAlias $messageAlias,
+                                protected string $streamName)
     {
         $this->builder = new ContextBuilder();
     }
