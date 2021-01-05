@@ -38,6 +38,12 @@ return [
     'console' => [
         'load_migrations' => true,
         'load_commands' => true,
-        'commands' => []
+        'commands' => [
+            \Chronhub\Projector\Console\ReadProjectionCommand::class,
+            \Chronhub\Projector\Console\WriteProjectionCommand::class,
+            \Chronhub\Projector\Console\ProjectAllStreamCommand::class,
+            \Chronhub\Projector\Console\ProjectCategoryStreamCommand::class,
+            \Chronhub\Projector\Console\ProjectMessageNameCommand::class
+        ]
     ]
 ];
