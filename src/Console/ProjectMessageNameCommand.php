@@ -8,7 +8,7 @@ use Chronhub\Contracts\Messaging\MessageHeader;
 
 final class ProjectMessageNameCommand extends AbstractPersistentProjectionCommand
 {
-    protected $signature = 'projector:message_name {--projector=no_default} {--signal=1}';
+    protected $signature = 'projector:message_name {--projector=default} {--signal=1}';
 
     public function handle(): void
     {

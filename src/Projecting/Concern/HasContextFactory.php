@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace Chronhub\Projector\Projecting\Concern;
 
-use Chronhub\Contracts\Projecting\ContextualEventHandler;
 use Chronhub\Contracts\Projecting\ProjectorContext;
 use Chronhub\Contracts\Query\ProjectionQueryFilter;
 use Chronhub\Projector\Exception\RuntimeException;
