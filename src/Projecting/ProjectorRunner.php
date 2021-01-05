@@ -22,7 +22,7 @@ final class ProjectorRunner
 {
     public function __construct(private Projector $projector,
                                 private Chronicler $chronicler,
-                                private MessageAlias $alias,
+                                private MessageAlias $messageAlias,
                                 private ?ProjectorRepository $repository)
     {
     }
@@ -46,21 +46,21 @@ final class ProjectorRunner
     }
 
     /**
-     * @return Pipe[]
+     * @return array<Pipe>
      */
     private function getPipes(): array
     {
         if (!$this->projector instanceof PersistentProjector) {
             return [
                 new PrepareQueryRunner(),
-                new HandleStreamEvent($this->chronicler, $this->alias, null),
+                new HandleStreamEvent($this->chronicler, $this->messageAlias, null),
                 new DispatchSignal()
             ];
         }
 
         return [
             new PreparePersistentRunner($this->projector, $this->repository),
-            new HandleStreamEvent($this->chronicler, $this->alias, $this->repository),
+            new HandleStreamEvent($this->chronicler, $this->messageAlias, $this->repository),
             new PersistOrSleepBeforeResetCounter($this->repository),
             new DispatchSignal(),
             new UpdateProjectionStatusAndPositions($this->projector, $this->repository)

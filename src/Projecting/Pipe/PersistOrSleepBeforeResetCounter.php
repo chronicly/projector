@@ -7,6 +7,7 @@ use Chronhub\Contracts\Projecting\PersistentProjectorContext;
 use Chronhub\Contracts\Projecting\Pipe;
 use Chronhub\Contracts\Projecting\ProjectorContext;
 use Chronhub\Contracts\Projecting\ProjectorRepository;
+use Chronhub\Projector\Exception\RuntimeException;
 
 final class PersistOrSleepBeforeResetCounter implements Pipe
 {
@@ -16,13 +17,15 @@ final class PersistOrSleepBeforeResetCounter implements Pipe
 
     public function __invoke(ProjectorContext $context, callable $next): callable|bool
     {
-        if ($context instanceof PersistentProjectorContext) {
-            $context->counter()->isReset()
-                ? $this->sleepBeforeUpdateLock($context->option()->sleep())
-                : $this->repository->persist();
-
-            $context->counter()->reset();
+        if (!$context instanceof PersistentProjectorContext) {
+            throw new RuntimeException("Invalid projector context");
         }
+
+        $context->counter()->isReset()
+            ? $this->sleepBeforeUpdateLock($context->option()->sleep())
+            : $this->repository->persist();
+
+        $context->counter()->reset();
 
         return $next($context);
     }

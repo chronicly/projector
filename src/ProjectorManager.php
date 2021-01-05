@@ -21,13 +21,13 @@ use Chronhub\Projector\Projecting\Factory\ProjectionStatus;
 use Chronhub\Projector\Projecting\Factory\StreamCache;
 use Chronhub\Projector\Projecting\Factory\StreamPosition;
 use Chronhub\Projector\Projecting\PersistentContext;
-use Chronhub\Projector\Projecting\Projection\ProjectionRepository;
-use Chronhub\Projector\Projecting\Projection\ProjectProjection;
+use Chronhub\Projector\Projecting\ProjectionRepository;
+use Chronhub\Projector\Projecting\ProjectProjection;
 use Chronhub\Projector\Projecting\ProjectionContext;
 use Chronhub\Projector\Projecting\ProjectorRepository;
-use Chronhub\Projector\Projecting\Query\ProjectQuery;
-use Chronhub\Projector\Projecting\ReadModel\ProjectReadModel;
-use Chronhub\Projector\Projecting\ReadModel\ReadModelRepository;
+use Chronhub\Projector\Projecting\ProjectQuery;
+use Chronhub\Projector\Projecting\ProjectReadModel;
+use Chronhub\Projector\Projecting\ReadModelRepository;
 use Illuminate\Database\QueryException;
 
 final class ProjectorManager implements \Chronhub\Contracts\Projecting\ProjectorManager

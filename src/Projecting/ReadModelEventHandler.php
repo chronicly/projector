@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Chronhub\Projector\Projecting\ReadModel;
+namespace Chronhub\Projector\Projecting;
 
 use Chronhub\Contracts\Projecting\PersistentReadModelProjector;
 use Chronhub\Contracts\Projecting\ReadModel;
@@ -9,9 +9,14 @@ use Chronhub\Contracts\Projecting\ReadModelContextualEventHandler;
 
 final class ReadModelEventHandler implements ReadModelContextualEventHandler
 {
-    public function __construct(private PersistentReadModelProjector $projector,
-                                private ?string &$streamName)
+    private PersistentReadModelProjector $projector;
+    private ?string $streamName;
+
+    public function __construct(PersistentReadModelProjector $projector,
+                                ?string &$streamName)
     {
+        $this->projector = $projector;
+        $this->streamName = &$streamName;
     }
 
     public function stop(): void

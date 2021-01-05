@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Chronhub\Projector\Projecting\ReadModel;
+namespace Chronhub\Projector\Projecting;
 
 use Chronhub\Contracts\Chronicling\Chronicler;
 use Chronhub\Contracts\Messaging\MessageAlias;

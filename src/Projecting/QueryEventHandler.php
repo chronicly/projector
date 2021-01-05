@@ -1,15 +1,23 @@
 <?php
 declare(strict_types=1);
 
-namespace Chronhub\Projector\Projecting\Query;
+namespace Chronhub\Projector\Projecting;
 
 use Chronhub\Contracts\Projecting\ContextualEventHandler;
 use Chronhub\Contracts\Projecting\QueryProjector;
 
 final class QueryEventHandler implements ContextualEventHandler
 {
-    public function __construct(private QueryProjector $query, private ?string &$streamName)
+    /**
+     * @var QueryProjector
+     */
+    private QueryProjector $query;
+    private ?string $streamName;
+
+    public function __construct(QueryProjector $query, ?string &$streamName)
     {
+        $this->query = $query;
+        $this->streamName = &$streamName;
     }
 
     public function stop(): void

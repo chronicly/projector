@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Chronhub\Projector\Projecting\Projection;
+namespace Chronhub\Projector\Projecting;
 
 use Chronhub\Contracts\Messaging\DomainEvent;
 use Chronhub\Contracts\Projecting\PersistentProjectionProjector;
