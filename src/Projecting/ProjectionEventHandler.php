@@ -5,9 +5,9 @@ namespace Chronhub\Projector\Projecting;
 
 use Chronhub\Contracts\Messaging\DomainEvent;
 use Chronhub\Contracts\Projecting\PersistentProjectionProjector;
-use Chronhub\Contracts\Projecting\ProjectionContextualEventHandler;
+use Chronhub\Contracts\Projecting\ProjectionEventHandler as ContextualEventHandler;
 
-final class ProjectionEventHandler implements ProjectionContextualEventHandler
+final class ProjectionEventHandler implements ContextualEventHandler
 {
     private PersistentProjectionProjector $projector;
     private ?string $streamName;

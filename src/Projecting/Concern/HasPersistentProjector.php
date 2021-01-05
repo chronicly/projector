@@ -19,7 +19,7 @@ trait HasPersistentProjector
     {
         $this->context->withKeepRunning($keepRunning);
 
-        $this->context->setUp($this->builder, $this->createContextualEventHandler());
+        $this->context->setUp($this->createContextualEventHandler());
 
         $processor = new ProjectorRunner($this, $this->chronicler, $this->messageAlias, $this->repository);
 

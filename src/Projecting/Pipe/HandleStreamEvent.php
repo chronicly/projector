@@ -7,7 +7,6 @@ use Chronhub\Chronicler\Stream\StreamName;
 use Chronhub\Contracts\Chronicling\Chronicler;
 use Chronhub\Contracts\Messaging\Message;
 use Chronhub\Contracts\Messaging\MessageAlias;
-use Chronhub\Contracts\Projecting\PersistentProjectorContext;
 use Chronhub\Contracts\Projecting\Pipe;
 use Chronhub\Contracts\Projecting\ProjectorContext;
 use Chronhub\Contracts\Projecting\ProjectorRepository;
@@ -17,10 +16,13 @@ use Generator;
 
 final class HandleStreamEvent implements Pipe
 {
+    private bool $isPersistent;
+
     public function __construct(private Chronicler $chronicler,
                                 private MessageAlias $messageAlias,
-                                private ?ProjectorRepository $projectorRepository)
+                                private ?ProjectorRepository $repository)
     {
+        $this->isPersistent = $repository instanceof ProjectorRepository;
     }
 
     public function __invoke(ProjectorContext $context, callable $next): callable|bool
@@ -60,7 +62,7 @@ final class HandleStreamEvent implements Pipe
 
             $context->position()->setAt($context->currentStreamName(), $key);
 
-            if ($context instanceof PersistentProjectorContext) {
+            if ($this->isPersistent) {
                 $context->counter()->increment();
             }
 
@@ -68,7 +70,7 @@ final class HandleStreamEvent implements Pipe
 
             if (is_array($eventHandlers)) {
                 if (!$messageHandler = $this->determineEventHandler($streamEvent, $eventHandlers)) {
-                    if ($context instanceof PersistentProjectorContext) {
+                    if ($this->repository) {
                         $this->persistOnReachedCounter($context);
                     }
 
@@ -86,7 +88,7 @@ final class HandleStreamEvent implements Pipe
 
             $context->state()->setState($projectionState);
 
-            if ($context instanceof PersistentProjectorContext) {
+            if ($this->isPersistent) {
                 $this->persistOnReachedCounter($context);
             }
 
@@ -96,16 +98,16 @@ final class HandleStreamEvent implements Pipe
         }
     }
 
-    private function persistOnReachedCounter(PersistentProjectorContext $context): void
+    private function persistOnReachedCounter(ProjectorContext $context): void
     {
         $persistBlockSize = $context->option()->persistBlockSize();
 
         if ($context->counter()->equals($persistBlockSize)) {
-            $this->projectorRepository->persist();
+            $this->repository->persist();
 
             $context->counter()->reset();
 
-            $context->setStatus($this->projectorRepository->loadStatus());
+            $context->setStatus($this->repository->loadStatus());
 
             $keepProjectionRunning = [ProjectionStatus::RUNNING(), ProjectionStatus::IDLE()];
 

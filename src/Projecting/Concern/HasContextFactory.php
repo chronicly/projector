@@ -1,19 +1,20 @@
 <?php
 declare(strict_types=1);
 
-namespace Chronhub\Projector\Projecting\Factory;
+namespace Chronhub\Projector\Projecting\Concern;
 
 use Chronhub\Contracts\Projecting\ContextualEventHandler;
+use Chronhub\Contracts\Projecting\ProjectorContext;
 use Chronhub\Contracts\Query\ProjectionQueryFilter;
 use Chronhub\Projector\Exception\RuntimeException;
 use Closure;
 
-final class ContextBuilder
+trait HasContextFactory
 {
-    public Closure|array|null $initCallback = null;
-    public Closure|array|null $eventHandlers = null;
-    public array $streamsNames = [];
-    public ?ProjectionQueryFilter $queryFilter = null;
+    protected Closure|array|null $initCallback = null;
+    protected Closure|array|null $eventHandlers = null;
+    protected array $streamsNames = [];
+    protected ?ProjectionQueryFilter $queryFilter = null;
 
     public function bindEventHandlers(ContextualEventHandler $eventHandler): void
     {
@@ -41,7 +42,7 @@ final class ContextBuilder
         return [];
     }
 
-    public function initialize(Closure $initCallback): self
+    public function initialize(Closure $initCallback): ProjectorContext
     {
         if (null !== $this->initCallback) {
             throw new RuntimeException("Projection already initialized");
@@ -52,7 +53,7 @@ final class ContextBuilder
         return $this;
     }
 
-    public function withQueryFilter(ProjectionQueryFilter $queryFilter): self
+    public function withQueryFilter(ProjectionQueryFilter $queryFilter): ProjectorContext
     {
         if (null !== $this->queryFilter) {
             throw new RuntimeException("Projection query filter already set");
@@ -63,7 +64,7 @@ final class ContextBuilder
         return $this;
     }
 
-    public function fromStreams(string ...$streamNames): self
+    public function fromStreams(string ...$streamNames): ProjectorContext
     {
         $this->assertStreamsNamesNotSet();
 
@@ -72,7 +73,7 @@ final class ContextBuilder
         return $this;
     }
 
-    public function fromCategories(string ...$categories): self
+    public function fromCategories(string ...$categories): ProjectorContext
     {
         $this->assertStreamsNamesNotSet();
 
@@ -81,7 +82,7 @@ final class ContextBuilder
         return $this;
     }
 
-    public function fromAll(): self
+    public function fromAll(): ProjectorContext
     {
         $this->assertStreamsNamesNotSet();
 
@@ -90,7 +91,7 @@ final class ContextBuilder
         return $this;
     }
 
-    public function when(array $eventHandlers): self
+    public function when(array $eventHandlers): ProjectorContext
     {
         $this->assertEventHandlersNotSet();
 
@@ -99,7 +100,7 @@ final class ContextBuilder
         return $this;
     }
 
-    public function whenAny(Closure $eventHandler): self
+    public function whenAny(Closure $eventHandler): ProjectorContext
     {
         $this->assertEventHandlersNotSet();
 
@@ -108,22 +109,32 @@ final class ContextBuilder
         return $this;
     }
 
-    public function getInitCallback(): Closure|array
+    public function keepRunning(): bool
+    {
+        return $this->keepRunning;
+    }
+
+    public function withKeepRunning(bool $keepRunning): void
+    {
+        $this->keepRunning = $keepRunning;
+    }
+
+    public function initCallback(): Closure|array
     {
         return $this->initCallback;
     }
 
-    public function getEventHandlers(): Closure|array
+    public function eventHandlers(): Closure|array
     {
         return $this->eventHandlers;
     }
 
-    public function getStreamsNames(): array
+    public function streamsNames(): array
     {
         return $this->streamsNames;
     }
 
-    public function getQueryFilter(): ProjectionQueryFilter
+    public function queryFilter(): ProjectionQueryFilter
     {
         return $this->queryFilter;
     }

@@ -3,60 +3,60 @@ declare(strict_types=1);
 
 namespace Chronhub\Projector\Projecting\Concern;
 
+use Chronhub\Contracts\Projecting\ProjectorContext;
 use Chronhub\Contracts\Projecting\ProjectorFactory;
 use Chronhub\Contracts\Query\ProjectionQueryFilter;
-use Chronhub\Projector\Projecting\Factory\ContextBuilder;
 use Closure;
 
 trait HasProjectorFactory
 {
-    protected ContextBuilder $builder;
+    protected ProjectorContext $context;
 
     public function initialize(Closure $initCallback): ProjectorFactory
     {
-        $this->builder->initialize($initCallback);
+        $this->context->initialize($initCallback);
 
         return $this;
     }
 
     public function withQueryFilter(ProjectionQueryFilter $queryFilter): ProjectorFactory
     {
-        $this->builder->withQueryFilter($queryFilter);
+        $this->context->withQueryFilter($queryFilter);
 
         return $this;
     }
 
     public function fromStreams(string ...$streamNames): ProjectorFactory
     {
-        $this->builder->fromStreams(...$streamNames);
+        $this->context->fromStreams(...$streamNames);
 
         return $this;
     }
 
     public function fromCategories(string ...$categories): ProjectorFactory
     {
-        $this->builder->fromCategories(...$categories);
+        $this->context->fromCategories(...$categories);
 
         return $this;
     }
 
     public function fromAll(): ProjectorFactory
     {
-        $this->builder->fromAll();
+        $this->context->fromAll();
 
         return $this;
     }
 
     public function when(array $eventHandlers): ProjectorFactory
     {
-        $this->builder->when($eventHandlers);
+        $this->context->when($eventHandlers);
 
         return $this;
     }
 
     public function whenAny(Closure $eventsHandler): ProjectorFactory
     {
-        $this->builder->whenAny($eventsHandler);
+        $this->context->whenAny($eventsHandler);
 
         return $this;
     }

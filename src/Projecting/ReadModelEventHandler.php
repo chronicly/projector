@@ -5,9 +5,9 @@ namespace Chronhub\Projector\Projecting;
 
 use Chronhub\Contracts\Projecting\PersistentReadModelProjector;
 use Chronhub\Contracts\Projecting\ReadModel;
-use Chronhub\Contracts\Projecting\ReadModelContextualEventHandler;
+use Chronhub\Contracts\Projecting\ReadModelEventHandler as ContextualEventHandler;
 
-final class ReadModelEventHandler implements ReadModelContextualEventHandler
+final class ReadModelEventHandler implements ContextualEventHandler
 {
     private PersistentReadModelProjector $projector;
     private ?string $streamName;

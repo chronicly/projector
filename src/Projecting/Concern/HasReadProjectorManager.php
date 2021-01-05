@@ -6,7 +6,6 @@ namespace Chronhub\Projector\Projecting\Concern;
 use Chronhub\Contracts\Model\ProjectionModel;
 use Chronhub\Contracts\Model\ProjectionProvider;
 use Chronhub\Projector\Exception\ProjectionNotFound;
-use function json_decode;
 
 trait HasReadProjectorManager
 {
@@ -31,7 +30,7 @@ trait HasReadProjectorManager
             throw ProjectionNotFound::withName($projectionName);
         }
 
-        return json_decode($projection->position());
+        return $this->jsonEncoder->decode($projection->position());
     }
 
     public function stateOf(string $projectionName): array
@@ -42,7 +41,7 @@ trait HasReadProjectorManager
             throw ProjectionNotFound::withName($projectionName);
         }
 
-        return json_decode($projection->state());
+        return $this->jsonEncoder->decode($projection->state());
     }
 
     public function filterNamesOf(string ...$projectionNames): array

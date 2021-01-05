@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace Chronhub\Projector\Projecting;
 
 use Chronhub\Contracts\Model\ProjectionProvider;
-use Chronhub\Contracts\Projecting\PersistentProjectorContext;
+use Chronhub\Contracts\Projecting\ProjectorContext;
 use Chronhub\Contracts\Projecting\ProjectorRepository as Repository;
 use Chronhub\Contracts\Projecting\ReadModel;
 use Chronhub\Contracts\Support\JsonEncoder;
@@ -20,7 +20,7 @@ final class ProjectorRepository implements Repository
 {
     private ?DateTimeImmutable $lastLockUpdate = null;
 
-    public function __construct(private PersistentProjectorContext $projectorContext,
+    public function __construct(private ProjectorContext $projectorContext,
                                 private ProjectionProvider $projectionProvider,
                                 private JsonEncoder $jsonEncoder,
                                 private string $streamName)

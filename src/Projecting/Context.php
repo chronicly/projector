@@ -4,53 +4,55 @@ declare(strict_types=1);
 namespace Chronhub\Projector\Projecting;
 
 use Chronhub\Contracts\Projecting\ContextualEventHandler;
+use Chronhub\Contracts\Projecting\EventCounter;
 use Chronhub\Contracts\Projecting\ProjectionState;
 use Chronhub\Contracts\Projecting\ProjectionStatus as Status;
 use Chronhub\Contracts\Projecting\ProjectorContext;
 use Chronhub\Contracts\Projecting\ProjectorOption;
+use Chronhub\Contracts\Projecting\StreamCache;
 use Chronhub\Contracts\Projecting\StreamPosition;
 use Chronhub\Contracts\Projecting\StreamPosition as Position;
-use Chronhub\Contracts\Query\ProjectionQueryFilter;
-use Chronhub\Projector\Projecting\Factory\ContextBuilder;
+use Chronhub\Projector\Projecting\Concern\HasContextFactory;
 use Closure;
 use JetBrains\PhpStorm\Pure;
 
 class Context implements ProjectorContext
 {
+    use HasContextFactory;
+
     private ?string $currentStreamName = null;
     private bool $isStopped = false;
-    private ?ContextBuilder $builder;
     private bool $keepRunning = false;
+    private bool $isStreamCreated = false;
 
     public function __construct(protected ProjectorOption $option,
                                 protected Position $position,
                                 protected ProjectionState $state,
-                                protected Status $status)
+                                protected Status $status,
+                                protected ?EventCounter $eventCounter,
+                                protected ?StreamCache $streamCache)
     {
     }
 
     /**
-     * @param ContextBuilder         $builder
      * @param ContextualEventHandler $eventHandler
      * @internal
      */
-    public function setUp(ContextBuilder $builder, ContextualEventHandler $eventHandler): void
+    public function setUp(ContextualEventHandler $eventHandler): void
     {
-        $initState = $builder->bindInitCallback($eventHandler);
+        $this->validate();
+
+        $initState = $this->bindInitCallback($eventHandler);
 
         $this->state->setState($initState);
 
-        $builder->bindEventHandlers($eventHandler);
-
-        $builder->validate();
-
-        $this->builder = $builder;
+        $this->bindEventHandlers($eventHandler);
     }
 
     #[Pure]
     public function hasSingleHandler(): bool
     {
-        return $this->builder->getEventHandlers() instanceof Closure;
+        return $this->eventHandlers() instanceof Closure;
     }
 
     public function isStopped(): bool
@@ -98,16 +100,6 @@ class Context implements ProjectorContext
         return $this->option;
     }
 
-    public function keepRunning(): bool
-    {
-        return $this->keepRunning;
-    }
-
-    public function withKeepRunning(bool $keepRunning): void
-    {
-        $this->keepRunning = $keepRunning;
-    }
-
     public function dispatchSignal(): void
     {
         if ($this->option->dispatchSignal()) {
@@ -115,27 +107,23 @@ class Context implements ProjectorContext
         }
     }
 
-    #[Pure]
-    public function initCallback(): Closure|array
+    public function counter(): ?EventCounter
     {
-        return $this->builder->getInitCallback();
+        return $this->eventCounter;
     }
 
-    #[Pure]
-    public function eventHandlers(): Closure|array
+    public function isStreamCreated(): bool
     {
-        return $this->builder->getEventHandlers();
+       return $this->isStreamCreated;
     }
 
-    #[Pure]
-    public function streamsNames(): array
+    public function setStreamCreated(): void
     {
-        return $this->builder->getStreamsNames();
+        $this->isStreamCreated = true;
     }
 
-    #[Pure]
-    public function queryFilter(): ProjectionQueryFilter
+    public function cache(): ?StreamCache
     {
-        return $this->builder->getQueryFilter();
+        return $this->streamCache;
     }
 }

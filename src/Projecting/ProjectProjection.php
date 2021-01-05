@@ -10,13 +10,12 @@ use Chronhub\Contracts\Messaging\DomainEvent;
 use Chronhub\Contracts\Messaging\MessageAlias;
 use Chronhub\Contracts\Projecting\ContextualEventHandler;
 use Chronhub\Contracts\Projecting\PersistentProjectionProjector;
-use Chronhub\Contracts\Projecting\ProjectionProjectorContext;
+use Chronhub\Contracts\Projecting\ProjectorContext;
 use Chronhub\Contracts\Projecting\ProjectorFactory;
 use Chronhub\Contracts\Projecting\ProjectorRepository;
 use Chronhub\Foundation\Message\Message;
 use Chronhub\Projector\Projecting\Concern\HasPersistentProjector;
 use Chronhub\Projector\Projecting\Concern\HasProjectorFactory;
-use Chronhub\Projector\Projecting\Factory\ContextBuilder;
 use JetBrains\PhpStorm\Pure;
 
 final class ProjectProjection implements PersistentProjectionProjector, ProjectorFactory
@@ -24,13 +23,12 @@ final class ProjectProjection implements PersistentProjectionProjector, Projecto
     use HasProjectorFactory, HasPersistentProjector;
 
     #[Pure]
-    public function __construct(protected ProjectionProjectorContext $context,
+    public function __construct(protected ProjectorContext $context,
                                 protected ProjectorRepository $repository,
                                 protected Chronicler $chronicler,
                                 protected MessageAlias $messageAlias,
                                 protected string $streamName)
     {
-        $this->builder = new ContextBuilder();
     }
 
     public function emit(DomainEvent $event): void
