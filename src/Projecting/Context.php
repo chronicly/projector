@@ -141,7 +141,7 @@ class Context implements ProjectorContext
 
             $result = $callback();
 
-            $this->initCallback = $result;
+            $this->initCallback = $callback;
 
             return $result;
         }
