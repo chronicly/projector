@@ -6,24 +6,27 @@ namespace Chronhub\Projector\Projecting\Concern;
 use Chronhub\Contracts\Chronicling\Chronicler;
 use Chronhub\Contracts\Messaging\MessageAlias;
 use Chronhub\Contracts\Projecting\ContextualEventHandler;
+use Chronhub\Contracts\Projecting\ProjectorContext;
 use Chronhub\Contracts\Projecting\ProjectorRepository;
 use Chronhub\Projector\Projecting\ProjectorRunner;
 
 trait HasPersistentProjector
 {
+    protected ProjectorContext $context;
     protected Chronicler $chronicler;
     protected ProjectorRepository $repository;
     protected MessageAlias $messageAlias;
+    protected string $streamName;
 
     public function run(bool $keepRunning = true): void
     {
         $this->context->withKeepRunning($keepRunning);
 
-        $this->context->setUp($this->createContextualEventHandler());
+        $this->context->bindContextualEventHandler($this->createContextualEventHandler());
 
         $processor = new ProjectorRunner($this, $this->chronicler, $this->messageAlias, $this->repository);
 
-        $processor->process($this->context);
+        $processor->run($this->context);
     }
 
     public function stop(): void

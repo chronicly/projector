@@ -9,6 +9,7 @@ use Chronhub\Contracts\Model\EventStreamProvider;
 use Chronhub\Contracts\Model\ProjectionProvider;
 use Chronhub\Contracts\Projecting\ProjectorContext;
 use Chronhub\Contracts\Projecting\ProjectorFactory;
+use Chronhub\Contracts\Projecting\ProjectorManager as Manager;
 use Chronhub\Contracts\Projecting\ProjectorOption;
 use Chronhub\Contracts\Projecting\ProjectorRepository as Repository;
 use Chronhub\Contracts\Projecting\ReadModel;
@@ -32,7 +33,7 @@ use Chronhub\Projector\Projecting\ReadModelRepository;
 use Illuminate\Database\QueryException;
 use JetBrains\PhpStorm\Pure;
 
-final class ProjectorManager implements \Chronhub\Contracts\Projecting\ProjectorManager
+final class ProjectorManager implements Manager
 {
     use HasReadProjectorManager;
 
@@ -59,7 +60,7 @@ final class ProjectorManager implements \Chronhub\Contracts\Projecting\Projector
 
     public function createProjection(string $streamName, array $options = []): ProjectorFactory
     {
-       $options = $this->newProjectorOption($options);
+        $options = $this->newProjectorOption($options);
 
         $context = $this->newProjectorContext(
             $options,
@@ -149,7 +150,7 @@ final class ProjectorManager implements \Chronhub\Contracts\Projecting\Projector
     #[Pure]
     private function newProjectorOption(array $options): ProjectorOption
     {
-        $options = empty($options) ? $this->options : $options;
+        $options = array_merge($this->options, $options);
 
         return new Option(...$options);
     }

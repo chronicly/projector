@@ -49,14 +49,14 @@ trait HasReadProjectorManager
         return $this->projectionProvider->findByNames(...$projectionNames);
     }
 
-    public function projectionExists(string $projectionName): bool
+    public function exists(string $projectionName): bool
     {
         return $this->projectionProvider->projectionExists($projectionName);
     }
 
     protected function assertProjectionNameExists(string $projectionName): void
     {
-        if (!$this->projectionExists($projectionName)) {
+        if (!$this->exists($projectionName)) {
             throw ProjectionNotFound::withName($projectionName);
         }
     }

@@ -16,32 +16,6 @@ trait HasContextFactory
     protected array $streamsNames = [];
     protected ?ProjectionQueryFilter $queryFilter = null;
 
-    public function bindEventHandlers(ContextualEventHandler $eventHandler): void
-    {
-        if ($this->eventHandlers instanceof Closure) {
-            $this->eventHandlers = Closure::bind($this->eventHandlers, $eventHandler);
-        } else {
-            foreach ($this->eventHandlers as $eventName => &$handler) {
-                $handler = Closure::bind($handler, $eventHandler);
-            }
-        }
-    }
-
-    public function bindInitCallback(ContextualEventHandler $eventHandler): array
-    {
-        if ($this->initCallback instanceof Closure) {
-            $callback = Closure::bind($this->initCallback, $eventHandler);
-
-            $result = $callback();
-
-            $this->initCallback = $result;
-
-            return $result;
-        }
-
-        return [];
-    }
-
     public function initialize(Closure $initCallback): ProjectorContext
     {
         if (null !== $this->initCallback) {

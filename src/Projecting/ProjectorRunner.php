@@ -6,10 +6,11 @@ namespace Chronhub\Projector\Projecting;
 use Chronhub\Contracts\Chronicling\Chronicler;
 use Chronhub\Contracts\Messaging\MessageAlias;
 use Chronhub\Contracts\Projecting\PersistentProjector;
-use Chronhub\Contracts\Projecting\Pipe;
 use Chronhub\Contracts\Projecting\Projector;
 use Chronhub\Contracts\Projecting\ProjectorContext;
 use Chronhub\Contracts\Projecting\ProjectorRepository;
+use Chronhub\Contracts\Projecting\QueryProjector;
+use Chronhub\Projector\Exception\InvalidArgumentException;
 use Chronhub\Projector\Projecting\Factory\Pipeline;
 use Chronhub\Projector\Projecting\Pipe\DispatchSignal;
 use Chronhub\Projector\Projecting\Pipe\HandleStreamEvent;
@@ -27,7 +28,7 @@ final class ProjectorRunner
     {
     }
 
-    public function process(ProjectorContext $context): void
+    public function run(ProjectorContext $context): void
     {
         try {
             $pipeline = new Pipeline();
@@ -46,11 +47,11 @@ final class ProjectorRunner
     }
 
     /**
-     * @return array<Pipe>
+     * @return array
      */
     private function getPipes(): array
     {
-        if (!$this->projector instanceof PersistentProjector) {
+        if ($this->projector instanceof QueryProjector) {
             return [
                 new PrepareQueryRunner(),
                 new HandleStreamEvent($this->chronicler, $this->messageAlias, null),
@@ -58,12 +59,16 @@ final class ProjectorRunner
             ];
         }
 
-        return [
-            new PreparePersistentRunner($this->projector, $this->repository),
-            new HandleStreamEvent($this->chronicler, $this->messageAlias, $this->repository),
-            new PersistOrSleepBeforeResetCounter($this->repository),
-            new DispatchSignal(),
-            new UpdateProjectionStatusAndPositions($this->projector, $this->repository)
-        ];
+        if ($this->projector instanceof PersistentProjector) {
+            return [
+                new PreparePersistentRunner($this->projector, $this->repository),
+                new HandleStreamEvent($this->chronicler, $this->messageAlias, $this->repository),
+                new PersistOrSleepBeforeResetCounter($this->repository),
+                new DispatchSignal(),
+                new UpdateProjectionStatusAndPositions($this->projector, $this->repository)
+            ];
+        }
+
+        throw new InvalidArgumentException("Invalid projector");
     }
 }

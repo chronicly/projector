@@ -34,11 +34,7 @@ class Context implements ProjectorContext
     {
     }
 
-    /**
-     * @param ContextualEventHandler $eventHandler
-     * @internal
-     */
-    public function setUp(ContextualEventHandler $eventHandler): void
+    public function bindContextualEventHandler(ContextualEventHandler $eventHandler): void
     {
         $this->validate();
 
@@ -125,5 +121,31 @@ class Context implements ProjectorContext
     public function cache(): ?StreamCache
     {
         return $this->streamCache;
+    }
+
+    private function bindEventHandlers(ContextualEventHandler $eventHandler): void
+    {
+        if ($this->eventHandlers instanceof Closure) {
+            $this->eventHandlers = Closure::bind($this->eventHandlers, $eventHandler);
+        } else {
+            foreach ($this->eventHandlers as $eventName => &$handler) {
+                $handler = Closure::bind($handler, $eventHandler);
+            }
+        }
+    }
+
+    private function bindInitCallback(ContextualEventHandler $eventHandler): array
+    {
+        if ($this->initCallback instanceof Closure) {
+            $callback = Closure::bind($this->initCallback, $eventHandler);
+
+            $result = $callback();
+
+            $this->initCallback = $result;
+
+            return $result;
+        }
+
+        return [];
     }
 }
