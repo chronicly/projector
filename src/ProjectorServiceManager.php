@@ -21,6 +21,10 @@ final class ProjectorServiceManager implements ServiceManager
      * @var array<string,callable>
      */
     protected array $customProjectors = [];
+
+    /**
+     * @var array<string,Manager>
+     */
     protected array $projectors = [];
     protected array $config;
 
@@ -49,7 +53,7 @@ final class ProjectorServiceManager implements ServiceManager
         $this->customProjectors[$name] = $projectorManager;
     }
 
-    private function resolveProjectorManager(string $name, array $config): ProjectorManager
+    private function resolveProjectorManager(string $name, array $config): Manager
     {
         if ($customProjector = $this->customProjectors[$name] ?? null) {
             return $customProjector($this->container, $config);
@@ -58,7 +62,7 @@ final class ProjectorServiceManager implements ServiceManager
         return $this->createDefaultProjectorManager($config);
     }
 
-    private function createDefaultProjectorManager(array $config): ProjectorManager
+    private function createDefaultProjectorManager(array $config): Manager
     {
         return new ProjectorManager(
             $this->container->get(ChroniclerManager::class)->create($config['chronicler']),
@@ -80,8 +84,13 @@ final class ProjectorServiceManager implements ServiceManager
     {
         $eventStreamKey = $config['event_stream_provider'];
 
-        $eventStream = $this->container[Repository::class]
-            ->get("chronicler.provider.$eventStreamKey");
+        $eventStream = $this->container[Repository::class]->get("chronicler.provider.$eventStreamKey");
+
+        if (!is_string($eventStream)) {
+            throw new RuntimeException(
+                "Unable to determine event stream provider with key $eventStreamKey"
+            );
+        }
 
         return $this->container->make($eventStream);
     }
@@ -91,6 +100,12 @@ final class ProjectorServiceManager implements ServiceManager
         $projectionKey = $config['provider'];
 
         $projection = $this->fromProjector("provider.$projectionKey") ?? null;
+
+        if (!is_string($projection)) {
+            throw new RuntimeException(
+                "Unable to determine projection provider with key $projectionKey"
+            );
+        }
 
         return $this->container->make($projection);
     }
