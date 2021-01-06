@@ -8,7 +8,7 @@ use Chronhub\Contracts\Messaging\MessageAlias;
 use Chronhub\Contracts\Projecting\ContextualEventHandler;
 use Chronhub\Contracts\Projecting\ProjectorContext;
 use Chronhub\Contracts\Projecting\ProjectorRepository;
-use Chronhub\Projector\ProjectorRunner;
+use Chronhub\Projector\PersistentRunner;
 
 trait HasPersistentProjector
 {
@@ -24,7 +24,7 @@ trait HasPersistentProjector
 
         $this->context->bindContextualEventHandler($this->createContextualEventHandler());
 
-        $processor = new ProjectorRunner($this, $this->chronicler, $this->messageAlias, $this->repository);
+        $processor = new PersistentRunner($this, $this->chronicler, $this->messageAlias, $this->repository);
 
         $processor->run($this->context);
     }

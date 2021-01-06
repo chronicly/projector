@@ -124,7 +124,7 @@ final class ProjectorManager implements Manager
         try {
             $result = $this->projectionProvider->updateProjection(
                 $streamName,
-                ['status' => $projectionStatus->getValue()]
+                ['status' => $projectionStatus->ofValue()]
             );
         } catch (QueryException $exception) {
             throw QueryFailure::fromQueryException($exception);
