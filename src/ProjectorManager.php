@@ -16,20 +16,17 @@ use Chronhub\Contracts\Projecting\ReadModel;
 use Chronhub\Contracts\Query\ProjectionQueryScope;
 use Chronhub\Contracts\Support\JsonEncoder;
 use Chronhub\Foundation\Exception\QueryFailure;
-use Chronhub\Projector\Projecting\Concern\HasReadProjectorManager;
-use Chronhub\Projector\Projecting\Context;
-use Chronhub\Projector\Projecting\Factory\EventCounter;
-use Chronhub\Projector\Projecting\Factory\InMemoryState;
-use Chronhub\Projector\Projecting\Factory\Option;
-use Chronhub\Projector\Projecting\Factory\ProjectionStatus;
-use Chronhub\Projector\Projecting\Factory\StreamCache;
-use Chronhub\Projector\Projecting\Factory\StreamPosition;
-use Chronhub\Projector\Projecting\ProjectionRepository;
-use Chronhub\Projector\Projecting\ProjectorRepository;
-use Chronhub\Projector\Projecting\ProjectProjection;
-use Chronhub\Projector\Projecting\ProjectQuery;
-use Chronhub\Projector\Projecting\ProjectReadModel;
-use Chronhub\Projector\Projecting\ReadModelRepository;
+use Chronhub\Projector\Concern\HasReadProjectorManager;
+use Chronhub\Projector\Context\Context;
+use Chronhub\Projector\Factory\EventCounter;
+use Chronhub\Projector\Factory\InMemoryState;
+use Chronhub\Projector\Factory\Option;
+use Chronhub\Projector\Factory\ProjectionStatus;
+use Chronhub\Projector\Factory\StreamCache;
+use Chronhub\Projector\Factory\StreamPosition;
+use Chronhub\Projector\Repository\ProjectionRepository;
+use Chronhub\Projector\Repository\ProjectorRepository;
+use Chronhub\Projector\Repository\ReadModelRepository;
 use Illuminate\Database\QueryException;
 use JetBrains\PhpStorm\Pure;
 
@@ -42,7 +39,7 @@ final class ProjectorManager implements Manager
                                 protected ProjectionProvider $projectionProvider,
                                 private MessageAlias $messageAlias,
                                 private ProjectionQueryScope $projectionQueryScope,
-                                private JsonEncoder $jsonEncoder,
+                                protected JsonEncoder $jsonEncoder,
                                 private array $options = [])
     {
     }
@@ -68,13 +65,13 @@ final class ProjectorManager implements Manager
             new StreamCache($options->persistBlockSize())
         );
 
-        $decorator = new ProjectionRepository(
+        $repository = new ProjectionRepository(
             $this->newProjectorRepository($streamName, $context),
             $this->chronicler
         );
 
         return new ProjectProjection(
-            $context, $decorator, $this->chronicler, $this->messageAlias, $streamName
+            $context, $repository, $this->chronicler, $this->messageAlias, $streamName
         );
     }
 
@@ -88,14 +85,13 @@ final class ProjectorManager implements Manager
             null
         );
 
-        $repository = new ProjectorRepository(
-            $context, $this->projectionProvider, $this->jsonEncoder, $streamName
+        $repository = new ReadModelRepository(
+            $this->newProjectorRepository($streamName, $context),
+            $readModel
         );
 
-        $decorator = new ReadModelRepository($repository, $readModel);
-
         return new ProjectReadModel(
-            $context, $decorator, $this->chronicler, $this->messageAlias, $streamName, $readModel
+            $context, $repository, $this->chronicler, $this->messageAlias, $streamName, $readModel
         );
     }
 
