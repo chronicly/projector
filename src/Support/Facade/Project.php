@@ -56,6 +56,10 @@ final class Project extends Facade
 
         $queryScope = $queryScope ?? $projector->queryScope();
 
+        if (is_string($readModel)) {
+            $readModel = self::$app->make($readModel);
+        }
+
         return $projector
             ->createReadModelProjection($streamName, $readModel, $options)
             ->withQueryFilter($queryScope->fromIncludedPosition());
