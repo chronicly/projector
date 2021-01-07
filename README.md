@@ -1,6 +1,6 @@
 # Projector
 
-Projection and read model
+Projection and read model  
 ![Tests](https://github.com/chronhub/projector/workflows/Tests/badge.svg)
 
 ## Install
