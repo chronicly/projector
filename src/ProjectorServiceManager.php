@@ -20,13 +20,13 @@ final class ProjectorServiceManager implements ServiceManager
     /**
      * @var array<string,callable>
      */
-    protected array $customProjectors = [];
+    private array $customProjectors = [];
 
     /**
      * @var array<string,Manager>
      */
-    protected array $projectors = [];
-    protected array $config;
+    private array $projectors = [];
+    private array $config;
 
     public function __construct(protected Container $container)
     {
@@ -75,7 +75,7 @@ final class ProjectorServiceManager implements ServiceManager
         );
     }
 
-    protected function determineProjectorOptions(?string $optionKey): array
+    private function determineProjectorOptions(?string $optionKey): array
     {
         return $this->fromProjector("options.$optionKey") ?? [];
     }
