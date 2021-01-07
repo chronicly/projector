@@ -9,7 +9,7 @@ use Chronhub\Contracts\Query\ProjectionQueryScope;
 use Chronhub\Projector\Exception\RuntimeException;
 use Illuminate\Database\Query\Builder;
 
-class ProjectionPgsqlQueryScope extends PgsqlConnectionQueryScope implements ProjectionQueryScope
+class PgsqlProjectionQueryScope extends PgsqlConnectionQueryScope implements ProjectionQueryScope
 {
     public function fromIncludedPosition(): ProjectionQueryFilter
     {

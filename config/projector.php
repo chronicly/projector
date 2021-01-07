@@ -13,7 +13,7 @@ return [
             'options' => 'lazy',
             'provider' => 'eloquent',
             'event_stream_provider' => 'eloquent', // key from chronicler config,
-            'scope' => \Chronhub\Projector\Support\Scope\ProjectionPgsqlQueryScope::class
+            'scope' => \Chronhub\Projector\Support\Scope\PgsqlProjectionQueryScope::class
         ],
     ],
 
