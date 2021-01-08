@@ -25,7 +25,7 @@ final class PersistentRunner
     {
     }
 
-    public function run(ProjectorContext $context): void
+    public function __invoke(ProjectorContext $context): void
     {
         try {
             $pipeline = new Pipeline();

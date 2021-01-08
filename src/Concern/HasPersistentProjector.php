@@ -24,9 +24,9 @@ trait HasPersistentProjector
 
         $this->context->bindContextualEventHandler($this->createContextualEventHandler());
 
-        $processor = new PersistentRunner($this, $this->chronicler, $this->messageAlias, $this->repository);
+        $runner = new PersistentRunner($this, $this->chronicler, $this->messageAlias, $this->repository);
 
-        $processor->run($this->context);
+        $runner($this->context);
     }
 
     public function stop(): void
