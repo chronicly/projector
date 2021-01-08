@@ -109,7 +109,8 @@ final class InMemoryProjectionProviderTest extends TestCase
         $now = (new SystemClock())->pointInTime();
         $lock = $now->add('PT1H');
 
-        $provider->acquireLock('foo', 'running', $lock->toString(), $now->toString());
+        $acquired = $provider->acquireLock('foo', 'running', $lock->toString(), $now->toString());
+        $this->assertTrue($acquired);
 
         $projection = $provider->findByName('foo');
 
@@ -134,5 +135,28 @@ final class InMemoryProjectionProviderTest extends TestCase
 
         $provider->acquireLock('foo', 'running', $now->toString(), $now->toString());
         $this->assertEquals($now->toString(), $provider->findByName('foo')->lockedUntil());
+    }
+
+    /**
+     * @test
+     */
+    public function it_does_not_acquire_lock_with_now_is_less_than_lock_projection(): void
+    {
+        $provider = new InMemoryProjectionProvider();
+
+        $this->assertTrue($provider->createProjection('foo', 'idle'));
+        $this->assertNull($provider->findByName('foo')->lockedUntil());
+
+        $now = (new SystemClock())->pointInTime();
+        $lock = $now->add('PT1H');
+        $acquired = $provider->acquireLock('foo', 'running', $lock->toString(), $now->toString());
+
+        $this->assertTrue($acquired);
+        $this->assertEquals($lock->toString(), $provider->findByName('foo')->lockedUntil());
+
+        $notAcquired = $provider->acquireLock('foo', 'running', $lock->toString(), $now->toString());
+        $this->assertFalse($notAcquired);
+
+        $this->assertEquals($lock->toString(), $provider->findByName('foo')->lockedUntil());
     }
 }
