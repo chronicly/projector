@@ -8,10 +8,9 @@ use Chronhub\Contracts\Messaging\MessageAlias;
 use Chronhub\Contracts\Projecting\ProjectorContext;
 use Chronhub\Contracts\Projecting\ProjectorFactory;
 use Chronhub\Contracts\Projecting\QueryProjector;
+use Chronhub\Projector\Concern\HasProjectorFactory;
 use Chronhub\Projector\Context\ContextualQuery;
 use Chronhub\Projector\Exception\InvalidArgumentException;
-use Chronhub\Projector\Concern\HasProjectorFactory;
-use Closure;
 use JetBrains\PhpStorm\Pure;
 use function is_array;
 
@@ -50,16 +49,8 @@ final class ProjectQuery implements QueryProjector, ProjectorFactory
     {
         $this->context->position()->reset();
 
-        $callback = $this->context->initCallback();
-
-        if ($callback instanceof Closure) {
-            $state = $callback();
-
-            if (is_array($state)) {
-                $this->context->state()->setState($state);
-
-                return;
-            }
+        if (is_array($state = $this->context->resetStateWithInitialize())) {
+            return;
         }
 
         $this->context->state()->resetState();

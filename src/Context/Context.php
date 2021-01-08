@@ -45,6 +45,25 @@ class Context implements ProjectorContext
         $this->bindEventHandlers($eventHandler);
     }
 
+    public function resetStateWithInitialize(): ?array
+    {
+        $this->state->resetState();
+
+        $callback = $this->initCallback;
+
+        if (is_callable($callback)) {
+            $state = $callback();
+
+            if (is_array($state)) {
+                $this->state()->setState($callback());
+
+                return $state;
+            }
+        }
+
+        return null;
+    }
+
     #[Pure]
     public function hasSingleHandler(): bool
     {
@@ -110,7 +129,7 @@ class Context implements ProjectorContext
 
     public function isStreamCreated(): bool
     {
-       return $this->isStreamCreated;
+        return $this->isStreamCreated;
     }
 
     public function setStreamCreated(): void

@@ -137,13 +137,7 @@ final class ProjectorRepository implements Repository
     {
         $this->projectorContext->position()->reset();
 
-        $callback = $this->projectorContext->initCallback();
-
-        $this->projectorContext->state()->resetState();
-
-        if (is_callable($callback)) {
-            $this->projectorContext->state()->setState($callback());
-        }
+        $this->projectorContext->resetStateWithInitialize();
 
         try {
             $result = $this->projectionProvider->updateProjection($this->streamName, [
@@ -180,13 +174,8 @@ final class ProjectorRepository implements Repository
 
         return function () use ($context): void {
             $context->stopProjection(true);
-            $context->state()->resetState();
 
-            $callback = $context->initCallback();
-
-            if (is_callable($callback)) {
-                $context->state()->setState($callback());
-            }
+            $context->resetStateWithInitialize();
 
             $context->position()->reset();
         };
