@@ -70,7 +70,7 @@ final class HandleStreamEvent implements Pipe
 
             if (is_array($eventHandlers)) {
                 if (!$messageHandler = $this->determineEventHandler($streamEvent, $eventHandlers)) {
-                    if ($this->repository) {
+                    if ($this->isPersistent) {
                         $this->persistOnReachedCounter($context);
                     }
 
