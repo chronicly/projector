@@ -97,7 +97,7 @@ final class InMemoryProjectionProvider implements ProjectionProvider
             return true;
         }
 
-        return false; // checkMe
+        return false;
     }
 
     private function shouldUpdateLock(ProjectionModel $model, string $now): bool

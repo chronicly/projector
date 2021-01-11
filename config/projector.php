@@ -5,6 +5,8 @@ use Chronhub\Contracts\Projecting\ProjectorOption;
 return [
     'provider' => [
         'eloquent' => \Chronhub\Projector\Model\Projection::class,
+
+        'in_memory' => \Chronhub\Projector\Model\InMemoryProjectionProvider::class
     ],
 
     'projectors' => [
@@ -15,6 +17,14 @@ return [
             'event_stream_provider' => 'eloquent', // key from chronicler config,
             'scope' => \Chronhub\Projector\Support\Scope\PgsqlProjectionQueryScope::class
         ],
+
+        'in_memory' => [
+            'chronicler' => 'in_memory',
+            'options' => 'in_memory',
+            'provider' => 'in_memory',
+            'event_stream_provider' => 'in_memory', // key from chronicler config,
+            'scope' => \Chronhub\Projector\Support\Scope\InMemoryProjectionQueryScope::class
+        ]
     ],
 
     'options' => [
@@ -28,10 +38,10 @@ return [
 
         'in_memory' => [
             ProjectorOption::OPTION_PCNTL_DISPATCH => false,
-            ProjectorOption::OPTION_LOCK_TIMEOUT_MS => 1,
-            ProjectorOption::OPTION_SLEEP => 1,
-            ProjectorOption::OPTION_UPDATE_LOCK_THRESHOLD => 1,
-            ProjectorOption::OPTION_PERSIST_BLOCK_SIZE => 1,
+            ProjectorOption::OPTION_LOCK_TIMEOUT_MS => 0, // 0 === threshold, timeout has not effect
+            ProjectorOption::OPTION_UPDATE_LOCK_THRESHOLD => 0,
+            ProjectorOption::OPTION_SLEEP => 0,
+            ProjectorOption::OPTION_PERSIST_BLOCK_SIZE => 1,// 1 === persist block size, sleep has no effect
         ],
     ],
 
