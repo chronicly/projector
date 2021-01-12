@@ -12,12 +12,11 @@ use Chronhub\Projector\Model\Projection;
 use Chronhub\Projector\ProjectorServiceProvider;
 use Chronhub\Projector\Support\LockTime;
 use Chronhub\Projector\Tests\TestWithOrchestra;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Schema;
 
 final class ItTestEloquentProjection extends TestWithOrchestra
 {
-    private ProjectionProvider $projectionProvider;
+    private Projection|ProjectionProvider $projectionProvider;
 
     /**
      * @test
@@ -40,7 +39,7 @@ final class ItTestEloquentProjection extends TestWithOrchestra
 
         $this->assertTrue($this->projectionProvider->projectionExists('user'));
 
-        /** @var Model|Projection $model */
+        /** @var Projection $model */
         $model = $this->projectionProvider->findByName('user');
 
         $this->assertInstanceOf(ProjectionModel::class, $model);
@@ -190,7 +189,6 @@ final class ItTestEloquentProjection extends TestWithOrchestra
         $this->assertEquals('running', $this->projectionProvider->findByName('user')->status());
         $newLock = $this->projectionProvider->findByName('user')->lockedUntil();
 
-
         $this->assertNotEquals($nullLock, $newLock);
         $this->assertEquals($waitTime, $newLock);
 
@@ -204,14 +202,21 @@ final class ItTestEloquentProjection extends TestWithOrchestra
         $this->assertTrue($result);
     }
 
+    /**
+     * @test
+     */
+    public function it_return_false_on_query_exception(): void
+    {
+        $this->projectionProvider->table = 'foo';
+
+        $this->assertFalse($this->projectionProvider->projectionExists('user'));
+    }
+
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->projectionProvider = $this->app->instance(
-            ProjectionProvider::class,
-            $this->app->make(config('projector.provider.eloquent'))
-        );
+        $this->projectionProvider = new Projection();
 
         // fixMe service provider should load the migration itself
         $this->loadMigrationsFrom(__DIR__ . '/../../database/migrations');
@@ -234,7 +239,7 @@ final class ItTestEloquentProjection extends TestWithOrchestra
             'prefix' => '',
         ]);
 
-        $app['config']->set('projector.provider.eloquent', Projection::class);
+        //$app['config']->set('projector.provider.eloquent', Projection::class);
         $app['config']->set('projector.console.load_migrations', true);
     }
 }

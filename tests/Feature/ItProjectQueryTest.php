@@ -137,4 +137,41 @@ final class ItProjectQueryTest extends InMemoryTestWithOrchestra
 
         $this->assertEquals(['username' => $this->userName, 'count' => 1], $projection->getState());
     }
+
+    /**
+     * @test
+     */
+    public function it_reset_query_projection_to_initial_state(): void
+    {
+        $this->setupFirstCommit();
+        $this->setupSecondCommit();
+
+        $projector = $this->projectorManager;
+
+        $projection = $projector->createQuery()
+            ->initialize(fn(): array => ['username' => 'invalid_user_name', 'count' => 0])
+            ->withQueryFilter($projector->queryScope()->fromIncludedPosition())
+            ->fromStreams($this->streamName->toString())
+            ->whenAny(function (AggregateChanged $event, array $state): array {
+                if ($event instanceof UserRegistered) {
+                    $state['username'] = $event->toPayload()['name'];
+                    $state['count']++;
+                }
+
+                if ($event instanceof UsernameChanged) {
+                    $state['username'] = $event->toPayload()['new_name'];
+                    $state['count']++;
+                }
+
+                return $state;
+            });
+
+        $projection->run(false);
+
+        $this->assertEquals(['username' => $this->newUserName, 'count' => 2], $projection->getState());
+
+        $projection->reset();
+
+        $this->assertEquals(['username' => 'invalid_user_name', 'count' => 0], $projection->getState());
+    }
 }

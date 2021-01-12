@@ -142,6 +142,50 @@ final class ItAssertProjectorManagerTest extends InMemoryTestWithOrchestra
     /**
      * @test
      */
+    public function it_delete_projection_with_emitted_events(): void
+    {
+        $test = $this;
+
+        $this->setupFirstCommit();
+
+        $projector = $this->projectorManager;
+
+        $this->assertFalse($projector->exists('user'));
+
+        $projection = $projector->createProjection('user');
+        $projection
+            ->initialize(fn(): array => ['run' => false])
+            ->withQueryFilter($this->projectorManager->queryScope()->fromIncludedPosition())
+            ->fromStreams($this->streamName->toString())
+            ->whenAny(function (AggregateChanged $event, array $state) use ($test, $projector): array {
+                $test->assertEquals(ProjectionStatus::RUNNING, $projector->statusOf('user'));
+                $test->assertEquals([], $projector->streamPositionsOf('user'));
+                $test->assertEquals([], $projector->stateOf('user'));
+
+                $state['run'] = true;
+
+                return $state;
+            });
+
+        $projection->run(false);
+
+        $projector->delete('user', true);
+
+        $this->assertTrue($projector->exists('user'));
+        $this->assertEquals(ProjectionStatus::DELETING_EMITTED_EVENTS, $projector->statusOf('user'));
+        $this->assertEquals(["user" => 1], $projector->streamPositionsOf('user'));
+        $this->assertEquals(["run" => true], $projector->stateOf('user'));
+        $this->assertTrue($projection->getState()['run']);
+
+        $projection->run(false);
+
+        $this->assertFalse($projector->exists('user'));
+        $this->assertFalse($projection->getState()['run']);
+    }
+
+    /**
+     * @test
+     */
     public function it_stop_projection(): void
     {
         $test = $this;
