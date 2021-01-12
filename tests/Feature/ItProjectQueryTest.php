@@ -9,14 +9,12 @@ use Chronhub\Projector\Tests\Double\User\UsernameChanged;
 use Chronhub\Projector\Tests\Double\User\UserRegistered;
 use Chronhub\Projector\Tests\InMemoryTestWithOrchestra;
 
-final class ItProjectQuery extends InMemoryTestWithOrchestra
+final class ItProjectQueryTest extends InMemoryTestWithOrchestra
 {
     /**
-     * Specific for in memory projection to demonstrate
-     * the state is reset on each run
      * @test
      */
-    public function it_project_query(): void
+    public function it_project_query_and_reset_state_on_each_run(): void
     {
         $this->setupFirstCommit();
 
@@ -103,5 +101,40 @@ final class ItProjectQuery extends InMemoryTestWithOrchestra
             });
 
         $projection->run(true);
+    }
+
+    /**
+     * @test
+     */
+    public function it_stop_query_projection(): void
+    {
+        $this->setupFirstCommit();
+        $this->setupSecondCommit();
+
+        $projector = $this->projectorManager;
+
+        $projection = $projector->createQuery()
+            ->initialize(fn(): array => ['username' => 'invalid_user_name', 'count' => 0])
+            ->withQueryFilter($projector->queryScope()->fromIncludedPosition())
+            ->fromStreams($this->streamName->toString())
+            ->whenAny(function (AggregateChanged $event, array $state): array {
+                if ($event instanceof UserRegistered) {
+                    $state['username'] = $event->toPayload()['name'];
+                    $state['count']++;
+
+                    $this->stop();
+                }
+
+                if ($event instanceof UsernameChanged) {
+                    $state['username'] = $event->toPayload()['new_name'];
+                    $state['count']++;
+                }
+
+                return $state;
+            });
+
+        $projection->run(false);
+
+        $this->assertEquals(['username' => $this->userName, 'count' => 1], $projection->getState());
     }
 }

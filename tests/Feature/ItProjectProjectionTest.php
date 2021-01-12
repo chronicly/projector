@@ -7,9 +7,12 @@ use Chronhub\Chronicler\Stream\StreamName;
 use Chronhub\Contracts\Aggregate\AggregateChanged;
 use Chronhub\Contracts\Messaging\MessageHeader;
 use Chronhub\Contracts\Stream\NamedStream;
+use Chronhub\Projector\Tests\Double\User\UsernameChanged;
+use Chronhub\Projector\Tests\Double\User\UserRegistered;
 use Chronhub\Projector\Tests\InMemoryTestWithOrchestra;
+use RuntimeException;
 
-final class ItProjectProjection extends InMemoryTestWithOrchestra
+final class ItProjectProjectionTest extends InMemoryTestWithOrchestra
 {
     private NamedStream $projectionStreamName;
 
@@ -65,10 +68,10 @@ final class ItProjectProjection extends InMemoryTestWithOrchestra
 
                 $this->linkTo('user-' . $aggregateId->toString(), $event);
 
-                $state['count'] ++;
+                $state['count']++;
 
                 return $state;
-            })->run(false);
+            });
 
         $projection->run(false);
 
@@ -83,6 +86,39 @@ final class ItProjectProjection extends InMemoryTestWithOrchestra
         $this->assertTrue($this->projectorManager->exists($this->streamName->toString()));
 
         $this->assertTrue($this->chronicler->hasStream($this->projectionStreamName));
+    }
+
+    /**
+     * @test
+     */
+    public function it_stop_projection(): void
+    {
+        $this->setupFirstCommit();
+        $this->setupSecondCommit();
+
+        $projection = $this->projectorManager->createProjection('user');
+
+        $projection
+            ->initialize(fn(): array => ['count' => 0])
+            ->withQueryFilter($this->projectorManager->queryScope()->fromIncludedPosition())
+            ->fromStreams('user')
+            ->whenAny(function (AggregateChanged $event, array $state): array {
+                if ($event instanceof UserRegistered) {
+                    $state['count']++;
+                    $this->emit($event);
+                    $this->stop();
+                }
+
+                if ($event instanceof UsernameChanged) {
+                    throw new RuntimeException("Should not be called");
+                }
+
+                return $state;
+            });
+
+        $projection->run(false);
+
+        $this->assertEquals(1, $projection->getState()['count']);
     }
 
     protected function setUp(): void
