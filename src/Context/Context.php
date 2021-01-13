@@ -14,7 +14,6 @@ use Chronhub\Contracts\Projecting\StreamPosition;
 use Chronhub\Contracts\Projecting\StreamPosition as Position;
 use Chronhub\Projector\Concern\HasContextFactory;
 use Closure;
-use JetBrains\PhpStorm\Pure;
 
 class Context implements ProjectorContext
 {
@@ -64,10 +63,9 @@ class Context implements ProjectorContext
         return null;
     }
 
-    #[Pure]
-    public function hasSingleHandler(): bool
+    public function state(): ProjectionState
     {
-        return $this->eventHandlers() instanceof Closure;
+        return $this->state;
     }
 
     public function isStopped(): bool
@@ -75,14 +73,14 @@ class Context implements ProjectorContext
         return $this->isStopped;
     }
 
-    public function setCurrentStreamName(string $streamName): void
-    {
-        $this->currentStreamName = $streamName;
-    }
-
     public function stopProjection(bool $stopProjection): void
     {
         $this->isStopped = $stopProjection;
+    }
+
+    public function setCurrentStreamName(string $streamName): void
+    {
+        $this->currentStreamName = $streamName;
     }
 
     public function currentStreamName(): ?string
@@ -90,9 +88,21 @@ class Context implements ProjectorContext
         return $this->currentStreamName;
     }
 
-    public function state(): ProjectionState
+    public function dispatchSignal(): void
     {
-        return $this->state;
+        if ($this->option->dispatchSignal()) {
+            pcntl_signal_dispatch();
+        }
+    }
+
+    public function isStreamCreated(): bool
+    {
+        return $this->isStreamCreated;
+    }
+
+    public function setStreamCreated(): void
+    {
+        $this->isStreamCreated = true;
     }
 
     public function setStatus(Status $status): void
@@ -115,26 +125,9 @@ class Context implements ProjectorContext
         return $this->option;
     }
 
-    public function dispatchSignal(): void
-    {
-        if ($this->option->dispatchSignal()) {
-            pcntl_signal_dispatch();
-        }
-    }
-
     public function counter(): ?EventCounter
     {
         return $this->eventCounter;
-    }
-
-    public function isStreamCreated(): bool
-    {
-        return $this->isStreamCreated;
-    }
-
-    public function setStreamCreated(): void
-    {
-        $this->isStreamCreated = true;
     }
 
     public function cache(): ?StreamCache
