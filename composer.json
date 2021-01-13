@@ -28,20 +28,6 @@
         "phpunit/phpunit": "^9.4",
         "roave/security-advisories": "dev-master"
     },
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/chronhub/foundation.git"
-        },
-        {
-            "type": "vcs",
-            "url": "https://github.com/chronhub/contracts.git"
-        },
-        {
-            "type": "vcs",
-            "url": "https://github.com/chronhub/chronicler.git"
-        }
-    ],
     "autoload": {
         "psr-4": {
             "Chronhub\\Projector\\": "src"
