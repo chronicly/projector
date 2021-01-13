@@ -6,7 +6,7 @@
     "authors": [
         {
             "name": "steph bug",
-            "email": "chronhub@gmail.com"
+            "email": "chronhubgit@gmail.com"
         }
     ],
     "require": {
@@ -20,7 +20,7 @@
     },
     "require-dev": {
         "jetbrains/phpstorm-attributes": "9999999-dev",
-        "laravel/framework": "^8.2",
+        "laravel/framework": "8.x",
         "nunomaduro/larastan": "0.6.x-dev",
         "orchestra/testbench": "9999999-dev",
         "phpspec/prophecy-phpunit": "dev-master",
