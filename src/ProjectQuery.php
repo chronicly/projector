@@ -26,6 +26,8 @@ final class ProjectQuery implements QueryProjector, ProjectorFactory
 
     public function run(bool $keepRunning = true): void
     {
+        $this->context->withKeepRunning($keepRunning);
+
         $currentStreamName = $this->context->currentStreamName();
 
         $this->context->bindContextualEventHandler(new ContextualQuery($this, $currentStreamName));
