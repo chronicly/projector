@@ -8,6 +8,7 @@ use Chronhub\Contracts\Messaging\MessageAlias;
 use Chronhub\Contracts\Projecting\ContextualEventHandler;
 use Chronhub\Contracts\Projecting\ProjectorContext;
 use Chronhub\Contracts\Projecting\ProjectorRepository;
+use Chronhub\Projector\Factory\RunnerController;
 use Chronhub\Projector\PersistentRunner;
 
 trait HasPersistentProjector
@@ -18,9 +19,11 @@ trait HasPersistentProjector
     protected MessageAlias $messageAlias;
     protected string $streamName;
 
-    public function run(bool $keepRunning = true): void
+    public function run(bool $inBackground, ?callable $callback = null): void
     {
-        $this->context->withKeepRunning($keepRunning);
+        $this->context->withRunner(
+            new RunnerController($inBackground, false, $callback)
+        );
 
         $this->context->bindContextualEventHandler($this->createContextualEventHandler());
 

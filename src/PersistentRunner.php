@@ -34,8 +34,8 @@ final class PersistentRunner
             do {
                 $isStopped = $pipeline
                     ->send($context)
-                    ->then(fn(ProjectorContext $context): bool => $context->isStopped());
-            } while ($context->keepRunning() && !$isStopped);
+                    ->then(fn(ProjectorContext $context): bool => $context->runner()->isStopped());
+            } while ($context->runner()->inBackground() && !$isStopped);
         } finally {
             $this->repository->releaseLock();
         }

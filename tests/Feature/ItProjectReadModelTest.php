@@ -43,7 +43,7 @@ final class ItProjectReadModelTest extends InMemoryTestWithOrchestra
 
         $user = $readModel->findById($this->aggregateId->toString());
 
-        $this->assertEquals($this->userName, $user->name());
+        $this->assertEquals($this->username, $user->name());
 
         $this->setupSecondCommit();
 
@@ -53,7 +53,7 @@ final class ItProjectReadModelTest extends InMemoryTestWithOrchestra
 
         $user = $readModel->findById($this->aggregateId->toString());
 
-        $this->assertEquals($this->newUserName, $user->name());
+        $this->assertEquals($this->newUsername, $user->name());
     }
 
     /**
@@ -85,7 +85,7 @@ final class ItProjectReadModelTest extends InMemoryTestWithOrchestra
 
         $user = $readModel->findById($this->aggregateId->toString());
 
-        $this->assertEquals($this->userName, $user->name());
+        $this->assertEquals($this->username, $user->name());
     }
 
     private function projectReadModel(): ReadModel

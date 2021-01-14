@@ -29,7 +29,7 @@ final class ProjectorRepository implements Repository
 
     public function prepare(?ReadModel $readModel): void
     {
-        $this->projectorContext->stopProjection(false);
+        $this->projectorContext->runner()->stop(false);
 
         if (!$this->isProjectionExists()) {
             $this->create();
@@ -68,7 +68,7 @@ final class ProjectorRepository implements Repository
     {
         $this->persist();
 
-        $this->projectorContext->stopProjection(true);
+        $this->projectorContext->runner()->stop(true);
         $idleProjection = ProjectionStatus::IDLE();
 
         try {
@@ -90,7 +90,7 @@ final class ProjectorRepository implements Repository
 
     public function startAgain(): void
     {
-        $this->projectorContext->stopProjection(false);
+        $this->projectorContext->runner()->stop(false);
         $runningStatus = ProjectionStatus::RUNNING();
         $now = LockTime::fromNow();
 
@@ -173,7 +173,7 @@ final class ProjectorRepository implements Repository
         $context = $this->projectorContext;
 
         return function () use ($context): void {
-            $context->stopProjection(true);
+            $context->runner()->stop(true);
 
             $context->resetStateWithInitialize();
 

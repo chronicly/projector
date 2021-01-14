@@ -4,9 +4,9 @@ declare(strict_types=1);
 namespace Chronhub\Projector\Concern;
 
 use Chronhub\Contracts\Projecting\ProjectorContext;
+use Chronhub\Contracts\Projecting\ProjectorRunner;
 use Chronhub\Contracts\Query\ProjectionQueryFilter;
 use Chronhub\Projector\Exception\RuntimeException;
-use Chronhub\Projector\Factory\RunnerController;
 use Closure;
 
 trait HasContextFactory
@@ -15,7 +15,7 @@ trait HasContextFactory
     protected Closure|array|null $eventHandlers = null;
     protected array $streamsNames = [];
     protected ?ProjectionQueryFilter $queryFilter = null;
-    protected ?RunnerController $runner = null;
+    protected ProjectorRunner $runner;
 
     public function initialize(Closure $initCallback): ProjectorContext
     {
@@ -84,24 +84,14 @@ trait HasContextFactory
         return $this;
     }
 
-    public function withRunner(RunnerController $runnerController): void
+    public function withRunner(ProjectorRunner $runnerController): void
     {
         $this->runner = $runnerController;
     }
 
-    public function runner(): RunnerController
+    public function runner(): ProjectorRunner
     {
-        return $this->runner();
-    }
-
-    public function keepRunning(): bool
-    {
-        return $this->keepRunning;
-    }
-
-    public function withKeepRunning(bool $keepRunning): void
-    {
-        $this->keepRunning = $keepRunning;
+        return $this->runner;
     }
 
     public function initCallback(): ?Closure

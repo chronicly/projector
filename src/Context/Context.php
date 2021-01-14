@@ -65,21 +65,6 @@ class Context implements ProjectorContext
         return null;
     }
 
-    public function state(): ProjectionState
-    {
-        return $this->state;
-    }
-
-    public function isStopped(): bool
-    {
-        return $this->isStopped;
-    }
-
-    public function stopProjection(bool $stopProjection): void
-    {
-        $this->isStopped = $stopProjection;
-    }
-
     public function setCurrentStreamName(string $streamName): void
     {
         $this->currentStreamName = $streamName;
@@ -105,6 +90,11 @@ class Context implements ProjectorContext
     public function setStreamCreated(): void
     {
         $this->isStreamCreated = true;
+    }
+
+    public function state(): ProjectionState
+    {
+        return $this->state;
     }
 
     public function setStatus(Status $status): void

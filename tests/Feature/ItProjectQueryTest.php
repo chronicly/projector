@@ -3,8 +3,10 @@ declare(strict_types=1);
 
 namespace Chronhub\Projector\Tests\Feature;
 
+use Chronhub\Contracts\Clock\Clock;
+use Chronhub\Contracts\Clock\PointInTime;
 use Chronhub\Foundation\Aggregate\AggregateChanged;
-use Chronhub\Projector\Exception\InvalidArgumentException;
+use Chronhub\Foundation\Clock\SystemClock;
 use Chronhub\Projector\Tests\Double\User\UsernameChanged;
 use Chronhub\Projector\Tests\Double\User\UserRegistered;
 use Chronhub\Projector\Tests\InMemoryTestWithOrchestra;
@@ -40,13 +42,13 @@ final class ItProjectQueryTest extends InMemoryTestWithOrchestra
 
         $projection->run(false);
 
-        $this->assertEquals(['username' => $this->userName, 'count' => 1], $projection->getState());
+        $this->assertEquals(['username' => $this->username, 'count' => 1], $projection->getState());
 
         $this->setupSecondCommit();
 
         $projection->run(false);
 
-        $this->assertEquals(['username' => $this->newUserName, 'count' => 1], $projection->getState());
+        $this->assertEquals(['username' => $this->newUsername, 'count' => 1], $projection->getState());
     }
 
     /**
@@ -80,7 +82,7 @@ final class ItProjectQueryTest extends InMemoryTestWithOrchestra
 
         $projection->run(false);
 
-        $this->assertEquals(['username' => $this->newUserName, 'count' => 2], $projection->getState());
+        $this->assertEquals(['username' => $this->newUsername, 'count' => 2], $projection->getState());
     }
 
     /**
@@ -115,7 +117,7 @@ final class ItProjectQueryTest extends InMemoryTestWithOrchestra
 
         $projection->run(false);
 
-        $this->assertEquals(['username' => $this->userName, 'count' => 1], $projection->getState());
+        $this->assertEquals(['username' => $this->username, 'count' => 1], $projection->getState());
     }
 
     /**
@@ -148,10 +150,82 @@ final class ItProjectQueryTest extends InMemoryTestWithOrchestra
 
         $projection->run(false);
 
-        $this->assertEquals(['username' => $this->newUserName, 'count' => 2], $projection->getState());
+        $this->assertEquals(['username' => $this->newUsername, 'count' => 2], $projection->getState());
 
         $projection->reset();
 
         $this->assertEquals(['username' => 'invalid_user_name', 'count' => 0], $projection->getState());
+    }
+
+    /**
+     * @test
+     */
+    public function it_project_query_and_stop_projection_with_state(): void
+    {
+        $this->setupFirstCommit();
+        $this->setupSecondCommit();
+
+        $projector = $this->projectorManager;
+
+        $projection = $projector->createQuery()
+            ->initialize(fn(): array => ['username' => 'invalid_user_name', 'count' => 0])
+            ->withQueryFilter($projector->queryScope()->fromIncludedPosition())
+            ->fromStreams($this->streamName->toString())
+            ->whenAny(function (AggregateChanged $event, array $state): array {
+                if ($event instanceof UserRegistered) {
+                    $state['username'] = $event->toPayload()['name'];
+                    $state['count']++;
+                }
+
+                if ($event instanceof UsernameChanged) {
+                    $state['username'] = $event->toPayload()['new_name'];
+                    $state['count']++;
+                }
+
+                return $state;
+            });
+
+        $projection->run(true, function (array $state): bool {
+            return $state['username'] === $this->username;
+        });
+
+        $this->assertEquals(['username' => $this->username, 'count' => 1], $projection->getState());
+    }
+
+    /**
+     * @test
+     */
+    public function it_project_query_and_stop_projection_with_clock(): void
+    {
+        $this->setupFirstCommit();
+        $this->setupSecondCommit();
+
+        $projector = $this->projectorManager;
+
+        $projection = $projector->createQuery()
+            ->initialize(fn(): array => ['username' => 'invalid_user_name', 'count' => 0])
+            ->withQueryFilter($projector->queryScope()->fromIncludedPosition())
+            ->fromStreams($this->streamName->toString())
+            ->whenAny(function (AggregateChanged $event, array $state): array {
+                if ($event instanceof UserRegistered) {
+                    $state['username'] = $event->toPayload()['name'];
+                    $state['count']++;
+                }
+
+                if ($event instanceof UsernameChanged) {
+                    $state['username'] = $event->toPayload()['new_name'];
+                    $state['count']++;
+                }
+
+                return $state;
+            });
+
+        $elapsedTime = (new SystemClock())->pointInTime()->add('PT1S');
+
+        $projection->run(true, function (array $state, PointInTime $now) use ($elapsedTime): bool {
+            return $elapsedTime < $now;
+        });
+
+        $this->assertEquals(['username' => $this->newUsername, 'count' => 2], $projection->getState());
     }
 }

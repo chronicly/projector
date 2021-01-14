@@ -32,6 +32,8 @@ final class HandleStreamEvent implements Pipe
         foreach ($streams as $streamName => $events) {
             $context->setCurrentStreamName($streamName);
 
+            $this->stopProjectionOnCallback($context);
+
             $this->handleStreamEvents($events, $context);
         }
 
@@ -66,6 +68,8 @@ final class HandleStreamEvent implements Pipe
                 $context->counter()->increment();
             }
 
+            $this->stopProjectionOnCallback($context);
+
             $messageHandler = $eventHandlers;
 
             if (is_array($eventHandlers)) {
@@ -74,7 +78,9 @@ final class HandleStreamEvent implements Pipe
                         $this->persistOnReachedCounter($context);
                     }
 
-                    if ($context->isStopped()) {
+                    $this->stopProjectionOnCallback($context);
+
+                    if ($context->runner()->isStopped()) {
                         break;
                     }
 
@@ -94,10 +100,25 @@ final class HandleStreamEvent implements Pipe
                 $this->persistOnReachedCounter($context);
             }
 
-            if ($context->isStopped()) {
+            $this->stopProjectionOnCallback($context);
+
+            if ($context->runner()->isStopped()) {
                 break;
             }
         }
+    }
+
+    private function stopProjectionOnCallback(ProjectorContext $context): void
+    {
+        if ($context->runner()->isStopped()) {
+            return;
+        }
+
+        $isStopped = $context->runner()->keepTill(
+            $context->state()->getState(), $context->clock()
+        );
+
+        $context->runner()->stop($isStopped);
     }
 
     private function persistOnReachedCounter(ProjectorContext $context): void
@@ -114,7 +135,7 @@ final class HandleStreamEvent implements Pipe
             $keepProjectionRunning = [ProjectionStatus::RUNNING(), ProjectionStatus::IDLE()];
 
             if (!in_array($context->status(), $keepProjectionRunning)) {
-                $context->stopProjection(true);
+                $context->runner()->stop(true);
             }
         }
     }

@@ -4,14 +4,16 @@ declare(strict_types=1);
 namespace Chronhub\Projector\Factory;
 
 use Chronhub\Contracts\Clock\Clock;
-use Chronhub\Contracts\Projecting\ProjectionState;
+use Chronhub\Contracts\Clock\PointInTime;
+use Chronhub\Contracts\Projecting\ProjectorRunner;
 
-final class RunnerController
+final class RunnerController implements ProjectorRunner
 {
     /**
      * @var callable|null
      */
     private $timeShifting;
+    private ?PointInTime $now = null;
 
     public function __construct(private bool $runInBackground, private bool $isStopped, ?callable $timeShifting)
     {
@@ -23,13 +25,13 @@ final class RunnerController
         return $this->runInBackground;
     }
 
-    public function till(ProjectionState $state, Clock $clock): bool
+    public function keepTill(array $state, Clock $now): bool
     {
-        if(!$this->timeShifting){
-           return false;
+        if (!$this->timeShifting) {
+            return false;
         }
 
-        return ($this->timeShifting)($state, $clock);
+        return true === ($this->timeShifting)($state, $now->pointInTime());
     }
 
     public function isStopped(): bool

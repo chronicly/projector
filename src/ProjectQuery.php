@@ -25,13 +25,11 @@ final class ProjectQuery implements QueryProjector, ProjectorFactory
     {
     }
 
-    public function run(bool $keepRunning = true, ?callable $controller = null): void
+    public function run(bool $inBackground, ?callable $callback = null): void
     {
         $this->context->withRunner(
-            new RunnerController($keepRunning, false, $controller)
+            new RunnerController($inBackground, false, $callback)
         );
-
-        //$this->context->withKeepRunning($keepRunning);
 
         $currentStreamName = $this->context->currentStreamName();
 
@@ -44,7 +42,7 @@ final class ProjectQuery implements QueryProjector, ProjectorFactory
 
     public function stop(): void
     {
-        $this->context->stopProjection(true);
+        $this->context->runner()->stop(true);
     }
 
     public function reset(): void

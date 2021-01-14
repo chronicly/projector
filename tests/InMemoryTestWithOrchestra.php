@@ -32,8 +32,8 @@ abstract class InMemoryTestWithOrchestra extends TestWithOrchestra
     protected ProjectorManager $projectorManager;
     protected NamedStream $streamName;
     protected AggregateId $aggregateId;
-    protected string $userName = 'steph';
-    protected string $newUserName = 'fab';
+    protected string $username = 'steph';
+    protected string $newUsername = 'fab';
 
     protected function setUp(): void
     {
@@ -95,7 +95,7 @@ abstract class InMemoryTestWithOrchestra extends TestWithOrchestra
     {
         $this->assertFalse($this->chronicler->hasStream($this->streamName));
 
-        $event = UserRegistered::withData($this->aggregateId, $this->userName);
+        $event = UserRegistered::withData($this->aggregateId, $this->username);
 
         $headers = [
             MessageHeader::AGGREGATE_ID => $this->aggregateId,
@@ -114,7 +114,7 @@ abstract class InMemoryTestWithOrchestra extends TestWithOrchestra
         $this->assertTrue($this->chronicler->hasStream($this->streamName));
 
         $event = UsernameChanged::withName(
-            $this->aggregateId, $this->newUserName, $this->userName
+            $this->aggregateId, $this->newUsername, $this->username
         );
 
         $message = new Message($event, [
