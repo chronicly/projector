@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace Chronhub\Projector\Factory;
 
 use Chronhub\Contracts\Clock\Clock;
-use Chronhub\Contracts\Clock\PointInTime;
 use Chronhub\Contracts\Projecting\ProjectorRunner;
 
 final class RunnerController implements ProjectorRunner
@@ -13,7 +12,6 @@ final class RunnerController implements ProjectorRunner
      * @var callable|null
      */
     private $timeShifting;
-    private ?PointInTime $now = null;
 
     public function __construct(private bool $runInBackground, private bool $isStopped, ?callable $timeShifting)
     {
