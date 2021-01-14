@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Chronhub\Projector;
 
 use Chronhub\Contracts\Chronicling\Chronicler;
+use Chronhub\Contracts\Clock\Clock;
 use Chronhub\Contracts\Messaging\MessageAlias;
 use Chronhub\Contracts\Model\EventStreamProvider;
 use Chronhub\Contracts\Model\ProjectionProvider;
@@ -40,6 +41,7 @@ final class ProjectorManager implements Manager
                                 private MessageAlias $messageAlias,
                                 private ProjectionQueryScope $projectionQueryScope,
                                 protected JsonEncoder $jsonEncoder,
+                                private Clock $clock,
                                 private array $options = [])
     {
     }
@@ -160,6 +162,7 @@ final class ProjectorManager implements Manager
             new StreamPosition($this->eventStreamProvider),
             new InMemoryState(),
             ProjectionStatus::IDLE(),
+            $this->clock,
             $eventCounter,
             $streamCache
         );

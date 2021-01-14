@@ -11,6 +11,7 @@
     ],
     "require": {
         "php": "^8.0",
+        "chronhub/contracts": "dev-main",
         "chronhub/foundation": "dev-main",
         "chronhub/chronicler": "dev-main",
         "marc-mabe/php-enum": "^4.4.0",

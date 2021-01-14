@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Chronhub\Projector\Context;
 
+use Chronhub\Contracts\Clock\Clock;
 use Chronhub\Contracts\Projecting\ContextualEventHandler;
 use Chronhub\Contracts\Projecting\EventCounter;
 use Chronhub\Contracts\Projecting\ProjectionState;
@@ -28,6 +29,7 @@ class Context implements ProjectorContext
                                 protected Position $position,
                                 protected ProjectionState $state,
                                 protected Status $status,
+                                protected Clock $clock,
                                 protected ?EventCounter $eventCounter,
                                 protected ?StreamCache $streamCache)
     {
@@ -123,6 +125,11 @@ class Context implements ProjectorContext
     public function option(): ProjectorOption
     {
         return $this->option;
+    }
+
+    public function clock(): Clock
+    {
+        return $this->clock;
     }
 
     public function counter(): ?EventCounter

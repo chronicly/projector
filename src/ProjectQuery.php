@@ -10,6 +10,7 @@ use Chronhub\Contracts\Projecting\ProjectorFactory;
 use Chronhub\Contracts\Projecting\QueryProjector;
 use Chronhub\Projector\Concern\HasProjectorFactory;
 use Chronhub\Projector\Context\ContextualQuery;
+use Chronhub\Projector\Factory\RunnerController;
 use JetBrains\PhpStorm\Pure;
 use function is_array;
 
@@ -24,9 +25,13 @@ final class ProjectQuery implements QueryProjector, ProjectorFactory
     {
     }
 
-    public function run(bool $keepRunning = true): void
+    public function run(bool $keepRunning = true, ?callable $controller = null): void
     {
-        $this->context->withKeepRunning($keepRunning);
+        $this->context->withRunner(
+            new RunnerController($keepRunning, false, $controller)
+        );
+
+        //$this->context->withKeepRunning($keepRunning);
 
         $currentStreamName = $this->context->currentStreamName();
 

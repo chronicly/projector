@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Chronhub\Projector;
 
+use Chronhub\Contracts\Clock\Clock;
 use Chronhub\Contracts\Manager\ChroniclerManager;
 use Chronhub\Contracts\Manager\ProjectorServiceManager as ServiceManager;
 use Chronhub\Contracts\Messaging\MessageAlias;
@@ -71,6 +72,7 @@ final class ProjectorServiceManager implements ServiceManager
             $this->container->get(MessageAlias::class),
             $this->container->make($config['scope']),
             $this->container->get(JsonEncoder::class),
+            $this->container->get(Clock::class),
             $this->determineProjectorOptions($config['options'])
         );
     }
