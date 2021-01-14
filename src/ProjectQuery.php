@@ -25,10 +25,10 @@ final class ProjectQuery implements QueryProjector, ProjectorFactory
     {
     }
 
-    public function run(bool $inBackground, ?callable $callback = null): void
+    public function run(bool $inBackground): void
     {
         $this->context->withRunner(
-            new RunnerController($inBackground, false, $callback)
+            new RunnerController($inBackground, false)
         );
 
         $currentStreamName = $this->context->currentStreamName();

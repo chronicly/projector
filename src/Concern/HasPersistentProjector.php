@@ -19,10 +19,10 @@ trait HasPersistentProjector
     protected MessageAlias $messageAlias;
     protected string $streamName;
 
-    public function run(bool $inBackground, ?callable $callback = null): void
+    public function run(bool $inBackground): void
     {
         $this->context->withRunner(
-            new RunnerController($inBackground, false, $callback)
+            new RunnerController($inBackground, false)
         );
 
         $this->context->bindContextualEventHandler($this->createContextualEventHandler());
