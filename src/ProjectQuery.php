@@ -10,7 +10,6 @@ use Chronhub\Contracts\Projecting\ProjectorFactory;
 use Chronhub\Contracts\Projecting\QueryProjector;
 use Chronhub\Projector\Concern\HasProjectorFactory;
 use Chronhub\Projector\Context\ContextualQuery;
-use Chronhub\Projector\Exception\InvalidArgumentException;
 use JetBrains\PhpStorm\Pure;
 use function is_array;
 
@@ -27,10 +26,6 @@ final class ProjectQuery implements QueryProjector, ProjectorFactory
 
     public function run(bool $keepRunning = true): void
     {
-        if ($keepRunning) {
-            throw new InvalidArgumentException("Query projection can not run in background");
-        }
-
         $currentStreamName = $this->context->currentStreamName();
 
         $this->context->bindContextualEventHandler(new ContextualQuery($this, $currentStreamName));

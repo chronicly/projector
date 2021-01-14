@@ -86,26 +86,6 @@ final class ItProjectQueryTest extends InMemoryTestWithOrchestra
     /**
      * @test
      */
-    public function it_raise_exception_if_it_project_query_in_background(): void
-    {
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Query projection can not run in background');
-
-        $projector = $this->projectorManager;
-
-        $projection = $projector->createQuery()
-            ->withQueryFilter($projector->queryScope()->fromIncludedPosition())
-            ->fromStreams($this->streamName->toString())
-            ->whenAny(function (AggregateChanged $event, array $state): void {
-                //
-            });
-
-        $projection->run(true);
-    }
-
-    /**
-     * @test
-     */
     public function it_stop_query_projection(): void
     {
         $this->setupFirstCommit();
