@@ -12,7 +12,7 @@ use Chronhub\Contracts\Projecting\ProjectorRepository;
 use Chronhub\Projector\Factory\Pipeline;
 use Chronhub\Projector\Pipe\DispatchSignal;
 use Chronhub\Projector\Pipe\HandleStreamEvent;
-use Chronhub\Projector\Pipe\PersistOrSleepBeforeResetCounter;
+use Chronhub\Projector\Pipe\PersistOrUpdateLockBeforeResetCounter;
 use Chronhub\Projector\Pipe\PreparePersistentRunner;
 use Chronhub\Projector\Pipe\UpdateProjectionStatusAndPositions;
 
@@ -49,7 +49,7 @@ final class PersistentRunner
         return [
             new PreparePersistentRunner($this->projector, $this->repository),
             new HandleStreamEvent($this->chronicler, $this->messageAlias, $this->repository),
-            new PersistOrSleepBeforeResetCounter($this->repository),
+            new PersistOrUpdateLockBeforeResetCounter($this->repository),
             new DispatchSignal(),
             new UpdateProjectionStatusAndPositions($this->projector, $this->repository)
         ];

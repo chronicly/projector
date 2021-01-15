@@ -7,7 +7,7 @@ use Chronhub\Contracts\Projecting\Pipe;
 use Chronhub\Contracts\Projecting\ProjectorContext;
 use Chronhub\Contracts\Projecting\ProjectorRepository;
 
-final class PersistOrSleepBeforeResetCounter implements Pipe
+final class PersistOrUpdateLockBeforeResetCounter implements Pipe
 {
     public function __construct(private ProjectorRepository $repository)
     {
