@@ -52,17 +52,17 @@ class Context implements ProjectorContext
 
         $callback = $this->initCallback;
 
-        if (is_callable($callback)) {
+        $state = null;
+
+        if ($callback instanceof Closure) {
             $state = $callback();
 
             if (is_array($state)) {
-                $this->state()->setState($callback());
-
-                return $state;
+                $this->state()->setState($state);
             }
         }
 
-        return null;
+        return $state;
     }
 
     public function setCurrentStreamName(string $streamName): void

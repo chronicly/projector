@@ -49,11 +49,11 @@ final class ProjectQuery implements QueryProjector, ProjectorFactory
     {
         $this->context->position()->reset();
 
-        if (is_array($state = $this->context->resetStateWithInitialize())) {
-            return;
-        }
+        $state = $this->context->resetStateWithInitialize();
 
-        $this->context->state()->resetState();
+        if (!is_array($state)) {
+            $this->context->state()->resetState();
+        }
     }
 
     public function getState(): array
