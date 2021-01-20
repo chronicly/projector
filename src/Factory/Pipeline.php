@@ -23,10 +23,6 @@ final class Pipeline implements BasePipeline
         return $this;
     }
 
-    /**
-     * @param Pipe[] $pipes
-     * @return Pipeline
-     */
     public function through(array $pipes): self
     {
         $this->pipes = $pipes;
@@ -34,10 +30,6 @@ final class Pipeline implements BasePipeline
         return $this;
     }
 
-    /**
-     * @param Closure $destination
-     * @return bool
-     */
     public function then(Closure $destination): bool
     {
         $pipeline = array_reduce(
@@ -49,17 +41,11 @@ final class Pipeline implements BasePipeline
 
     private function prepareDestination(Closure $destination): Closure
     {
-        return function ($passable) use ($destination) {
-            return $destination($passable);
-        };
+        return fn($passable) => $destination($passable);
     }
 
     private function carry(): Closure
     {
-        return function ($stack, $pipe) {
-            return function ($passable) use ($stack, $pipe) {
-                return $pipe($passable, $stack);
-            };
-        };
+        return fn($stack, $pipe) => fn($passable) => $pipe($passable, $stack);
     }
 }
