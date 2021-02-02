@@ -31,9 +31,7 @@ final class ProjectQuery implements QueryProjector, ProjectorFactory
             new RunnerController($inBackground, false)
         );
 
-        $currentStreamName = $this->context->currentStreamName();
-
-        $this->context->bindContextualEventHandler(new ContextualQuery($this, $currentStreamName));
+        $this->context->bindContextualEventHandler(new ContextualQuery($this, $this->context));
 
         $runner = new QueryRunner($this, $this->chronicler, $this->messageAlias);
 

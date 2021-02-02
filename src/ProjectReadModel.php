@@ -30,11 +30,10 @@ final class ProjectReadModel implements PersistentReadModelProjector, ProjectorF
     {
     }
 
+    #[Pure]
     protected function createContextualEventHandler(): ContextualEventHandler
     {
-        $currentStreamName = $this->context->currentStreamName();
-
-        return new ContextualReadModel($this, $currentStreamName);
+        return new ContextualReadModel($this, $this->context);
     }
 
     public function readModel(): ReadModel

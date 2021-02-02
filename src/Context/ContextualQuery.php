@@ -4,20 +4,13 @@ declare(strict_types=1);
 namespace Chronhub\Projector\Context;
 
 use Chronhub\Contracts\Projecting\ContextualEventHandler;
+use Chronhub\Contracts\Projecting\ProjectorContext;
 use Chronhub\Contracts\Projecting\QueryProjector;
 
 final class ContextualQuery implements ContextualEventHandler
 {
-    /**
-     * @var QueryProjector
-     */
-    private QueryProjector $query;
-    private ?string $streamName;
-
-    public function __construct(QueryProjector $query, ?string &$streamName)
+    public function __construct(private QueryProjector $query, private ProjectorContext $context)
     {
-        $this->query = $query;
-        $this->streamName = &$streamName;
     }
 
     public function stop(): void
@@ -27,6 +20,6 @@ final class ContextualQuery implements ContextualEventHandler
 
     public function streamName(): ?string
     {
-        return $this->streamName;
+        return $this->context->currentStreamName();
     }
 }

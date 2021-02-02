@@ -52,11 +52,10 @@ final class ProjectProjection implements PersistentProjectionProjector, Projecto
             : $this->chronicler->persistFirstCommit($stream);
     }
 
+    #[Pure]
     protected function createContextualEventHandler(): ContextualEventHandler
     {
-        $currentStreamName = $this->context->currentStreamName();
-
-        return new ContextualProjection($this, $currentStreamName);
+        return new ContextualProjection($this, $this->context);
     }
 
     private function persistIfStreamIsFirstCommit(StreamName $streamName): void

@@ -6,16 +6,13 @@ namespace Chronhub\Projector\Context;
 use Chronhub\Contracts\Messaging\DomainEvent;
 use Chronhub\Contracts\Projecting\PersistentProjectionProjector;
 use Chronhub\Contracts\Projecting\ProjectionEventHandler as ContextualEventHandler;
+use Chronhub\Contracts\Projecting\ProjectorContext;
 
 final class ContextualProjection implements ContextualEventHandler
 {
-    private PersistentProjectionProjector $projector;
-    private ?string $streamName;
-
-    public function __construct(PersistentProjectionProjector $projector, ?string &$streamName)
+    public function __construct(private PersistentProjectionProjector $projector,
+                                private ProjectorContext $context)
     {
-        $this->projector = $projector;
-        $this->streamName = &$streamName;
     }
 
     public function stop(): void
@@ -35,6 +32,6 @@ final class ContextualProjection implements ContextualEventHandler
 
     public function streamName(): ?string
     {
-        return $this->streamName;
+        return $this->context->currentStreamName();
     }
 }
