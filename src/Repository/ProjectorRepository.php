@@ -9,6 +9,7 @@ use Chronhub\Contracts\Projecting\ProjectorRepository as Repository;
 use Chronhub\Contracts\Projecting\ReadModel;
 use Chronhub\Contracts\Support\JsonEncoder;
 use Chronhub\Foundation\Exception\QueryFailure;
+use Chronhub\Projector\Exception\ProjectionAlreadyRunning;
 use Chronhub\Projector\Exception\ProjectionNotFound;
 use Chronhub\Projector\Factory\ProjectionStatus;
 use Chronhub\Projector\Support\LockTime;
@@ -235,7 +236,7 @@ final class ProjectorRepository implements Repository
         }
 
         if (!$result) {
-            throw new QueryFailure(
+            throw new ProjectionAlreadyRunning(
                 "Another projection process is already running for stream name: {$this->streamName}"
             );
         }

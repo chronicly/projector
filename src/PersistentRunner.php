@@ -9,6 +9,7 @@ use Chronhub\Contracts\Projecting\PersistentProjector;
 use Chronhub\Contracts\Projecting\Pipe;
 use Chronhub\Contracts\Projecting\ProjectorContext;
 use Chronhub\Contracts\Projecting\ProjectorRepository;
+use Chronhub\Projector\Exception\ProjectionAlreadyRunning;
 use Chronhub\Projector\Factory\Pipeline;
 use Chronhub\Projector\Pipe\DispatchSignal;
 use Chronhub\Projector\Pipe\HandleStreamEvent;
@@ -27,6 +28,8 @@ final class PersistentRunner
 
     public function __invoke(ProjectorContext $context): void
     {
+        $alreadyRunning = false;
+
         try {
             $pipeline = new Pipeline();
             $pipeline->through($this->getPipes());
@@ -36,8 +39,12 @@ final class PersistentRunner
                     ->send($context)
                     ->then(fn(ProjectorContext $context): bool => $context->runner()->isStopped());
             } while ($context->runner()->inBackground() && !$isStopped);
+        } catch (ProjectionAlreadyRunning) {
+            $alreadyRunning = true;
         } finally {
-            $this->repository->releaseLock();
+            if (!$alreadyRunning) {
+                $this->repository->releaseLock();
+            }
         }
     }
 
