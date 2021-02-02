@@ -28,7 +28,7 @@ final class PersistentRunner
 
     public function __invoke(ProjectorContext $context): void
     {
-        $alreadyRunning = false;
+        $alreadyRunning = null;
 
         try {
             $pipeline = new Pipeline();
@@ -39,12 +39,10 @@ final class PersistentRunner
                     ->send($context)
                     ->then(fn(ProjectorContext $context): bool => $context->runner()->isStopped());
             } while ($context->runner()->inBackground() && !$isStopped);
-        } catch (ProjectionAlreadyRunning) {
-            $alreadyRunning = true;
+        } catch (ProjectionAlreadyRunning $exception) {
+            $alreadyRunning = $exception;
         } finally {
-            if (!$alreadyRunning) {
-                $this->repository->releaseLock();
-            }
+            null === $alreadyRunning ? $this->repository->releaseLock() : throw $alreadyRunning;
         }
     }
 
