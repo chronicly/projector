@@ -14,7 +14,7 @@ use Chronhub\Projector\Support\LockTime;
 use Chronhub\Projector\Tests\TestWithOrchestra;
 use Illuminate\Support\Facades\Schema;
 
-final class ItTestEloquentProjection extends TestWithOrchestra
+final class ItTestEloquentProjectionTest extends TestWithOrchestra
 {
     private Projection|ProjectionProvider $projectionProvider;
 

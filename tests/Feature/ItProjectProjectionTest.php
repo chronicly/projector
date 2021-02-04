@@ -23,6 +23,8 @@ final class ItProjectProjectionTest extends InMemoryTestWithOrchestra
     {
         $this->assertFalse($this->projectorManager->exists($this->projectionStreamName->toString()));
 
+        $test = $this;
+
         $this->setupFirstCommit();
 
         $projection = $this->projectorManager->createProjection(
@@ -32,8 +34,10 @@ final class ItProjectProjectionTest extends InMemoryTestWithOrchestra
         $projection
             ->withQueryFilter($this->projectorManager->queryScope()->fromIncludedPosition())
             ->fromStreams($this->streamName->toString())
-            ->whenAny(function (AggregateChanged $event, array $state): array {
+            ->whenAny(function (AggregateChanged $event, array $state) use ($test): array {
                 $this->emit($event);
+
+                $test->assertEquals('user', $this->streamName());
 
                 return $state;
             });

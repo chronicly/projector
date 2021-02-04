@@ -19,6 +19,8 @@ final class ItProjectReadModelTest extends InMemoryTestWithOrchestra
      */
     public function it_project_read_model(): void
     {
+        $test = $this;
+
         $this->setupFirstCommit();
 
         $this->assertTrue($this->chronicler->hasStream($this->streamName));
@@ -29,7 +31,7 @@ final class ItProjectReadModelTest extends InMemoryTestWithOrchestra
         $projection
             ->withQueryFilter($this->projectorManager->queryScope()->fromIncludedPosition())
             ->fromStreams('user')
-            ->whenAny(function (AggregateChanged $event): void {
+            ->whenAny(function (AggregateChanged $event) use ($test): void {
                 if ($event instanceof UserRegistered) {
                     $this->readModel()->stack('insert', $event->aggregateRootId(), $event->toPayload()['name']);
                 }
@@ -37,6 +39,8 @@ final class ItProjectReadModelTest extends InMemoryTestWithOrchestra
                 if ($event instanceof UsernameChanged) {
                     $this->readModel()->stack('update', $event->aggregateRootId(), $event->toPayload()['new_name']);
                 }
+
+                $test->assertEquals('user', $this->streamName());
             });
 
         $projection->run(false);

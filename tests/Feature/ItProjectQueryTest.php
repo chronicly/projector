@@ -15,6 +15,8 @@ final class ItProjectQueryTest extends InMemoryTestWithOrchestra
      */
     public function it_project_query_and_reset_state_on_each_run(): void
     {
+        $test= $this;
+
         $this->setupFirstCommit();
 
         $projector = $this->projectorManager;
@@ -23,7 +25,7 @@ final class ItProjectQueryTest extends InMemoryTestWithOrchestra
             ->initialize(fn(): array => ['username' => 'invalid_user_name', 'count' => 0])
             ->withQueryFilter($projector->queryScope()->fromIncludedPosition())
             ->fromStreams($this->streamName->toString())
-            ->whenAny(function (AggregateChanged $event, array $state): array {
+            ->whenAny(function (AggregateChanged $event, array $state)use($test): array {
                 if ($event instanceof UserRegistered) {
                     $state ['username'] = $event->toPayload()['name'];
                     $state['count']++;
@@ -33,6 +35,8 @@ final class ItProjectQueryTest extends InMemoryTestWithOrchestra
                     $state ['username'] = $event->toPayload()['new_name'];
                     $state['count']++;
                 }
+
+                $test->assertEquals('user', $this->streamName());
 
                 return $state;
             });
