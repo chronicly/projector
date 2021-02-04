@@ -3,9 +3,9 @@ declare(strict_types=1);
 
 namespace Chronhub\Projector\Model;
 
+use Chronhub\Contracts\Clock\Clock;
 use Chronhub\Contracts\Model\ProjectionModel;
 use Chronhub\Contracts\Model\ProjectionProvider;
-use Chronhub\Foundation\Clock\PointInTime;
 use Illuminate\Support\Collection;
 
 final class InMemoryProjectionProvider implements ProjectionProvider
@@ -15,7 +15,7 @@ final class InMemoryProjectionProvider implements ProjectionProvider
      */
     private Collection $projections;
 
-    public function __construct()
+    public function __construct(private Clock $clock)
     {
         $this->projections = new Collection();
     }
@@ -103,6 +103,6 @@ final class InMemoryProjectionProvider implements ProjectionProvider
     private function shouldUpdateLock(ProjectionModel $model, string $now): bool
     {
         return null === $model->lockedUntil() or
-            PointInTime::fromString($now)->after(PointInTime::fromString($model->lockedUntil()));
+            $this->clock->fromString($now)->after($this->clock->fromString($model->lockedUntil()));
     }
 }

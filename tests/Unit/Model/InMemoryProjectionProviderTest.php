@@ -3,19 +3,29 @@ declare(strict_types=1);
 
 namespace Chronhub\Projector\Tests\Unit\Model;
 
+use Chronhub\Contracts\Clock\Clock;
 use Chronhub\Contracts\Model\ProjectionModel;
 use Chronhub\Foundation\Clock\SystemClock;
 use Chronhub\Projector\Model\InMemoryProjectionProvider;
-use Chronhub\Projector\Tests\TestCase;
+use Chronhub\Projector\Tests\TestCaseWithProphecy;
+use Prophecy\Prophecy\ObjectProphecy;
 
-final class InMemoryProjectionProviderTest extends TestCase
+final class InMemoryProjectionProviderTest extends TestCaseWithProphecy
 {
+    private Clock|ObjectProphecy $clock;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->clock = new SystemClock();
+    }
+
     /**
      * @test
      */
     public function it_create_projection(): void
     {
-        $provider = new InMemoryProjectionProvider();
+        $provider = new InMemoryProjectionProvider($this->clock);
 
         $this->assertNull($provider->findByName('foo'));
 
@@ -31,7 +41,8 @@ final class InMemoryProjectionProviderTest extends TestCase
      */
     public function it_update_projection(): void
     {
-        $provider = new InMemoryProjectionProvider();
+        $provider = new InMemoryProjectionProvider($this->clock);
+
         $this->assertTrue($provider->createProjection('foo', 'running'));
 
         $projection = $provider->findByName('foo');
@@ -67,7 +78,7 @@ final class InMemoryProjectionProviderTest extends TestCase
      */
     public function it_delete_projection(): void
     {
-        $provider = new InMemoryProjectionProvider();
+        $provider = new InMemoryProjectionProvider($this->clock);
 
         $this->assertTrue($provider->createProjection('foo', 'running'));
 
@@ -85,7 +96,7 @@ final class InMemoryProjectionProviderTest extends TestCase
      */
     public function it_find_projection_by_names(): void
     {
-        $provider = new InMemoryProjectionProvider();
+        $provider = new InMemoryProjectionProvider($this->clock);
 
         $this->assertTrue($provider->createProjection('foo', 'running'));
         $this->assertTrue($provider->createProjection('bar', 'running'));
@@ -101,7 +112,7 @@ final class InMemoryProjectionProviderTest extends TestCase
      */
     public function it_acquire_lock_with_null_lock_projection(): void
     {
-        $provider = new InMemoryProjectionProvider();
+        $provider = new InMemoryProjectionProvider($this->clock);
 
         $this->assertTrue($provider->createProjection('foo', 'idle'));
         $this->assertNull($provider->findByName('foo')->lockedUntil());
@@ -123,13 +134,15 @@ final class InMemoryProjectionProviderTest extends TestCase
      */
     public function it_acquire_lock_with_now_is_greater_than_lock_projection(): void
     {
-        $provider = new InMemoryProjectionProvider();
+        $now = (new SystemClock())->pointInTime();
+        $lock = $now->sub('PT1H');
+
+        $provider = new InMemoryProjectionProvider($this->clock);
 
         $this->assertTrue($provider->createProjection('foo', 'idle'));
         $this->assertNull($provider->findByName('foo')->lockedUntil());
 
-        $now = (new SystemClock())->pointInTime();
-        $lock = $now->sub('PT1H');
+
         $provider->acquireLock('foo', 'running', $lock->toString(), $now->toString());
         $this->assertEquals($lock->toString(), $provider->findByName('foo')->lockedUntil());
 
@@ -142,7 +155,7 @@ final class InMemoryProjectionProviderTest extends TestCase
      */
     public function it_does_not_acquire_lock_with_now_is_less_than_lock_projection(): void
     {
-        $provider = new InMemoryProjectionProvider();
+        $provider = new InMemoryProjectionProvider($this->clock);
 
         $this->assertTrue($provider->createProjection('foo', 'idle'));
         $this->assertNull($provider->findByName('foo')->lockedUntil());
