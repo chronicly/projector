@@ -21,8 +21,6 @@ class Context implements ProjectorContext
     use HasContextFactory;
 
     private ?string $currentStreamName = null;
-    private bool $isStopped = false;
-    private bool $keepRunning = false;
     private bool $isStreamCreated = false;
 
     public function __construct(protected ProjectorOption $option,
