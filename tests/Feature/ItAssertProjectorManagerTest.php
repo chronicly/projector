@@ -111,7 +111,7 @@ final class ItAssertProjectorManagerTest extends InMemoryTestWithOrchestra
         $projection = $projector->createProjection('user');
         $projection
             ->initialize(fn(): array => ['run' => false])
-            ->withQueryFilter($this->projectorManager->queryScope()->fromIncludedPosition())
+            ->withQueryFilter($projector->queryScope()->fromIncludedPosition())
             ->fromStreams($this->streamName->toString())
             ->whenAny(function (AggregateChanged $event, array $state) use ($test, $projector): array {
                 $test->assertEquals(ProjectionStatus::RUNNING, $projector->statusOf('user'));
@@ -155,7 +155,7 @@ final class ItAssertProjectorManagerTest extends InMemoryTestWithOrchestra
         $projection = $projector->createProjection('user');
         $projection
             ->initialize(fn(): array => ['run' => false])
-            ->withQueryFilter($this->projectorManager->queryScope()->fromIncludedPosition())
+            ->withQueryFilter($projector->queryScope()->fromIncludedPosition())
             ->fromStreams($this->streamName->toString())
             ->whenAny(function (AggregateChanged $event, array $state) use ($test, $projector): array {
                 $test->assertEquals(ProjectionStatus::RUNNING, $projector->statusOf('user'));
@@ -196,7 +196,7 @@ final class ItAssertProjectorManagerTest extends InMemoryTestWithOrchestra
 
         $projection = $projector->createProjection('user');
         $projection
-            ->withQueryFilter($this->projectorManager->queryScope()->fromIncludedPosition())
+            ->withQueryFilter($projector->queryScope()->fromIncludedPosition())
             ->fromStreams($this->streamName->toString())
             ->whenAny(function () use ($test, $projector): void {
                  $test->assertEquals(ProjectionStatus::RUNNING, $projector->statusOf('user'));
