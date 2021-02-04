@@ -14,7 +14,6 @@ final class InMemoryProjection implements ProjectionModel
                                  private string $status,
                                  private ?string $lockedUntil)
     {
-
     }
 
     #[Pure]

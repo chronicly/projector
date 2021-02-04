@@ -102,7 +102,10 @@ final class InMemoryProjectionProvider implements ProjectionProvider
 
     private function shouldUpdateLock(ProjectionModel $model, string $now): bool
     {
-        return null === $model->lockedUntil() or
-            $this->clock->fromString($now)->after($this->clock->fromString($model->lockedUntil()));
+        if (null === $model->lockedUntil()) {
+            return true;
+        }
+
+        return $this->clock->fromString($now)->after($this->clock->fromString($model->lockedUntil()));
     }
 }
