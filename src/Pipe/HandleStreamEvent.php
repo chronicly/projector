@@ -12,10 +12,13 @@ use Chronhub\Contracts\Projecting\ProjectorContext;
 use Chronhub\Contracts\Projecting\ProjectorRepository;
 use Chronhub\Projector\Factory\ProjectionStatus;
 use Chronhub\Projector\Factory\StreamEventIterator;
+use Chronhub\Projector\Support\HasGapDetector;
 use Generator;
 
 final class HandleStreamEvent implements Pipe
 {
+    use HasGapDetector;
+
     private bool $isPersistent;
 
     public function __construct(private Chronicler $chronicler,
@@ -32,7 +35,11 @@ final class HandleStreamEvent implements Pipe
         foreach ($streams as $streamName => $events) {
             $context->setCurrentStreamName($streamName);
 
-            $this->handleStreamEvents($events, $context);
+            $gapDetected = !$this->handleStreamEvents($events, $context);
+
+            if ($this->isPersistent) {
+                $this->handleGapDetected($gapDetected);
+            }
         }
 
         return $next($context);
@@ -53,14 +60,21 @@ final class HandleStreamEvent implements Pipe
         }
     }
 
-    private function handleStreamEvents(StreamEventIterator $streamEvents, ProjectorContext $context): void
+    private function handleStreamEvents(StreamEventIterator $streamEvents, ProjectorContext $context): bool
     {
         $eventHandlers = $context->eventHandlers();
 
         foreach ($streamEvents as $key => $streamEvent) {
             $context->dispatchSignal();
 
-            $context->position()->setAt($context->currentStreamName(), $key);
+            $currentStreamName = $context->currentStreamName();
+            $streamPosition = $context->position()->all()[$currentStreamName];
+
+            if ($this->isPersistent && $this->hasGap($streamPosition, $key)) {
+                return false;
+            }
+
+            $context->position()->setAt($currentStreamName, $key);
 
             if ($this->isPersistent) {
                 $context->counter()->increment();
@@ -98,6 +112,8 @@ final class HandleStreamEvent implements Pipe
                 break;
             }
         }
+
+        return true;
     }
 
     private function persistOnReachedCounter(ProjectorContext $context): void
