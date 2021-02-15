@@ -9,9 +9,8 @@ use function usleep;
 
 trait HasGapDetector
 {
-    private ?string $interval;
     private int $retries = 0;
-    private array $retriesMs = [0, 5, 50, 500,];
+    protected array $retriesMs;
 
     protected function handleGapDetected(bool $gapDetected): void
     {
@@ -29,6 +28,10 @@ trait HasGapDetector
     #[Pure]
     protected function hasGap(int $streamPosition, int $eventPosition): bool
     {
+        if (empty($this->retriesMs)) {
+            return false;
+        }
+
         return $streamPosition + 1 !== $eventPosition && array_key_exists($this->retries, $this->retriesMs);
     }
 }

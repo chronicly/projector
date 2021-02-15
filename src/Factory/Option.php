@@ -12,7 +12,8 @@ final class Option implements ProjectorOption
         private int $lockTimeoutMs = 1000,
         private int $sleep = 10000,
         private int $persistBlockSize = 1000,
-        private int $updateLockThreshold = 0)
+        private int $updateLockThreshold = 0,
+        private array $retriesMs = [0, 5, 100, 500, 1000])
     {
     }
 
@@ -39,5 +40,10 @@ final class Option implements ProjectorOption
     public function updateLockThreshold(): int
     {
         return $this->updateLockThreshold;
+    }
+
+    public function retriesMs(): array
+    {
+        return $this->retriesMs;
     }
 }

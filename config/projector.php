@@ -34,6 +34,7 @@ return [
             ProjectorOption::OPTION_SLEEP => 10000,
             ProjectorOption::OPTION_UPDATE_LOCK_THRESHOLD => 15000,
             ProjectorOption::OPTION_PERSIST_BLOCK_SIZE => 1000,
+            ProjectorOption::OPTION_RETRIES_MS => [0, 5, 100, 500, 1000],
         ],
 
         'in_memory' => [
@@ -41,7 +42,17 @@ return [
             ProjectorOption::OPTION_LOCK_TIMEOUT_MS => 0, // 0 === threshold, timeout has not effect
             ProjectorOption::OPTION_UPDATE_LOCK_THRESHOLD => 0,
             ProjectorOption::OPTION_SLEEP => 0,
-            ProjectorOption::OPTION_PERSIST_BLOCK_SIZE => 1,// 1 === persist block size, sleep has no effect
+            ProjectorOption::OPTION_PERSIST_BLOCK_SIZE => 1,// 1 === persist block size, sleep has no effect,
+            ProjectorOption::OPTION_RETRIES_MS => [0, 5, 100, 500, 1000],
+        ],
+
+        'snapshot' => [
+            ProjectorOption::OPTION_PCNTL_DISPATCH => true,
+            ProjectorOption::OPTION_LOCK_TIMEOUT_MS => 20000,
+            ProjectorOption::OPTION_SLEEP => 10000,
+            ProjectorOption::OPTION_UPDATE_LOCK_THRESHOLD => 15000,
+            ProjectorOption::OPTION_PERSIST_BLOCK_SIZE => 100, // in sync with persist every x events
+            ProjectorOption::OPTION_RETRIES_MS => [0, 5, 100, 500, 1000],
         ],
     ],
 

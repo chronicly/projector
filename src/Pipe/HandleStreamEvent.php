@@ -32,6 +32,8 @@ final class HandleStreamEvent implements Pipe
     {
         $streams = $this->retrieveStreams($context);
 
+        $this->retriesMs = $context->option()->retriesMs();
+
         foreach ($streams as $streamName => $events) {
             $context->setCurrentStreamName($streamName);
 
@@ -39,6 +41,10 @@ final class HandleStreamEvent implements Pipe
 
             if ($this->isPersistent) {
                 $this->handleGapDetected($gapDetected);
+
+                if ($gapDetected) {
+                    break;
+                }
             }
         }
 
