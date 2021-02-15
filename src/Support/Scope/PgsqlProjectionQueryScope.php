@@ -32,7 +32,7 @@ class PgsqlProjectionQueryScope extends PgsqlConnectionQueryScope implements Pro
                 return function (Builder $query) use ($position): void {
                     $query
                         ->where('no', '>=', $position)
-                        ->orderBy('no');
+                        ->orderBy('created_at');
                 };
             }
         };
