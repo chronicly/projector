@@ -33,6 +33,7 @@ final class HandleStreamEvent implements Pipe
         $streams = $this->retrieveStreams($context);
 
         $this->retriesMs = $context->option()->retriesMs();
+        $this->detectionWindows = $context->option()->detectionWindows();
 
         foreach ($streams as $streamName => $events) {
             $context->setCurrentStreamName($streamName);
@@ -76,7 +77,7 @@ final class HandleStreamEvent implements Pipe
             $currentStreamName = $context->currentStreamName();
             $streamPosition = $context->position()->all()[$currentStreamName];
 
-            if ($this->isPersistent && $this->hasGap($streamPosition, $key)) {
+            if ($this->isPersistent && $this->hasGap($streamPosition, $key, $streamEvent, $context->clock())) {
                 return false;
             }
 

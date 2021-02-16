@@ -13,7 +13,8 @@ final class Option implements ProjectorOption
         private int $sleep = 10000,
         private int $persistBlockSize = 1000,
         private int $updateLockThreshold = 0,
-        private array $retriesMs = [0, 5, 100, 500, 1000])
+        private array $retriesMs = [0, 5, 100, 500, 1000],
+        private string $detectionWindows = 'PT1S')
     {
     }
 
@@ -45,5 +46,10 @@ final class Option implements ProjectorOption
     public function retriesMs(): array
     {
         return $this->retriesMs;
+    }
+
+    public function detectionWindows(): string
+    {
+        return $this->detectionWindows;
     }
 }

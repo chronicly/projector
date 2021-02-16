@@ -18,6 +18,7 @@ use Chronhub\Contracts\Projecting\ProjectorManager;
 use Chronhub\Contracts\Projecting\ProjectorOption;
 use Chronhub\Contracts\Stream\NamedStream;
 use Chronhub\Foundation\ChronhubServiceProvider;
+use Chronhub\Foundation\Clock\SystemClock;
 use Chronhub\Foundation\Message\Message;
 use Chronhub\Projector\Model\InMemoryProjectionProvider;
 use Chronhub\Projector\ProjectorServiceProvider;
@@ -99,7 +100,8 @@ abstract class InMemoryTestWithOrchestra extends TestWithOrchestra
 
         $headers = [
             MessageHeader::AGGREGATE_ID => $this->aggregateId,
-            MessageHeader::INTERNAL_POSITION => 1
+            MessageHeader::INTERNAL_POSITION => 1,
+            MessageHeader::TIME_OF_RECORDING => (new SystemClock())->pointInTime(),
         ];
 
         $stream = new Stream($this->streamName, [new Message($event, $headers)]);
@@ -119,7 +121,8 @@ abstract class InMemoryTestWithOrchestra extends TestWithOrchestra
 
         $message = new Message($event, [
             MessageHeader::AGGREGATE_ID => $this->aggregateId,
-            MessageHeader::INTERNAL_POSITION => 2
+            MessageHeader::INTERNAL_POSITION => 2,
+            MessageHeader::TIME_OF_RECORDING => (new SystemClock())->pointInTime(),
         ]);
 
         $stream = new Stream($this->streamName, [$message]);
