@@ -157,9 +157,16 @@ final class ProjectorManager implements Manager
                                          ?EventCounter $eventCounter,
                                          ?StreamCache $streamCache): ProjectorContext
     {
+        $streamPosition = new StreamPosition(
+            $this->eventStreamProvider,
+            $this->clock,
+            $option->retriesMs(),
+            $option->detectionWindows()
+        );
+
         return new Context(
             $option,
-            new StreamPosition($this->eventStreamProvider),
+            $streamPosition,
             new InMemoryState(),
             ProjectionStatus::IDLE(),
             $this->clock,

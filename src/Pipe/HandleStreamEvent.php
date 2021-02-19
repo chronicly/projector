@@ -7,18 +7,16 @@ use Chronhub\Chronicler\Stream\StreamName;
 use Chronhub\Contracts\Chronicling\Chronicler;
 use Chronhub\Contracts\Messaging\Message;
 use Chronhub\Contracts\Messaging\MessageAlias;
+use Chronhub\Contracts\Messaging\MessageHeader;
 use Chronhub\Contracts\Projecting\Pipe;
 use Chronhub\Contracts\Projecting\ProjectorContext;
 use Chronhub\Contracts\Projecting\ProjectorRepository;
 use Chronhub\Projector\Factory\ProjectionStatus;
 use Chronhub\Projector\Factory\StreamEventIterator;
-use Chronhub\Projector\Support\HasGapDetector;
 use Generator;
 
 final class HandleStreamEvent implements Pipe
 {
-    use HasGapDetector;
-
     private bool $isPersistent;
 
     public function __construct(private Chronicler $chronicler,
@@ -32,19 +30,20 @@ final class HandleStreamEvent implements Pipe
     {
         $streams = $this->retrieveStreams($context);
 
-        $this->retriesMs = $context->option()->retriesMs();
-        $this->detectionWindows = $context->option()->detectionWindows();
-
         foreach ($streams as $streamName => $events) {
             $context->setCurrentStreamName($streamName);
 
             $gapDetected = !$this->handleStreamEvents($events, $context);
 
             if ($this->isPersistent) {
-                $this->handleGapDetected($gapDetected);
-
                 if ($gapDetected) {
-                    break;
+                    $context->position()->sleepWithGapDetected();
+
+                    $this->repository->persist();
+
+                    return $next($context);
+                } else {
+                    $context->position()->resetRetries();
                 }
             }
         }
@@ -75,10 +74,15 @@ final class HandleStreamEvent implements Pipe
             $context->dispatchSignal();
 
             $currentStreamName = $context->currentStreamName();
-            $streamPosition = $context->position()->all()[$currentStreamName];
 
-            if ($this->isPersistent && $this->hasGap($streamPosition, $key, $streamEvent, $context->clock())) {
-                return false;
+            if ($this->isPersistent) {
+                $timeOfRecording = $streamEvent->header(MessageHeader::TIME_OF_RECORDING);
+
+                $gapDetected = $context->position()->hasGap($currentStreamName, $key, $timeOfRecording);
+
+                if ($gapDetected) {
+                    return false;
+                }
             }
 
             $context->position()->setAt($currentStreamName, $key);

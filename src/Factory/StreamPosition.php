@@ -3,9 +3,14 @@ declare(strict_types=1);
 
 namespace Chronhub\Projector\Factory;
 
+use Chronhub\Contracts\Clock\Clock;
+use Chronhub\Contracts\Clock\PointInTime;
 use Chronhub\Contracts\Model\EventStreamProvider;
 use Chronhub\Contracts\Projecting\StreamPosition as Position;
 use Chronhub\Projector\Exception\RuntimeException;
+use function array_key_exists;
+use function array_merge;
+use function usleep;
 
 final class StreamPosition implements Position
 {
@@ -13,8 +18,12 @@ final class StreamPosition implements Position
      * @var array<string,int>
      */
     private array $container = [];
+    private int $retries = 0;
 
-    public function __construct(private EventStreamProvider $eventStreamProvider)
+    public function __construct(private EventStreamProvider $eventStreamProvider,
+                                private Clock $clock,
+                                private array $retriesMs,
+                                private string $detectionWindows = 'PT1S')
     {
     }
 
@@ -42,6 +51,35 @@ final class StreamPosition implements Position
     public function reset(): void
     {
         $this->container = [];
+    }
+
+    public function sleepWithGapDetected(): void
+    {
+        usleep($this->retriesMs[$this->retries]);
+
+        $this->retries++;
+    }
+
+    public function resetRetries(): void
+    {
+        $this->retries = 0;
+    }
+
+    public function hasGap(string $currentStreamName, int $eventPosition, PointInTime $eventTimeOfRecording): bool
+    {
+        if (empty($this->retriesMs)) {
+            return false;
+        }
+
+        $now = $this->clock->pointInTime()->sub($this->detectionWindows);
+
+        if ($now->after($eventTimeOfRecording)) {
+            return false;
+        }
+
+        $streamPosition = $this->container[$currentStreamName];
+
+        return $streamPosition + 1 !== $eventPosition && array_key_exists($this->retries, $this->retriesMs);
     }
 
     public function all(): array

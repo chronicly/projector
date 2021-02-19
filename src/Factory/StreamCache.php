@@ -11,13 +11,15 @@ final class StreamCache implements Cache
 {
     private array $container;
     private int $position = -1;
+    private int $size;
 
-    public function __construct(private int $size)
+    public function __construct(int $size)
     {
         if ($size <= 0) {
             throw new InvalidArgumentException('Size must be greater than 0');
         }
 
+        $this->size = $size;
         $this->container = array_fill(0, $size, null);
     }
 
