@@ -63,7 +63,7 @@ final class HandleStreamEvent implements Pipe
             $iterator[$streamName] = new StreamEventIterator($events);
         }
 
-        return new MergeStreamIterator(array_keys($iterator, array_values($iterator)));
+        return new MergeStreamIterator(array_keys($iterator), ...array_values($iterator));
     }
 
     private function handleStreamEvents(MergeStreamIterator $events, ProjectorContext $context): bool
