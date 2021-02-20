@@ -11,9 +11,9 @@ use Chronhub\Contracts\Messaging\MessageHeader;
 use Chronhub\Contracts\Projecting\Pipe;
 use Chronhub\Contracts\Projecting\ProjectorContext;
 use Chronhub\Contracts\Projecting\ProjectorRepository;
+use Chronhub\Projector\Factory\MergeStreamIterator;
 use Chronhub\Projector\Factory\ProjectionStatus;
 use Chronhub\Projector\Factory\StreamEventIterator;
-use Generator;
 
 final class HandleStreamEvent implements Pipe
 {
@@ -30,30 +30,28 @@ final class HandleStreamEvent implements Pipe
     {
         $streams = $this->retrieveStreams($context);
 
-        foreach ($streams as $streamName => $events) {
-            $context->setCurrentStreamName($streamName);
+        $gapDetected = !$this->handleStreamEvents($streams, $context);
 
-            $gapDetected = !$this->handleStreamEvents($events, $context);
+        if ($this->isPersistent) {
+            if ($gapDetected) {
+                $context->position()->sleepWithGapDetected();
 
-            if ($this->isPersistent) {
-                if ($gapDetected) {
-                    $context->position()->sleepWithGapDetected();
+                $this->repository->persist();
 
-                    $this->repository->persist();
-
-                    return $next($context);
-                }
-
-                $context->position()->resetRetries();
+                return $next($context);
             }
+
+            $context->position()->resetRetries();
         }
 
         return $next($context);
     }
 
-    private function retrieveStreams(ProjectorContext $context): Generator
+    private function retrieveStreams(ProjectorContext $context): MergeStreamIterator
     {
         $queryFilter = $context->queryFilter();
+
+        $iterator = [];
 
         foreach ($context->position()->all() as $streamName => $position) {
             $queryFilter->setCurrentPosition($position + 1);
@@ -62,15 +60,19 @@ final class HandleStreamEvent implements Pipe
                 new StreamName($streamName), $queryFilter
             );
 
-            yield from [$streamName => new StreamEventIterator($events)];
+            $iterator[$streamName] = new StreamEventIterator($events);
         }
+
+        return new MergeStreamIterator(array_keys($iterator, array_values($iterator)));
     }
 
-    private function handleStreamEvents(StreamEventIterator $streamEvents, ProjectorContext $context): bool
+    private function handleStreamEvents(MergeStreamIterator $events, ProjectorContext $context): bool
     {
+        $context->setCurrentStreamName($events->streamName());
+
         $eventHandlers = $context->eventHandlers();
 
-        foreach ($streamEvents as $key => $streamEvent) {
+        foreach ($events as $key => $streamEvent) {
             $context->dispatchSignal();
 
             $currentStreamName = $context->currentStreamName();
