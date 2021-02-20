@@ -42,9 +42,9 @@ final class HandleStreamEvent implements Pipe
                     $this->repository->persist();
 
                     return $next($context);
-                } else {
-                    $context->position()->resetRetries();
                 }
+
+                $context->position()->resetRetries();
             }
         }
 
