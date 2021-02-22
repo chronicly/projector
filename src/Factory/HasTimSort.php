@@ -3,10 +3,15 @@ declare(strict_types=1);
 
 namespace Chronhub\Projector\Factory;
 
-use Chronhub\Contracts\Clock\PointInTime;
 use Chronhub\Contracts\Messaging\Message;
 use Chronhub\Contracts\Messaging\MessageHeader;
+use DateTimeImmutable;
+use Iterator;
+use function min;
 
+/**
+ * @see https://github.com/prooph/event-store/blob/7.x/src/StreamIterator/TimSort.php
+ */
 trait HasTimSort
 {
     private int $timSortRun = 32;
@@ -94,9 +99,9 @@ trait HasTimSort
      */
     private function timSort(array &$arr, int $n): void
     {
-        // Sort individual subarrays of size RUN
+        // Sort individual sub arrays of size RUN
         for ($i = 0; $i < $n; $i += $this->timSortRun) {
-            $this->insertionSort($arr, $i, \min($i + 31, $n - 1));
+            $this->insertionSort($arr, $i, min($i + 31, $n - 1));
         }
 
         // start merging from size RUN (or 32). It will merge
@@ -112,7 +117,7 @@ trait HasTimSort
                 // find ending point of left sub $array
                 // mid+1 is starting point of right sub $array
                 $mid = $left + $size - 1;
-                $right = \min($left + (2 * $size) - 1, $n - 1);
+                $right = min($left + (2 * $size) - 1, $n - 1);
 
                 // This happens when there are an odd number of runs to merge at any given level.
                 // the right set would be empty so there is nothing to merge.
@@ -126,7 +131,7 @@ trait HasTimSort
         }
     }
 
-    private function greaterThan(\Iterator $a, \Iterator $b): bool
+    private function greaterThan(Iterator $a, Iterator $b): bool
     {
         $aValid = $a->valid();
         $bValid = $b->valid();
@@ -138,7 +143,7 @@ trait HasTimSort
         return $this->toTime($a->current()) > $this->toTime($b->current());
     }
 
-    private function lowerThanEqual(\Iterator $a, \Iterator $b): bool
+    private function lowerThanEqual(Iterator $a, Iterator $b): bool
     {
         $aValid = $a->valid();
         $bValid = $b->valid();
@@ -150,11 +155,8 @@ trait HasTimSort
         return $this->toTime($a->current()) <= $this->toTime($b->current());
     }
 
-    private function toTime(Message $message): \DateTimeImmutable
+    private function toTime(Message $message): DateTimeImmutable
     {
-        /** @var PointInTime $pit */
-        $pit = $message->header(MessageHeader::TIME_OF_RECORDING);
-
-        return $pit->dateTime();
+        return $message->header(MessageHeader::TIME_OF_RECORDING)->dateTime();
     }
 }
