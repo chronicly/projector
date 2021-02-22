@@ -8,6 +8,7 @@ use Chronhub\Contracts\Clock\PointInTime;
 use Chronhub\Contracts\Model\EventStreamProvider;
 use Chronhub\Contracts\Projecting\StreamPosition as Position;
 use Chronhub\Projector\Exception\RuntimeException;
+use Chronhub\Projector\Pipe\Middleware\GapFoundException;
 use function array_key_exists;
 use function array_merge;
 use function usleep;
