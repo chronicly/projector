@@ -1,14 +1,14 @@
 <?php
 declare(strict_types=1);
 
-namespace Chronhub\Projector\Pipe\Middleware;
+namespace Chronhub\Projector\Factory;
 
 use Chronhub\Contracts\Messaging\Message;
 use Chronhub\Contracts\Projecting\ProjectorContext;
 use Chronhub\Contracts\Projecting\ProjectorRepository;
 use Closure;
 
-final class ClosureEventProcessor extends EventProcessor
+final class ClosureEventProcessor extends AbstractEventProcessor
 {
     public function __construct(private Closure $eventHandlers)
     {

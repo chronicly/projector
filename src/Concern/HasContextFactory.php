@@ -3,11 +3,16 @@ declare(strict_types=1);
 
 namespace Chronhub\Projector\Concern;
 
+use Chronhub\Contracts\Messaging\MessageAlias;
+use Chronhub\Contracts\Projecting\EventProcessor;
 use Chronhub\Contracts\Projecting\ProjectorContext;
 use Chronhub\Contracts\Projecting\ProjectorRunner;
 use Chronhub\Contracts\Query\ProjectionQueryFilter;
 use Chronhub\Projector\Exception\RuntimeException;
+use Chronhub\Projector\Factory\ArrayEventProcessor;
+use Chronhub\Projector\Factory\ClosureEventProcessor;
 use Closure;
+use function count;
 
 trait HasContextFactory
 {
@@ -16,6 +21,7 @@ trait HasContextFactory
     protected array $streamsNames = [];
     protected ?ProjectionQueryFilter $queryFilter = null;
     protected ProjectorRunner $runner;
+    protected MessageAlias $messageAlias;
 
     public function initialize(Closure $initCallback): ProjectorContext
     {
@@ -99,9 +105,13 @@ trait HasContextFactory
         return $this->initCallback;
     }
 
-    public function eventHandlers(): Closure|array
+    public function eventHandlers(): EventProcessor
     {
-        return $this->eventHandlers;
+        if ($this->eventHandlers instanceof Closure) {
+            return new ClosureEventProcessor($this->eventHandlers);
+        }
+
+        return new ArrayEventProcessor($this->eventHandlers, $this->messageAlias);
     }
 
     public function streamsNames(): array
@@ -116,7 +126,7 @@ trait HasContextFactory
 
     public function validate(): void
     {
-        if (empty($this->streamsNames)) {
+        if (count($this->streamsNames) === 0) {
             throw new RuntimeException("Projection streams all|names|categories not set");
         }
 
@@ -131,7 +141,7 @@ trait HasContextFactory
 
     private function assertStreamsNamesNotSet(): void
     {
-        if (!empty($this->streamsNames)) {
+        if (count($this->streamsNames) > 0) {
             throw new RuntimeException("Projection streams all|names|categories already set");
         }
     }

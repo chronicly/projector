@@ -1,14 +1,14 @@
 <?php
 declare(strict_types=1);
 
-namespace Chronhub\Projector\Pipe\Middleware;
+namespace Chronhub\Projector\Factory;
 
 use Chronhub\Contracts\Messaging\Message;
 use Chronhub\Contracts\Messaging\MessageAlias;
 use Chronhub\Contracts\Projecting\ProjectorContext;
 use Chronhub\Contracts\Projecting\ProjectorRepository;
 
-final class ArrayEventProcessor extends EventProcessor
+final class ArrayEventProcessor extends AbstractEventProcessor
 {
     public function __construct(private array $eventHandlers, private MessageAlias $messageAlias)
     {

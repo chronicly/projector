@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Chronhub\Projector\Context;
 
 use Chronhub\Contracts\Clock\Clock;
+use Chronhub\Contracts\Messaging\MessageAlias;
 use Chronhub\Contracts\Projecting\ContextualEventHandler;
 use Chronhub\Contracts\Projecting\EventCounter;
 use Chronhub\Contracts\Projecting\ProjectionState;
@@ -28,6 +29,7 @@ class Context implements ProjectorContext
                                 protected ProjectionState $state,
                                 protected Status $status,
                                 protected Clock $clock,
+                                protected MessageAlias $messageAlias,
                                 protected ?EventCounter $eventCounter,
                                 protected ?StreamCache $streamCache)
     {

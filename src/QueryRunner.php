@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace Chronhub\Projector;
 
 use Chronhub\Contracts\Chronicling\Chronicler;
-use Chronhub\Contracts\Messaging\MessageAlias;
 use Chronhub\Contracts\Projecting\Pipe;
 use Chronhub\Contracts\Projecting\ProjectorContext;
 use Chronhub\Contracts\Projecting\QueryProjector;
@@ -16,8 +15,7 @@ use Chronhub\Projector\Pipe\PrepareQueryRunner;
 final class QueryRunner
 {
     public function __construct(private QueryProjector $projector,
-                                private Chronicler $chronicler,
-                                private MessageAlias $messageAlias)
+                                private Chronicler $chronicler)
     {
     }
 
@@ -41,7 +39,7 @@ final class QueryRunner
     {
         return [
             new PrepareQueryRunner(),
-            new HandleStreamEvent($this->chronicler, $this->messageAlias, null),
+            new HandleStreamEvent($this->chronicler, null),
             new DispatchSignal()
         ];
     }

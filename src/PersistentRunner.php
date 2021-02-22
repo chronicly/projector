@@ -21,7 +21,6 @@ final class PersistentRunner
 {
     public function __construct(private PersistentProjector $projector,
                                 private Chronicler $chronicler,
-                                private MessageAlias $messageAlias,
                                 private ProjectorRepository $repository)
     {
     }
@@ -53,7 +52,7 @@ final class PersistentRunner
     {
         return [
             new PreparePersistentRunner($this->projector, $this->repository),
-            new HandleStreamEvent($this->chronicler, $this->messageAlias, $this->repository),
+            new HandleStreamEvent($this->chronicler, $this->repository),
             new PersistOrUpdateLockBeforeResetCounter($this->repository),
             new DispatchSignal(),
             new UpdateProjectionStatusAndPositions($this->projector, $this->repository)

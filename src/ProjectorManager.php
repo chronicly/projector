@@ -170,6 +170,7 @@ final class ProjectorManager implements Manager
             new InMemoryState(),
             ProjectionStatus::IDLE(),
             $this->clock,
+            $this->messageAlias,
             $eventCounter,
             $streamCache
         );

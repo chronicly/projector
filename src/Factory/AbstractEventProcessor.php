@@ -1,15 +1,15 @@
 <?php
 declare(strict_types=1);
 
-namespace Chronhub\Projector\Pipe\Middleware;
+namespace Chronhub\Projector\Factory;
 
 use Chronhub\Contracts\Messaging\Message;
 use Chronhub\Contracts\Messaging\MessageHeader;
+use Chronhub\Contracts\Projecting\EventProcessor;
 use Chronhub\Contracts\Projecting\ProjectorContext;
 use Chronhub\Contracts\Projecting\ProjectorRepository;
-use Chronhub\Projector\Factory\ProjectionStatus;
 
-abstract class EventProcessor
+abstract class AbstractEventProcessor implements EventProcessor
 {
     abstract public function __invoke(ProjectorContext $context,
                                       Message $message,
