@@ -6,15 +6,22 @@ namespace Chronhub\Projector\Factory;
 use Chronhub\Contracts\Projecting\Pipe;
 use Chronhub\Contracts\Projecting\Pipeline as BasePipeline;
 use Chronhub\Contracts\Projecting\ProjectorContext;
+use Chronhub\Contracts\Projecting\ProjectorRepository;
+use Chronhub\Projector\Exception\ProjectionAlreadyRunning;
 use Closure;
+use Throwable;
 
 final class Pipeline implements BasePipeline
 {
     /**
      * @var Pipe[]
      */
-    protected array $pipes = [];
-    protected ProjectorContext $passable;
+    private array $pipes = [];
+    private ProjectorContext $passable;
+
+    public function __construct(private ?ProjectorRepository $repository)
+    {
+    }
 
     public function send(ProjectorContext $passable): self
     {
@@ -39,13 +46,43 @@ final class Pipeline implements BasePipeline
         return $pipeline($this->passable);
     }
 
+    /**
+     * @param Closure $destination
+     * @return Closure
+     * @throws Throwable
+     */
     private function prepareDestination(Closure $destination): Closure
     {
-        return fn($passable) => $destination($passable);
+        try {
+            return fn($passable) => $destination($passable);
+        } catch (Throwable $exception) {
+            $this->releaseLockOnException($exception);
+        }
     }
 
+    /**
+     * @return Closure
+     * @throws Throwable
+     */
     private function carry(): Closure
     {
-        return fn($stack, $pipe) => fn($passable) => $pipe($passable, $stack);
+        try {
+            return fn($stack, $pipe) => fn($passable) => $pipe($passable, $stack);
+        } catch (Throwable $exception) {
+            $this->releaseLockOnException($exception);
+        }
+    }
+
+    /**
+     * @param Throwable $exception
+     * @throws Throwable
+     */
+    private function releaseLockOnException(Throwable $exception): void
+    {
+        if ($this->repository && !$exception instanceof ProjectionAlreadyRunning) {
+            $this->repository->releaseLock();
+        }
+
+        throw $exception;
     }
 }

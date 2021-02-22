@@ -21,7 +21,7 @@ final class QueryRunner
 
     public function __invoke(ProjectorContext $context): void
     {
-        $pipeline = new Pipeline();
+        $pipeline = new Pipeline(null);
 
         $pipeline->through($this->getPipes());
 

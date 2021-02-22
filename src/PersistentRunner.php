@@ -4,12 +4,10 @@ declare(strict_types=1);
 namespace Chronhub\Projector;
 
 use Chronhub\Contracts\Chronicling\Chronicler;
-use Chronhub\Contracts\Messaging\MessageAlias;
 use Chronhub\Contracts\Projecting\PersistentProjector;
 use Chronhub\Contracts\Projecting\Pipe;
 use Chronhub\Contracts\Projecting\ProjectorContext;
 use Chronhub\Contracts\Projecting\ProjectorRepository;
-use Chronhub\Projector\Exception\ProjectionAlreadyRunning;
 use Chronhub\Projector\Factory\Pipeline;
 use Chronhub\Projector\Pipe\DispatchSignal;
 use Chronhub\Projector\Pipe\HandleStreamEvent;
@@ -27,22 +25,15 @@ final class PersistentRunner
 
     public function __invoke(ProjectorContext $context): void
     {
-        $alreadyRunning = null;
+        $pipeline = new Pipeline($this->repository);
 
-        try {
-            $pipeline = new Pipeline();
-            $pipeline->through($this->getPipes());
+        $pipeline->through($this->getPipes());
 
-            do {
-                $isStopped = $pipeline
-                    ->send($context)
-                    ->then(fn(ProjectorContext $context): bool => $context->runner()->isStopped());
-            } while ($context->runner()->inBackground() && !$isStopped);
-        } catch (ProjectionAlreadyRunning $exception) {
-            $alreadyRunning = $exception;
-        } finally {
-            null === $alreadyRunning ? $this->repository->releaseLock() : throw $alreadyRunning;
-        }
+        do {
+            $isStopped = $pipeline
+                ->send($context)
+                ->then(fn(ProjectorContext $context): bool => $context->runner()->isStopped());
+        } while ($context->runner()->inBackground() && !$isStopped);
     }
 
     /**
