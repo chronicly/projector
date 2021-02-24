@@ -31,9 +31,9 @@ return [
         'lazy' => [
             ProjectorOption::OPTION_PCNTL_DISPATCH => true,
             ProjectorOption::OPTION_STREAM_CACHE_SIZE => 1000,
-            ProjectorOption::OPTION_LOCK_TIMEOUT_MS => 20000,
-            ProjectorOption::OPTION_SLEEP => 10000,
-            ProjectorOption::OPTION_UPDATE_LOCK_THRESHOLD => 15000,
+            ProjectorOption::OPTION_LOCK_TIMEOUT_MS => 1000,
+            ProjectorOption::OPTION_SLEEP => 100000,
+            ProjectorOption::OPTION_UPDATE_LOCK_THRESHOLD => 1000,
             ProjectorOption::OPTION_PERSIST_BLOCK_SIZE => 1000,
             ProjectorOption::OPTION_RETRIES_MS => [0, 5, 100, 500, 1000],
             ProjectorOption::OPTION_DETECTION_WINDOWS => 'PT60S',
