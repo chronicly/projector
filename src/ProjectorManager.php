@@ -64,7 +64,7 @@ final class ProjectorManager implements Manager
         $context = $this->newProjectorContext(
             $options,
             new EventCounter(),
-            new StreamCache($options->persistBlockSize())
+            new StreamCache($options->streamCacheSize())
         );
 
         $repository = new ProjectionRepository(

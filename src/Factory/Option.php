@@ -9,18 +9,24 @@ final class Option implements ProjectorOption
 {
     public function __construct(
         private bool $dispatchPcntlSignal = false,
+        private int $streamCacheSize = 1000,
         private int $lockTimeoutMs = 1000,
         private int $sleep = 10000,
         private int $persistBlockSize = 1000,
         private int $updateLockThreshold = 0,
         private array $retriesMs = [0, 5, 100, 500, 1000],
-        private string $detectionWindows = 'PT1S')
+        private string $detectionWindows = 'PT60S')
     {
     }
 
     public function dispatchSignal(): bool
     {
         return $this->dispatchPcntlSignal;
+    }
+
+    public function streamCacheSize(): int
+    {
+        return $this->streamCacheSize;
     }
 
     public function lockTimoutMs(): int
