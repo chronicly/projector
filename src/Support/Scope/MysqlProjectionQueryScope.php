@@ -32,7 +32,7 @@ class MysqlProjectionQueryScope extends MysqlConnectionQueryScope implements Pro
                 return function (Builder $query) use ($position): void {
                     $query
                         ->where('no', '>=', $position)
-                        ->orderBy('created_at');
+                        ->orderBy('no');
                 };
             }
         };
