@@ -79,9 +79,11 @@ final class StreamPosition implements Position
             return false;
         }
 
-        $streamPosition = $this->container[$currentStreamName];
+        if ($this->container[$currentStreamName] + 1 === $eventPosition) {
+            return false;
+        }
 
-        return $streamPosition + 1 !== $eventPosition && array_key_exists($this->retries, $this->retriesMs);
+        return array_key_exists($this->retries, $this->retriesMs);
     }
 
     public function all(): array
