@@ -120,7 +120,7 @@ final class ProjectorRepository implements Repository
         try {
             $result = $this->projectionProvider->updateProjection($this->streamName, [
                 'position' => $this->jsonEncoder->encode($this->projectorContext->position()->all()),
-                'state' => $this->jsonEncoder->encode($this->projectorContext->state()->getState()),
+                'state' => $this->encodeData($this->projectorContext->state()->getState()),
                 'locked_until' => $this->createLockUntilString(LockTime::fromNow())
             ]);
         } catch (QueryException $queryException) {
@@ -143,7 +143,7 @@ final class ProjectorRepository implements Repository
         try {
             $result = $this->projectionProvider->updateProjection($this->streamName, [
                 'position' => $this->jsonEncoder->encode($this->projectorContext->position()->all()),
-                'state' => $this->jsonEncoder->encode($this->projectorContext->state()->getState()),
+                'state' => $this->encodeData($this->projectorContext->state()->getState()),
                 'status' => $this->projectorContext->status()->ofValue()
             ]);
         } catch (QueryException $queryException) {
@@ -256,7 +256,7 @@ final class ProjectorRepository implements Repository
             try {
                 $result = $this->projectionProvider->updateProjection($this->streamName, [
                     'locked_until' => $lockedUntil,
-                    'position' => $this->jsonEncoder->encode($this->projectorContext->position()->all())
+                    'position' => $this->encodeData($this->projectorContext->position()->all())
                 ]);
             } catch (QueryException $queryException) {
                 throw QueryFailure::fromQueryException($queryException);
@@ -264,7 +264,7 @@ final class ProjectorRepository implements Repository
 
             if (!$result) {
                 throw new QueryFailure(
-                    "An error occurred when updating lock for stream name: {$this->streamName}"
+                    "An error occurred when updating lock for stream name: $this->streamName"
                 );
             }
 
@@ -315,5 +315,15 @@ final class ProjectorRepository implements Repository
         return $dateTime->createLockUntil(
             $this->projectorContext->option()->lockTimoutMs()
         );
+    }
+
+    // todo check if Json Object can be used safely
+    private function encodeData(array $data): string
+    {
+        if (count($data) > 0) {
+            return $this->jsonEncoder->encode($data);
+        }
+
+        return '{}';
     }
 }
