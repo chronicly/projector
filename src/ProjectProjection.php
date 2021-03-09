@@ -70,12 +70,11 @@ final class ProjectProjection implements PersistentProjectionProjector, Projecto
     private function determineIfStreamAlreadyExists(StreamName $streamName): bool
     {
         if ($this->context->cache()->has($streamName->toString())) {
-            $append = true;
-        } else {
-            $this->context->cache()->push($streamName->toString());
-            $append = $this->chronicler->hasStream($streamName);
+            return true;
         }
 
-        return $append;
+        $this->context->cache()->push($streamName->toString());
+
+        return $this->chronicler->hasStream($streamName);
     }
 }
