@@ -111,20 +111,6 @@ final class StreamPosition implements Position
             throw new RuntimeException('Invalid configuration, stream names can not be empty');
         }
 
-        $this->assertStreamNamesExists($streamNames);
-
         return $streamNames;
-    }
-
-    private function assertStreamNamesExists(array $streamNames): void
-    {
-        $remoteStreams = $this->eventStreamProvider->filterByStreams($streamNames);
-
-        if (count($streamNames) !== count($remoteStreams)) {
-            $message = "One or many stream names were not found in event stream table,\n";
-            $message .= "Missing " . implode(', ', array_diff($streamNames, $remoteStreams));
-
-            throw new RuntimeException($message);
-        }
     }
 }
