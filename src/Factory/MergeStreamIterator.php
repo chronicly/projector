@@ -7,6 +7,11 @@ use Countable;
 use Iterator;
 use function count;
 
+/**
+ * Class MergeStreamIterator
+ *
+ * @see https://github.com/prooph/event-store/blob/7.x/src/StreamIterator/MergedStreamIterator.php
+ */
 final class MergeStreamIterator implements Iterator, Countable
 {
     use HasTimSort;
@@ -29,8 +34,8 @@ final class MergeStreamIterator implements Iterator, Countable
 
     public function rewind(): void
     {
-        foreach ($this->iterators as $iter) {
-            $iter[0]->rewind();
+        foreach ($this->iterators as $iterator) {
+            $iterator[0]->rewind();
         }
 
         $this->prioritizeIterators();
