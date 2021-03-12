@@ -26,7 +26,7 @@ trait HasConnectionOperation
      * @param int|float $value
      * @param array     $extra
      */
-    protected function increment(string $id, string $column, float|int $value, array $extra = []): void
+    protected function increment(string $id, string $column, int|float $value, array $extra = []): void
     {
         $this->queryBuilder()
             ->where($this->getKey(), $id)
