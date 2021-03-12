@@ -29,7 +29,7 @@ final class ReadProjectionCommand extends Command
         $result = $this->fetchProjectionByField($streamName, $fieldName);
         $result = empty($result) ? 'No result' : json_encode($result);
 
-        $this->info("{$fieldName} for stream $streamName is $result");
+        $this->info("$fieldName for stream $streamName is $result");
     }
 
     private function fetchProjectionByField(string $streamName, string $fieldName): array
