@@ -6,16 +6,15 @@ namespace Chronhub\Projector;
 use Chronhub\Contracts\Chronicling\Chronicler;
 use Chronhub\Contracts\Projecting\Pipe;
 use Chronhub\Contracts\Projecting\ProjectorContext;
-use Chronhub\Contracts\Projecting\QueryProjector;
 use Chronhub\Projector\Factory\Pipeline;
 use Chronhub\Projector\Pipe\DispatchSignal;
 use Chronhub\Projector\Pipe\HandleStreamEvent;
 use Chronhub\Projector\Pipe\PrepareQueryRunner;
+use JetBrains\PhpStorm\Pure;
 
 final class QueryRunner
 {
-    public function __construct(private QueryProjector $projector,
-                                private Chronicler $chronicler)
+    public function __construct(private Chronicler $chronicler)
     {
     }
 
@@ -35,6 +34,7 @@ final class QueryRunner
     /**
      * @return Pipe[]
      */
+    #[Pure]
     private function getPipes(): array
     {
         return [
