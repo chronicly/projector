@@ -11,11 +11,6 @@ use Chronhub\Contracts\Projecting\ProjectorRepository;
 
 abstract class AbstractEventProcessor implements EventProcessor
 {
-    abstract public function __invoke(ProjectorContext $context,
-                                      Message $message,
-                                      int $key,
-                                      ?ProjectorRepository $repository): bool;
-
     protected function preProcess(ProjectorContext $context,
                                   Message $message,
                                   int $key,
