@@ -8,10 +8,8 @@ use Chronhub\Contracts\Clock\PointInTime;
 use Chronhub\Contracts\Model\EventStreamProvider;
 use Chronhub\Contracts\Projecting\StreamPosition as Position;
 use Chronhub\Projector\Exception\RuntimeException;
-use function array_diff;
 use function array_key_exists;
 use function array_merge;
-use function implode;
 use function usleep;
 
 final class StreamPosition implements Position
@@ -69,7 +67,7 @@ final class StreamPosition implements Position
 
     public function hasGap(string $currentStreamName, int $eventPosition, PointInTime $eventTimeOfRecording): bool
     {
-        if (empty($this->retriesMs)) {
+        if (count($this->retriesMs) < 1) {
             return false;
         }
 
@@ -107,7 +105,7 @@ final class StreamPosition implements Position
 
         $streamNames = $streamNames['names'] ?? [];
 
-        if (empty($streamNames)) {
+        if (count($streamNames) < 1) {
             throw new RuntimeException('Invalid configuration, stream names can not be empty');
         }
 
