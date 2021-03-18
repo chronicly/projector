@@ -60,7 +60,7 @@ final class ProjectorRepository implements Repository
 
         if (!$result) {
             throw new QueryFailure(
-                "Unable to create projection for stream name: {$this->streamName }"
+                "Unable to create projection for stream name: {$this->streamName}"
             );
         }
     }
@@ -82,7 +82,7 @@ final class ProjectorRepository implements Repository
 
         if (!$result) {
             throw new QueryFailure(
-                "Unable to stop projection for stream name: {$this->streamName }"
+                "Unable to stop projection for stream name: {$this->streamName}"
             );
         }
 
