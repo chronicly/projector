@@ -44,11 +44,19 @@ abstract class AbstractPersistentProjectionCommand extends Command
 
     protected function projectorName(): string
     {
-        return $this->option('projector') ?? 'default';
+        if ($this->hasOption('projector')) {
+            return $this->option('projector');
+        }
+
+        return 'default';
     }
 
     protected function dispatchSignal(): bool
     {
-        return (int)$this->option('signal') === 1;
+        if ($this->hasOption('signal')) {
+            return (int)$this->option('signal') === 1;
+        }
+
+        return false;
     }
 }
