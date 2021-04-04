@@ -6,37 +6,31 @@ namespace Chronhub\Projector\Support;
 final class EventTimer
 {
     private float $now = 0;
-    private float $elapsedTime = 0;
 
     /**
      * EventTimer constructor.
      *
-     * @param int $stopAt in milliseconds
+     * @param float $stopAt in milliseconds
      */
-    public function __construct(private int $stopAt = 1000)
+    public function __construct(private float $stopAt = 1000)
     {
     }
 
     public function start(): void
     {
-        if ($this->now === 0) {
+        if ($this->now < 1) {
             $this->now = $this->now();
         }
     }
 
     public function increment(): void
     {
-        $this->elapsedTime += $this->now() - microtime(true);
-    }
-
-    public function elapsedTime(): float
-    {
-        return $this->elapsedTime;
+        $this->stopAt -= ($this->now() - $this->now);
     }
 
     public function isReached(): bool
     {
-        return $this->elapsedTime >= $this->stopAt;
+        return $this->stopAt <= 0;
     }
 
     public function now(): float
