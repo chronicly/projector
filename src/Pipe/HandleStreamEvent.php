@@ -29,8 +29,10 @@ final class HandleStreamEvent implements Pipe
         foreach ($streams as $eventStreamKey => $message) {
             $context->setCurrentStreamName($streams->streamName());
 
-            if (!$eventHandlers($context, $message, $eventStreamKey, $this->repository)) {
-                return false;
+            $eventHandled = $eventHandlers($context, $message, $eventStreamKey, $this->repository);
+
+            if (!$eventHandled || $context->runner()->isStopped()) {
+                return $next($context);
             }
         }
 
@@ -41,9 +43,8 @@ final class HandleStreamEvent implements Pipe
 
     private function retrieveStreams(ProjectorContext $context): MergeStreamIterator
     {
-        $queryFilter = $context->queryFilter();
-
         $iterator = [];
+        $queryFilter = $context->queryFilter();
 
         foreach ($context->position()->all() as $streamName => $position) {
             $queryFilter->setCurrentPosition($position + 1);
