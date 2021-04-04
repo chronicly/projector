@@ -11,12 +11,13 @@ final class ProjectCategoryStreamCommand extends AbstractPersistentProjectionCom
 
     public function handle(): void
     {
-        $projection = $this->withProjection('$by_category');
+        $this->withProjection('$by_category');
 
-        $projection
+        $this->projector
             ->fromAll()
             ->whenAny(function (AggregateChanged $event): void {
                 $streamName = $this->streamName();
+
                 $pos = strpos($streamName, '-');
 
                 if (false === $pos) {

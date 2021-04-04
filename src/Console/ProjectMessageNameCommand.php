@@ -12,9 +12,9 @@ final class ProjectMessageNameCommand extends AbstractPersistentProjectionComman
 
     public function handle(): void
     {
-        $projection = $this->withProjection('$by_message_name');
+        $this->withProjection('$by_message_name');
 
-        $projection
+        $this->projector
             ->fromAll()
             ->whenAny(function (AggregateChanged $event): void {
                 $messageName = $event->header(MessageHeader::EVENT_TYPE);

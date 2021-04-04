@@ -11,9 +11,9 @@ final class ProjectAllStreamCommand extends AbstractPersistentProjectionCommand
 
     public function handle(): void
     {
-        $projection = $this->withProjection('$all');
+        $this->withProjection('$all');
 
-        $projection
+        $this->projector
             ->fromAll()
             ->whenAny(function (AggregateChanged $event): void {
                 $this->emit($event);
