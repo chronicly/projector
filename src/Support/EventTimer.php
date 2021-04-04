@@ -10,9 +10,9 @@ final class EventTimer
     /**
      * EventTimer constructor.
      *
-     * @param float $stopAt in milliseconds
+     * @param float $runningTimeMs in milliseconds
      */
-    public function __construct(private float $stopAt = 1000)
+    public function __construct(private float $runningTimeMs = 1000)
     {
     }
 
@@ -25,16 +25,21 @@ final class EventTimer
 
     public function increment(): void
     {
-        $this->stopAt -= ($this->now() - $this->now);
-    }
-
-    public function isReached(): bool
-    {
-        return $this->stopAt <= 0;
+        $this->runningTimeMs -= $this->now() - $this->now;
     }
 
     public function now(): float
     {
         return microtime(true);
+    }
+
+    public function isReached(): bool
+    {
+        return $this->runningTimeMs <= 0;
+    }
+
+    public function stopAt(): float
+    {
+        return $this->runningTimeMs;
     }
 }
