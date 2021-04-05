@@ -119,7 +119,7 @@ final class ProjectorRepository implements Repository
     {
         try {
             $result = $this->projectionProvider->updateProjection($this->streamName, [
-                'position' => $this->jsonEncoder->encode($this->projectorContext->position()->all()),
+                'position' => $this->encodeData($this->projectorContext->position()->all()),
                 'state' => $this->encodeData($this->projectorContext->state()->getState()),
                 'locked_until' => $this->createLockUntilString(LockTime::fromNow())
             ]);
@@ -142,7 +142,7 @@ final class ProjectorRepository implements Repository
 
         try {
             $result = $this->projectionProvider->updateProjection($this->streamName, [
-                'position' => $this->jsonEncoder->encode($this->projectorContext->position()->all()),
+                'position' => $this->encodeData($this->projectorContext->position()->all()),
                 'state' => $this->encodeData($this->projectorContext->state()->getState()),
                 'status' => $this->projectorContext->status()->ofValue()
             ]);
