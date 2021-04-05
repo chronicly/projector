@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace Chronhub\Projector\Console;
 
 use Chronhub\Contracts\Messaging\DomainEvent;
-use Chronhub\Contracts\Projecting\Projector;
+use Chronhub\Contracts\Projecting\ProjectorFactory;
 use Chronhub\Contracts\Projecting\ReadModel;
 use Chronhub\Projector\Support\Facade\Project;
 use Illuminate\Console\Command;
@@ -18,7 +18,7 @@ use Symfony\Component\Console\Command\SignalableCommandInterface;
  */
 abstract class AbstractPersistentProjectionCommand extends Command implements SignalableCommandInterface
 {
-    protected ?Projector $projector = null;
+    protected ?ProjectorFactory $projector = null;
 
     protected function withProjection(string $streamName,
                                       string|ReadModel $readModel = null,
