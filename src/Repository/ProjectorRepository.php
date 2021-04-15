@@ -12,6 +12,11 @@ use Chronhub\Foundation\Exception\QueryFailure;
 use Chronhub\Projector\Exception\ProjectionAlreadyRunning;
 use Chronhub\Projector\Exception\ProjectionNotFound;
 use Chronhub\Projector\Factory\ProjectionStatus;
+use Chronhub\Projector\Support\Event\ProjectorDeleted;
+use Chronhub\Projector\Support\Event\ProjectorReset;
+use Chronhub\Projector\Support\Event\ProjectorRestarted;
+use Chronhub\Projector\Support\Event\ProjectorStarted;
+use Chronhub\Projector\Support\Event\ProjectorStopped;
 use Chronhub\Projector\Support\LockTime;
 use DateInterval;
 use DateTimeImmutable;
@@ -45,8 +50,12 @@ final class ProjectorRepository implements Repository
         $this->projectorContext->position()->make($this->projectorContext->streamsNames());
 
         $this->loadState();
+
+        event(new ProjectorStarted($this->streamName, $this->projectorContext->state()->getState()));
     }
 
+    // todo remove from interface
+    // should only be access from prepare
     public function create(): void
     {
         try {
@@ -60,7 +69,7 @@ final class ProjectorRepository implements Repository
 
         if (!$result) {
             throw new QueryFailure(
-                "Unable to create projection for stream name: {$this->streamName}"
+                "Unable to create projection for stream name: $this->streamName"
             );
         }
     }
@@ -82,11 +91,13 @@ final class ProjectorRepository implements Repository
 
         if (!$result) {
             throw new QueryFailure(
-                "Unable to stop projection for stream name: {$this->streamName}"
+                "Unable to stop projection for stream name: $this->streamName"
             );
         }
 
         $this->projectorContext->setStatus($idleProjection);
+
+        event(new ProjectorStopped($this->streamName, $this->projectorContext->state()->getState()));
     }
 
     public function startAgain(): void
@@ -106,13 +117,15 @@ final class ProjectorRepository implements Repository
 
         if (!$result) {
             throw new QueryFailure(
-                "Unable to start projection again for stream name: {$this->streamName}"
+                "Unable to start projection again for stream name: $this->streamName"
             );
         }
 
         $this->projectorContext->setStatus($runningStatus);
 
         $this->lastLockUpdate = $now->toDateTime();
+
+        event(new ProjectorRestarted($this->streamName, $this->projectorContext->state()->getState()));
     }
 
     public function persist(): void
@@ -155,6 +168,8 @@ final class ProjectorRepository implements Repository
                 "Unable to reset projection for stream name: {$this->streamName}"
             );
         }
+
+        event(new ProjectorReset($this->streamName, $this->projectorContext->state()->getState()));
     }
 
     public function delete(bool $withEmittedEvents): callable
@@ -173,12 +188,14 @@ final class ProjectorRepository implements Repository
 
         $context = $this->projectorContext;
 
-        return function () use ($context): void {
+        return function () use ($context, $withEmittedEvents): void {
             $context->runner()->stop(true);
 
             $context->resetStateWithInitialize();
 
             $context->position()->reset();
+
+            event(new ProjectorDeleted($context->currentStreamName(), $context->state()->getState(), $withEmittedEvents));
         };
     }
 
