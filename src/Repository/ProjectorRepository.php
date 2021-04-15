@@ -12,6 +12,8 @@ use Chronhub\Foundation\Exception\QueryFailure;
 use Chronhub\Projector\Exception\ProjectionAlreadyRunning;
 use Chronhub\Projector\Exception\ProjectionNotFound;
 use Chronhub\Projector\Factory\ProjectionStatus;
+use Chronhub\Projector\Support\Event\ProjectorAttemptDeleted;
+use Chronhub\Projector\Support\Event\ProjectorAttemptReset;
 use Chronhub\Projector\Support\Event\ProjectorDeleted;
 use Chronhub\Projector\Support\Event\ProjectorReset;
 use Chronhub\Projector\Support\Event\ProjectorRestarted;
@@ -52,26 +54,6 @@ final class ProjectorRepository implements Repository
         $this->loadState();
 
         event(new ProjectorStarted($this->streamName, $this->projectorContext->state()->getState()));
-    }
-
-    // todo remove from interface
-    // should only be access from prepare
-    public function create(): void
-    {
-        try {
-            $result = $this->projectionProvider->createProjection(
-                $this->streamName,
-                $this->projectorContext->status()->ofValue()
-            );
-        } catch (QueryException $queryException) {
-            throw QueryFailure::fromQueryException($queryException);
-        }
-
-        if (!$result) {
-            throw new QueryFailure(
-                "Unable to create projection for stream name: $this->streamName"
-            );
-        }
     }
 
     public function stop(): void
@@ -149,6 +131,8 @@ final class ProjectorRepository implements Repository
 
     public function reset(): void
     {
+        event(new ProjectorAttemptReset($this->streamName, $this->projectorContext->state()->getState()));
+
         $this->projectorContext->position()->reset();
 
         $this->projectorContext->resetStateWithInitialize();
@@ -165,7 +149,7 @@ final class ProjectorRepository implements Repository
 
         if (!$result) {
             throw new QueryFailure(
-                "Unable to reset projection for stream name: {$this->streamName}"
+                "Unable to reset projection for stream name: $this->streamName"
             );
         }
 
@@ -174,6 +158,8 @@ final class ProjectorRepository implements Repository
 
     public function delete(bool $withEmittedEvents): callable
     {
+        event(new ProjectorAttemptDeleted($this->streamName, $this->projectorContext->state()->getState(), $withEmittedEvents));
+
         try {
             $result = $this->projectionProvider->deleteByName($this->streamName);
         } catch (QueryException $queryException) {
@@ -326,6 +312,24 @@ final class ProjectorRepository implements Repository
     public function getStreamName(): string
     {
         return $this->streamName;
+    }
+
+    private function create(): void
+    {
+        try {
+            $result = $this->projectionProvider->createProjection(
+                $this->streamName,
+                $this->projectorContext->status()->ofValue()
+            );
+        } catch (QueryException $queryException) {
+            throw QueryFailure::fromQueryException($queryException);
+        }
+
+        if (!$result) {
+            throw new QueryFailure(
+                "Unable to create projection for stream name: $this->streamName"
+            );
+        }
     }
 
     private function createLockUntilString(LockTime $dateTime): string
