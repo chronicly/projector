@@ -142,7 +142,7 @@ final class ProjectorRepository implements Repository
 
         if (!$result) {
             throw new QueryFailure(
-                "Unable to persist projection for stream name: {$this->streamName}"
+                "Unable to persist projection for stream name: $this->streamName"
             );
         }
     }
@@ -182,20 +182,21 @@ final class ProjectorRepository implements Repository
 
         if (!$result) {
             throw new QueryFailure(
-                "Unable to delete projection for stream name: {$this->streamName}"
+                "Unable to delete projection for stream name: $this->streamName"
             );
         }
 
         $context = $this->projectorContext;
+        $streamName = $this->streamName;
 
-        return function () use ($context, $withEmittedEvents): void {
+        return function () use ($context, $streamName, $withEmittedEvents): void {
             $context->runner()->stop(true);
 
             $context->resetStateWithInitialize();
 
             $context->position()->reset();
 
-            event(new ProjectorDeleted($context->currentStreamName(), $context->state()->getState(), $withEmittedEvents));
+            event(new ProjectorDeleted($streamName, $context->state()->getState(), $withEmittedEvents));
         };
     }
 
@@ -204,7 +205,7 @@ final class ProjectorRepository implements Repository
         $result = $this->projectionProvider->findByName($this->streamName);
 
         if (!$result) {
-            $exceptionMessage = "Projection not found with stream name {$this->streamName}\n";
+            $exceptionMessage = "Projection not found with stream name $this->streamName\n";
             $exceptionMessage .= 'Did you call prepareExecution first on Projector lock instance?';
 
             throw new ProjectionNotFound($exceptionMessage);
@@ -254,7 +255,7 @@ final class ProjectorRepository implements Repository
 
         if (!$result) {
             throw new ProjectionAlreadyRunning(
-                "Another projection process is already running for stream name: {$this->streamName}"
+                "Another projection process is already running for stream name: $this->streamName"
             );
         }
 
