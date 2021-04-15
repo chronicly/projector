@@ -32,7 +32,13 @@ final class PersistentRunner
         do {
             $isStopped = $pipeline
                 ->send($context)
-                ->then(fn(ProjectorContext $context): bool => $context->runner()->isStopped());
+                ->then(function (ProjectorContext $context): bool {
+                    if (!$context->runner()->inBackground()) {
+                        $this->projector->stop();
+                    }
+
+                    return $context->runner()->isStopped();
+                });
         } while ($context->runner()->inBackground() && !$isStopped);
     }
 
