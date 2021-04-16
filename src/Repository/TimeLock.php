@@ -3,29 +3,25 @@ declare(strict_types=1);
 
 namespace Chronhub\Projector\Repository;
 
+use Chronhub\Contracts\Clock\Clock;
+use Chronhub\Contracts\Clock\PointInTime;
 use DateInterval;
 use DateTimeImmutable;
-use DateTimeZone;
 
 final class TimeLock
 {
-    public const TIMEZONE = 'UTC';
-    public const FORMAT = 'Y-m-d\TH:i:s.u';
+    private ?PointInTime $lastLockUpdate = null;
 
-    private ?DateTimeImmutable $lastLockUpdate = null;
-
-    public function __construct(private int $lockTimeoutMs, private int $lockThreshold)
+    public function __construct(private Clock $clock, private int $lockTimeoutMs, private int $lockThreshold)
     {
     }
 
-    public function acquire(): array
+    public function acquire(): void
     {
         $this->lastLockUpdate = $this->now();
-
-        return [$this->current(), $this->lastLockUpdate->format(self::FORMAT)];
     }
 
-    public function updateCurrentLock(): bool
+    public function update(): bool
     {
         $now = $this->now();
 
@@ -38,28 +34,25 @@ final class TimeLock
         return false;
     }
 
-    public function refreshLockFromNow(): string
+    public function refresh(): string
     {
-        return $this->makeLock($this->now());
+        return $this->createLock($this->now());
     }
 
     public function current(): string
     {
-        return $this->makeLock($this->lastLockUpdate);
+        return $this->createLock($this->lastLockUpdate);
     }
 
-    public function lastLockUpdate(): ?DateTimeImmutable
+    public function lastLockUpdate(): ?PointInTime
     {
         return $this->lastLockUpdate;
     }
 
-    private function now(): DateTimeImmutable
+    private function createLock(PointInTime $pointInTime): string
     {
-        return new DateTimeImmutable('now', new DateTimeZone(self::TIMEZONE));
-    }
+        $dateTime = $pointInTime->dateTime();
 
-    private function makeLock(DateTimeImmutable $dateTime): string
-    {
         $micros = (string)((int)$dateTime->format('u') + ($this->lockTimeoutMs * 1000));
 
         $secs = substr($micros, 0, -6);
@@ -73,18 +66,28 @@ final class TimeLock
                 ->format('Y-m-d\TH:i:s') . '.' . substr($micros, -6);
     }
 
-    private function shouldUpdateLock(DateTimeImmutable $datetime): bool
+    private function shouldUpdateLock(PointInTime $datetime): bool
     {
         if (null === $this->lastLockUpdate || 0 === $this->lockThreshold) {
             return true;
         }
 
-        $updateLockThreshold = new DateInterval(sprintf('PT%sS', floor($this->lockThreshold / 1000)));
+        return $this->incrementLockWithThreshold() <= $datetime;
+    }
+
+    private function incrementLockWithThreshold(): DateTimeImmutable
+    {
+        $interval = sprintf('PT%sS', floor($this->lockThreshold / 1000));
+
+        $updateLockThreshold = new DateInterval($interval);
 
         $updateLockThreshold->f = ($this->lockThreshold % 1000) / 1000;
 
-        $updatedLock = $this->lastLockUpdate->add($updateLockThreshold);
+        return $this->lastLockUpdate->dateTime()->add($updateLockThreshold);
+    }
 
-        return $updatedLock <= $datetime;
+    private function now(): PointInTime
+    {
+        return $this->clock->pointInTime();
     }
 }

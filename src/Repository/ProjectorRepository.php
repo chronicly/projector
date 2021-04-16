@@ -82,12 +82,12 @@ final class ProjectorRepository implements Repository
     {
         $this->projectorContext->runner()->stop(false);
         $runningStatus = ProjectionStatus::RUNNING();
-        [$lock] = $this->lock->acquire();
+        $this->lock->acquire();
 
         try {
             $result = $this->projectionProvider->updateProjection($this->streamName, [
                 'status' => $runningStatus->ofValue(),
-                'locked_until' => $lock,
+                'locked_until' => $this->lock->current(),
             ]);
         } catch (QueryException $queryException) {
             throw QueryFailure::fromQueryException($queryException);
@@ -110,7 +110,7 @@ final class ProjectorRepository implements Repository
             $result = $this->projectionProvider->updateProjection($this->streamName, [
                 'position' => $this->encodeData($this->projectorContext->position()->all()),
                 'state' => $this->encodeData($this->projectorContext->state()->getState()),
-                'locked_until' => $this->lock->refreshLockFromNow(),
+                'locked_until' => $this->lock->refresh(),
             ]);
         } catch (QueryException $queryException) {
             throw QueryFailure::fromQueryException($queryException);
@@ -219,14 +219,14 @@ final class ProjectorRepository implements Repository
     public function acquireLock(): void
     {
         $runningProjection = ProjectionStatus::RUNNING();
-        [$lock, $now] = $this->lock->acquire();
+        $this->lock->acquire();
 
         try {
             $result = $this->projectionProvider->acquireLock(
                 $this->streamName,
                 $runningProjection->ofValue(),
-                $lock,
-                $now
+                $this->lock->current(),
+                $this->lock->lastLockUpdate()->toString(),
             );
         } catch (QueryException $queryException) {
             throw QueryFailure::fromQueryException($queryException);
@@ -243,7 +243,7 @@ final class ProjectorRepository implements Repository
 
     public function updateLock(): void
     {
-        if ($this->lock->updateCurrentLock()) {
+        if ($this->lock->update()) {
             try {
                 $result = $this->projectionProvider->updateProjection($this->streamName, [
                     'locked_until' => $this->lock->current(),

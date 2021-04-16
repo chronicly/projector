@@ -52,11 +52,11 @@ final class TimeLockTest extends TestCase
 
         $locker->acquire();
 
-        $this->assertFalse($locker->updateCurrentLock());
+        $this->assertFalse($locker->update());
 
         sleep($threshold / 1000);
 
-        $this->assertTrue($locker->updateCurrentLock());
+        $this->assertTrue($locker->update());
     }
 
     /**
@@ -69,7 +69,7 @@ final class TimeLockTest extends TestCase
 
         $locker = new TimeLock($timeout, $threshold);
 
-        $this->assertTrue($locker->updateCurrentLock());
+        $this->assertTrue($locker->update());
     }
 
     /**
@@ -82,7 +82,7 @@ final class TimeLockTest extends TestCase
 
         $locker = new TimeLock($timeout, $threshold);
 
-        $this->assertTrue($locker->updateCurrentLock());
+        $this->assertTrue($locker->update());
     }
 
     /**
@@ -114,7 +114,7 @@ final class TimeLockTest extends TestCase
 
         [$lock, $now] = $locker->acquire();
 
-        $lockString = $locker->refreshLockFromNow();
+        $lockString = $locker->refresh();
 
         $this->assertNotEquals($lock, $lockString);
         $this->assertNotEquals($now, $lockString);

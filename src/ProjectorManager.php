@@ -142,6 +142,7 @@ final class ProjectorManager implements Manager
     private function newProjectorRepository(string $streamName, ProjectorContext $context): Repository
     {
         $projectorLock = new TimeLock(
+            $this->clock,
             $context->option()->lockTimoutMs(),
             $context->option()->updateLockThreshold()
         );
