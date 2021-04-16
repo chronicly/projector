@@ -25,7 +25,7 @@ final class ProjectorRepository implements Repository
 {
     public function __construct(private ProjectorContext $projectorContext,
                                 private ProjectionProvider $projectionProvider,
-                                private ProjectorLock $lock,
+                                private TimeLock $lock,
                                 private JsonEncoder $jsonEncoder,
                                 private string $streamName)
     {
@@ -82,11 +82,12 @@ final class ProjectorRepository implements Repository
     {
         $this->projectorContext->runner()->stop(false);
         $runningStatus = ProjectionStatus::RUNNING();
+        [$lock] = $this->lock->acquire();
 
         try {
             $result = $this->projectionProvider->updateProjection($this->streamName, [
                 'status' => $runningStatus->ofValue(),
-                'locked_until' => $this->lock->acquire(),
+                'locked_until' => $lock,
             ]);
         } catch (QueryException $queryException) {
             throw QueryFailure::fromQueryException($queryException);

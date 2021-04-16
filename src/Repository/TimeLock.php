@@ -7,7 +7,7 @@ use DateInterval;
 use DateTimeImmutable;
 use DateTimeZone;
 
-final class ProjectorLock
+final class TimeLock
 {
     public const TIMEZONE = 'UTC';
     public const FORMAT = 'Y-m-d\TH:i:s.u';
@@ -48,7 +48,7 @@ final class ProjectorLock
         return $this->makeLock($this->lastLockUpdate);
     }
 
-    public function lastLockUpdate(): DateTimeImmutable
+    public function lastLockUpdate(): ?DateTimeImmutable
     {
         return $this->lastLockUpdate;
     }
@@ -83,8 +83,8 @@ final class ProjectorLock
 
         $updateLockThreshold->f = ($this->lockThreshold % 1000) / 1000;
 
-        $threshold = $this->lastLockUpdate->add($updateLockThreshold);
+        $updatedLock = $this->lastLockUpdate->add($updateLockThreshold);
 
-        return $threshold <= $datetime;
+        return $updatedLock <= $datetime;
     }
 }

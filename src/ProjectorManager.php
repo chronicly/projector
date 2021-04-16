@@ -26,7 +26,7 @@ use Chronhub\Projector\Factory\ProjectionStatus;
 use Chronhub\Projector\Factory\StreamCache;
 use Chronhub\Projector\Factory\StreamPosition;
 use Chronhub\Projector\Repository\ProjectionRepository;
-use Chronhub\Projector\Repository\ProjectorLock;
+use Chronhub\Projector\Repository\TimeLock;
 use Chronhub\Projector\Repository\ProjectorRepository;
 use Chronhub\Projector\Repository\ReadModelRepository;
 use Illuminate\Database\QueryException;
@@ -141,7 +141,7 @@ final class ProjectorManager implements Manager
     #[Pure]
     private function newProjectorRepository(string $streamName, ProjectorContext $context): Repository
     {
-        $projectorLock = new ProjectorLock(
+        $projectorLock = new TimeLock(
             $context->option()->lockTimoutMs(),
             $context->option()->updateLockThreshold()
         );
