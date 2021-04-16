@@ -19,17 +19,13 @@ use Chronhub\Projector\Support\Event\ProjectorReset;
 use Chronhub\Projector\Support\Event\ProjectorRestarted;
 use Chronhub\Projector\Support\Event\ProjectorStarted;
 use Chronhub\Projector\Support\Event\ProjectorStopped;
-use Chronhub\Projector\Support\LockTime;
-use DateInterval;
-use DateTimeImmutable;
 use Illuminate\Database\QueryException;
 
 final class ProjectorRepository implements Repository
 {
-    private ?DateTimeImmutable $lastLockUpdate = null;
-
     public function __construct(private ProjectorContext $projectorContext,
                                 private ProjectionProvider $projectionProvider,
+                                private ProjectorLock $lock,
                                 private JsonEncoder $jsonEncoder,
                                 private string $streamName)
     {
@@ -86,12 +82,11 @@ final class ProjectorRepository implements Repository
     {
         $this->projectorContext->runner()->stop(false);
         $runningStatus = ProjectionStatus::RUNNING();
-        $now = LockTime::fromNow();
 
         try {
             $result = $this->projectionProvider->updateProjection($this->streamName, [
                 'status' => $runningStatus->ofValue(),
-                'locked_until' => $this->createLockUntilString($now)
+                'locked_until' => $this->lock->acquire(),
             ]);
         } catch (QueryException $queryException) {
             throw QueryFailure::fromQueryException($queryException);
@@ -105,8 +100,6 @@ final class ProjectorRepository implements Repository
 
         $this->projectorContext->setStatus($runningStatus);
 
-        $this->lastLockUpdate = $now->toDateTime();
-
         event(new ProjectorRestarted($this->streamName, $this->projectorContext->state()->getState()));
     }
 
@@ -116,7 +109,7 @@ final class ProjectorRepository implements Repository
             $result = $this->projectionProvider->updateProjection($this->streamName, [
                 'position' => $this->encodeData($this->projectorContext->position()->all()),
                 'state' => $this->encodeData($this->projectorContext->state()->getState()),
-                'locked_until' => $this->createLockUntilString(LockTime::fromNow())
+                'locked_until' => $this->lock->refreshLockFromNow(),
             ]);
         } catch (QueryException $queryException) {
             throw QueryFailure::fromQueryException($queryException);
@@ -224,16 +217,15 @@ final class ProjectorRepository implements Repository
 
     public function acquireLock(): void
     {
-        $now = LockTime::fromNow();
-        $lockUntil = $this->createLockUntilString($now);
         $runningProjection = ProjectionStatus::RUNNING();
+        [$lock, $now] = $this->lock->acquire();
 
         try {
             $result = $this->projectionProvider->acquireLock(
                 $this->streamName,
                 $runningProjection->ofValue(),
-                $lockUntil,
-                $now->toString()
+                $lock,
+                $now
             );
         } catch (QueryException $queryException) {
             throw QueryFailure::fromQueryException($queryException);
@@ -246,20 +238,14 @@ final class ProjectorRepository implements Repository
         }
 
         $this->projectorContext->setStatus($runningProjection);
-
-        $this->lastLockUpdate = $now->toDateTime();
     }
 
     public function updateLock(): void
     {
-        $now = LockTime::fromNow();
-
-        if ($this->shouldUpdateLock($now->toDateTime())) {
-            $lockedUntil = $this->createLockUntilString($now);
-
+        if ($this->lock->updateCurrentLock()) {
             try {
                 $result = $this->projectionProvider->updateProjection($this->streamName, [
-                    'locked_until' => $lockedUntil,
+                    'locked_until' => $this->lock->current(),
                     'position' => $this->encodeData($this->projectorContext->position()->all())
                 ]);
             } catch (QueryException $queryException) {
@@ -271,8 +257,6 @@ final class ProjectorRepository implements Repository
                     "An error occurred when updating lock for stream name: $this->streamName"
                 );
             }
-
-            $this->lastLockUpdate = $now->toDateTime();
         }
     }
 
@@ -313,30 +297,6 @@ final class ProjectorRepository implements Repository
                 "Unable to create projection for stream name: $this->streamName"
             );
         }
-    }
-
-    private function shouldUpdateLock(DateTimeImmutable $dateTime): bool
-    {
-        $threshold = $this->projectorContext->option()->updateLockThreshold();
-
-        if (null === $this->lastLockUpdate || 0 === $threshold) {
-            return true;
-        }
-
-        $updateLockThreshold = new DateInterval(sprintf('PT%sS', floor($threshold / 1000)));
-
-        $updateLockThreshold->f = ($threshold % 1000) / 1000;
-
-        $threshold = $this->lastLockUpdate->add($updateLockThreshold);
-
-        return $threshold <= $dateTime;
-    }
-
-    private function createLockUntilString(LockTime $dateTime): string
-    {
-        return $dateTime->createLockUntil(
-            $this->projectorContext->option()->lockTimoutMs()
-        );
     }
 
     // todo check if Json Object can be used safely
