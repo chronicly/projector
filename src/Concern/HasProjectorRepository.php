@@ -11,11 +11,6 @@ trait HasProjectorRepository
 {
     protected ProjectorRepository $repository;
 
-    public function create(): void
-    {
-        $this->repository->create();
-    }
-
     public function loadState(): void
     {
         $this->repository->loadState();
