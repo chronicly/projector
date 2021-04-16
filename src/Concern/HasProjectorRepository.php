@@ -5,7 +5,6 @@ namespace Chronhub\Projector\Concern;
 
 use Chronhub\Contracts\Projecting\ProjectionStatus;
 use Chronhub\Contracts\Projecting\ProjectorRepository;
-use DateTimeImmutable;
 
 trait HasProjectorRepository
 {
@@ -49,11 +48,6 @@ trait HasProjectorRepository
     public function releaseLock(): void
     {
         $this->repository->releaseLock();
-    }
-
-    public function shouldUpdateLock(DateTimeImmutable $dateTime): bool
-    {
-        return $this->repository->shouldUpdateLock($dateTime);
     }
 
     public function getStreamName(): string

@@ -292,23 +292,6 @@ final class ProjectorRepository implements Repository
         $this->projectorContext->setStatus($idleProjection);
     }
 
-    public function shouldUpdateLock(DateTimeImmutable $dateTime): bool
-    {
-        $threshold = $this->projectorContext->option()->updateLockThreshold();
-
-        if (null === $this->lastLockUpdate || 0 === $threshold) {
-            return true;
-        }
-
-        $updateLockThreshold = new DateInterval(sprintf('PT%sS', floor($threshold / 1000)));
-
-        $updateLockThreshold->f = ($threshold % 1000) / 1000;
-
-        $threshold = $this->lastLockUpdate->add($updateLockThreshold);
-
-        return $threshold <= $dateTime;
-    }
-
     public function getStreamName(): string
     {
         return $this->streamName;
@@ -330,6 +313,23 @@ final class ProjectorRepository implements Repository
                 "Unable to create projection for stream name: $this->streamName"
             );
         }
+    }
+
+    private function shouldUpdateLock(DateTimeImmutable $dateTime): bool
+    {
+        $threshold = $this->projectorContext->option()->updateLockThreshold();
+
+        if (null === $this->lastLockUpdate || 0 === $threshold) {
+            return true;
+        }
+
+        $updateLockThreshold = new DateInterval(sprintf('PT%sS', floor($threshold / 1000)));
+
+        $updateLockThreshold->f = ($threshold % 1000) / 1000;
+
+        $threshold = $this->lastLockUpdate->add($updateLockThreshold);
+
+        return $threshold <= $dateTime;
     }
 
     private function createLockUntilString(LockTime $dateTime): string
