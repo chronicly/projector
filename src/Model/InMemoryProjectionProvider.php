@@ -31,7 +31,6 @@ final class InMemoryProjectionProvider implements ProjectionProvider
         $this->projections->put($name, $projection);
 
         return true;
-
     }
 
     public function updateProjection(string $name, array $data): bool
