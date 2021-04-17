@@ -40,49 +40,40 @@ final class Pipeline implements BasePipeline
     public function then(Closure $destination): bool
     {
         $pipeline = array_reduce(
-            array_reverse($this->pipes), $this->carry(), $this->prepareDestination($destination)
+            array_reverse($this->pipes),
+            $this->carry(),
+            $this->prepareDestination($destination)
         );
 
         return $pipeline($this->passable);
     }
 
-    /**
-     * @param Closure $destination
-     * @return Closure
-     * @throws Throwable
-     */
     private function prepareDestination(Closure $destination): Closure
     {
         try {
             return fn($passable) => $destination($passable);
         } catch (Throwable $exception) {
             $this->releaseLockOnException($exception);
+
+            throw $exception;
         }
     }
 
-    /**
-     * @return Closure
-     * @throws Throwable
-     */
     private function carry(): Closure
     {
         try {
             return fn($stack, $pipe) => fn($passable) => $pipe($passable, $stack);
         } catch (Throwable $exception) {
             $this->releaseLockOnException($exception);
+
+            throw $exception;
         }
     }
 
-    /**
-     * @param Throwable $exception
-     * @throws Throwable
-     */
     private function releaseLockOnException(Throwable $exception): void
     {
         if ($this->repository && !$exception instanceof ProjectionAlreadyRunning) {
             $this->repository->releaseLock();
         }
-
-        throw $exception;
     }
 }

@@ -21,7 +21,7 @@ final class ArrayEventProcessor extends AbstractEventProcessor
         }
 
         if (!$messageHandler = $this->determineEventHandler($message)) {
-            $repository && $this->persistOnReachedCounter($context, $repository);
+            $repository and $this->persistOnReachedCounter($context, $repository);
 
             return !$context->runner()->isStopped();
         }
