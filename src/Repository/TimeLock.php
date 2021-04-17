@@ -12,7 +12,9 @@ final class TimeLock
 {
     private ?PointInTime $lastLockUpdate = null;
 
-    public function __construct(private Clock $clock, private int $lockTimeoutMs, private int $lockThreshold)
+    public function __construct(private Clock $clock,
+                                private int $lockTimeoutMs,
+                                private int $lockThreshold)
     {
     }
 
@@ -36,12 +38,12 @@ final class TimeLock
 
     public function refresh(): string
     {
-        return $this->createLock($this->now());
+        return $this->createLockWithMillisecond($this->now());
     }
 
     public function current(): string
     {
-        return $this->createLock($this->lastLockUpdate);
+        return $this->createLockWithMillisecond($this->lastLockUpdate);
     }
 
     public function lastLockUpdate(): ?PointInTime
@@ -49,21 +51,21 @@ final class TimeLock
         return $this->lastLockUpdate;
     }
 
-    private function createLock(PointInTime $pointInTime): string
+    private function createLockWithMillisecond(PointInTime $pointInTime): string
     {
         $dateTime = $pointInTime->dateTime();
 
-        $micros = (string)((int)$dateTime->format('u') + ($this->lockTimeoutMs * 1000));
+        $microSeconds = (string)((int)$dateTime->format('u') + ($this->lockTimeoutMs * 1000));
 
-        $secs = substr($micros, 0, -6);
+        $seconds = substr($microSeconds, 0, -6);
 
-        if ('' === $secs) {
-            $secs = 0;
+        if ('' === $seconds) {
+            $seconds = 0;
         }
 
         return $dateTime
-                ->modify('+' . $secs . ' seconds')
-                ->format('Y-m-d\TH:i:s') . '.' . substr($micros, -6);
+                ->modify('+' . $seconds . ' seconds')
+                ->format('Y-m-d\TH:i:s') . '.' . substr($microSeconds, -6);
     }
 
     private function shouldUpdateLock(PointInTime $pointInTime): bool
