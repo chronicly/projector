@@ -1,17 +1,17 @@
 <?php
 declare(strict_types=1);
 
-namespace Chronhub\Projector\Support\Projector\Option;
+namespace Chronhub\Projector\Support\Option;
 
 use Chronhub\Contracts\Projecting\ProjectorOption;
 
-final class InMemoryProjectorOption implements ProjectorOption
+final class LazyProjectorOption implements ProjectorOption
 {
     use HasArrayableProjectorOption;
 
     public function dispatchSignal(): bool
     {
-        return false;
+        return true;
     }
 
     public function streamCacheSize(): int
@@ -21,31 +21,31 @@ final class InMemoryProjectorOption implements ProjectorOption
 
     public function lockTimoutMs(): int
     {
-        return 0;
+        return 5000;
     }
 
     public function sleep(): int
     {
-        return 0;
+        return 100000;
     }
 
     public function persistBlockSize(): int
     {
-        return 1;
+        return 1000;
     }
 
     public function updateLockThreshold(): int
     {
-        return 0;
+        return 5000;
     }
 
     public function retriesMs(): array
     {
-        return [];
+        return range(1, 5000, 5);
     }
 
     public function detectionWindows(): string
     {
-        return 'PT5S';
+        return 'PT60S';
     }
 }

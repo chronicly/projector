@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Chronhub\Projector\Support\Projector\Option;
+namespace Chronhub\Projector\Support\Option;
 
 trait HasArrayableProjectorOption
 {

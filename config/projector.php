@@ -28,9 +28,9 @@ return [
     ],
 
     'options' => [
-        'lazy' => \Chronhub\Projector\Support\Projector\Option\LazyProjectorOption::class,
+        'lazy' => \Chronhub\Projector\Support\Option\LazyProjectorOption::class,
 
-        'in_memory' => \Chronhub\Projector\Support\Projector\Option\InMemoryProjectorOption::class,
+        'in_memory' => \Chronhub\Projector\Support\Option\InMemoryProjectorOption::class,
 
         'snapshot' => [
             ProjectorOption::OPTION_PCNTL_DISPATCH => true,

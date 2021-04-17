@@ -29,7 +29,7 @@ use Chronhub\Projector\Repository\ProjectionRepository;
 use Chronhub\Projector\Repository\ProjectorRepository;
 use Chronhub\Projector\Repository\ReadModelRepository;
 use Chronhub\Projector\Repository\TimeLock;
-use Chronhub\Projector\Support\Projector\Option\ConstructableProjectorOption;
+use Chronhub\Projector\Support\Option\ConstructableProjectorOption;
 use Illuminate\Database\QueryException;
 
 final class ProjectorManager implements Manager
