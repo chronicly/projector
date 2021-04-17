@@ -11,14 +11,12 @@ use Chronhub\Contracts\Projecting\QueryProjector;
 use Chronhub\Projector\Concern\HasProjectorFactory;
 use Chronhub\Projector\Context\ContextualQuery;
 use Chronhub\Projector\Factory\RunnerController;
-use JetBrains\PhpStorm\Pure;
 use function is_array;
 
 final class ProjectQuery implements QueryProjector, ProjectorFactory
 {
     use HasProjectorFactory;
 
-    #[Pure]
     public function __construct(protected ProjectorContext $context,
                                 private Chronicler $chronicler,
                                 private MessageAlias $messageAlias)
