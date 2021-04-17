@@ -21,14 +21,14 @@ use Chronhub\Projector\Concern\HasReadProjectorManager;
 use Chronhub\Projector\Context\Context;
 use Chronhub\Projector\Factory\EventCounter;
 use Chronhub\Projector\Factory\InMemoryState;
-use Chronhub\Projector\Factory\Option;
+use Chronhub\Projector\Factory\ConstructableProjectorOption;
 use Chronhub\Projector\Factory\ProjectionStatus;
 use Chronhub\Projector\Factory\StreamCache;
 use Chronhub\Projector\Factory\StreamPosition;
 use Chronhub\Projector\Repository\ProjectionRepository;
-use Chronhub\Projector\Repository\TimeLock;
 use Chronhub\Projector\Repository\ProjectorRepository;
 use Chronhub\Projector\Repository\ReadModelRepository;
+use Chronhub\Projector\Repository\TimeLock;
 use Illuminate\Database\QueryException;
 use JetBrains\PhpStorm\Pure;
 
@@ -43,7 +43,7 @@ final class ProjectorManager implements Manager
                                 private ProjectionQueryScope $projectionQueryScope,
                                 protected JsonEncoder $jsonEncoder,
                                 private Clock $clock,
-                                private array $options = [])
+                                private ProjectorOption|array $options = [])
     {
     }
 
@@ -159,9 +159,15 @@ final class ProjectorManager implements Manager
     #[Pure]
     private function newProjectorOption(array $options): ProjectorOption
     {
-        $options = array_merge($this->options, $options);
+        if (is_array($this->options)) {
+            $options = array_merge($this->options, $options);
 
-        return new Option(...$options);
+            return new ConstructableProjectorOption(...$options);
+        }
+
+        // checkMe raise exception if options var is not empty
+
+        return $this->options;
     }
 
     private function newProjectorContext(ProjectorOption $option,

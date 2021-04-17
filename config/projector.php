@@ -28,27 +28,9 @@ return [
     ],
 
     'options' => [
-        'lazy' => [
-            ProjectorOption::OPTION_PCNTL_DISPATCH => true,
-            ProjectorOption::OPTION_STREAM_CACHE_SIZE => 1000,
-            ProjectorOption::OPTION_LOCK_TIMEOUT_MS => 1000,
-            ProjectorOption::OPTION_SLEEP => 100000,
-            ProjectorOption::OPTION_UPDATE_LOCK_THRESHOLD => 1000,
-            ProjectorOption::OPTION_PERSIST_BLOCK_SIZE => 1000,
-            ProjectorOption::OPTION_RETRIES_MS => [0, 5, 100, 500, 1000],
-            ProjectorOption::OPTION_DETECTION_WINDOWS => 'PT60S',
-        ],
+        'lazy' => \Chronhub\Projector\Support\Projector\Option\LazyProjectorOption::class,
 
-        'in_memory' => [
-            ProjectorOption::OPTION_PCNTL_DISPATCH => false,
-            ProjectorOption::OPTION_STREAM_CACHE_SIZE => 1000,
-            ProjectorOption::OPTION_LOCK_TIMEOUT_MS => 0, // 0 === threshold, timeout has not effect
-            ProjectorOption::OPTION_UPDATE_LOCK_THRESHOLD => 0,
-            ProjectorOption::OPTION_SLEEP => 0,
-            ProjectorOption::OPTION_PERSIST_BLOCK_SIZE => 1,// 1 === persist block size, sleep has no effect,
-            ProjectorOption::OPTION_RETRIES_MS => [0, 5, 100, 500, 1000],
-            ProjectorOption::OPTION_DETECTION_WINDOWS => 'PT60S',
-        ],
+        'in_memory' => \Chronhub\Projector\Support\Projector\Option\InMemoryProjectorOption::class,
 
         'snapshot' => [
             ProjectorOption::OPTION_PCNTL_DISPATCH => true,

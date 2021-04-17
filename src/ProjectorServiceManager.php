@@ -10,6 +10,7 @@ use Chronhub\Contracts\Messaging\MessageAlias;
 use Chronhub\Contracts\Model\EventStreamProvider;
 use Chronhub\Contracts\Model\ProjectionProvider;
 use Chronhub\Contracts\Projecting\ProjectorManager as Manager;
+use Chronhub\Contracts\Projecting\ProjectorOption;
 use Chronhub\Contracts\Support\JsonEncoder;
 use Chronhub\Projector\Exception\RuntimeException;
 use Illuminate\Contracts\Config\Repository;
@@ -77,9 +78,11 @@ final class ProjectorServiceManager implements ServiceManager
         );
     }
 
-    private function determineProjectorOptions(?string $optionKey): array
+    private function determineProjectorOptions(?string $optionKey): array|ProjectorOption
     {
-        return $this->fromProjector("options.$optionKey") ?? [];
+        $options = $this->fromProjector("options.$optionKey") ?? [];
+
+        return is_array($options) ? $options : $this->container->make($options);
     }
 
     private function determineEventStreamProvider(array $config): EventStreamProvider

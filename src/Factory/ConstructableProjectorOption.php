@@ -4,9 +4,13 @@ declare(strict_types=1);
 namespace Chronhub\Projector\Factory;
 
 use Chronhub\Contracts\Projecting\ProjectorOption;
+use Chronhub\Projector\Support\Projector\Option\HasArrayableProjectorOption;
 
-final class Option implements ProjectorOption
+// todo move to support
+final class ConstructableProjectorOption implements ProjectorOption
 {
+    use HasArrayableProjectorOption;
+
     public function __construct(
         private bool $dispatchPcntlSignal = false,
         private int $streamCacheSize = 1000,
