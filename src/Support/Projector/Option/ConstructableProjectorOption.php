@@ -16,7 +16,7 @@ final class ConstructableProjectorOption implements ProjectorOption
         private int $sleep = 10000,
         private int $persistBlockSize = 1000,
         private int $updateLockThreshold = 0,
-        private array $retriesMs = [0, 5, 100, 500, 1000],
+        private array $retriesMs = [0, 5, 100, 500, 1000, 2000, 3000],
         private string $detectionWindows = 'PT60S')
     {
     }
