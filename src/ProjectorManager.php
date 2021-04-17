@@ -19,9 +19,9 @@ use Chronhub\Contracts\Support\JsonEncoder;
 use Chronhub\Foundation\Exception\QueryFailure;
 use Chronhub\Projector\Concern\HasReadProjectorManager;
 use Chronhub\Projector\Context\Context;
+use Chronhub\Projector\Exception\RuntimeException;
 use Chronhub\Projector\Factory\EventCounter;
 use Chronhub\Projector\Factory\InMemoryState;
-use Chronhub\Projector\Factory\ConstructableProjectorOption;
 use Chronhub\Projector\Factory\ProjectionStatus;
 use Chronhub\Projector\Factory\StreamCache;
 use Chronhub\Projector\Factory\StreamPosition;
@@ -29,8 +29,8 @@ use Chronhub\Projector\Repository\ProjectionRepository;
 use Chronhub\Projector\Repository\ProjectorRepository;
 use Chronhub\Projector\Repository\ReadModelRepository;
 use Chronhub\Projector\Repository\TimeLock;
+use Chronhub\Projector\Support\Projector\Option\ConstructableProjectorOption;
 use Illuminate\Database\QueryException;
-use JetBrains\PhpStorm\Pure;
 
 final class ProjectorManager implements Manager
 {
@@ -138,7 +138,6 @@ final class ProjectorManager implements Manager
         }
     }
 
-    #[Pure]
     private function newProjectorRepository(string $streamName, ProjectorContext $context): Repository
     {
         $projectorLock = new TimeLock(
@@ -156,7 +155,6 @@ final class ProjectorManager implements Manager
         );
     }
 
-    #[Pure]
     private function newProjectorOption(array $options): ProjectorOption
     {
         if (is_array($this->options)) {
@@ -165,7 +163,9 @@ final class ProjectorManager implements Manager
             return new ConstructableProjectorOption(...$options);
         }
 
-        // checkMe raise exception if options var is not empty
+        if (count($options) > 0) {
+            throw new RuntimeException("Projector options can not be overridden");
+        }
 
         return $this->options;
     }
