@@ -33,6 +33,9 @@ final class PersistentRunner
             $isStopped = $pipeline
                 ->send($context)
                 ->then(function (ProjectorContext $context): bool {
+                    // to be consistent when dispatching projector events
+                    // we stop explicitly the projection when it's not running
+                    // in background
                     if (!$context->runner()->inBackground()) {
                         $this->projector->stop();
                     }
