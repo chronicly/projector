@@ -1,12 +1,10 @@
 <?php
 declare(strict_types=1);
 
-namespace Chronhub\Projector\Factory;
+namespace Chronhub\Projector\Support\Projector\Option;
 
 use Chronhub\Contracts\Projecting\ProjectorOption;
-use Chronhub\Projector\Support\Projector\Option\HasArrayableProjectorOption;
 
-// todo move to support
 final class ConstructableProjectorOption implements ProjectorOption
 {
     use HasArrayableProjectorOption;
