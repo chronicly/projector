@@ -66,13 +66,13 @@ final class TimeLock
                 ->format('Y-m-d\TH:i:s') . '.' . substr($micros, -6);
     }
 
-    private function shouldUpdateLock(PointInTime $datetime): bool
+    private function shouldUpdateLock(PointInTime $pointInTime): bool
     {
         if (null === $this->lastLockUpdate || 0 === $this->lockThreshold) {
             return true;
         }
 
-        return $this->incrementLockWithThreshold() <= $datetime;
+        return $this->incrementLockWithThreshold() <= $pointInTime->dateTime();
     }
 
     private function incrementLockWithThreshold(): DateTimeImmutable
