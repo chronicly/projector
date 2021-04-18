@@ -6,7 +6,7 @@ namespace Chronhub\Projector\Support\Facade;
 use Chronhub\Contracts\Projecting\ProjectorFactory;
 use Chronhub\Contracts\Projecting\ProjectorManager;
 use Chronhub\Contracts\Projecting\ReadModel;
-use Chronhub\Contracts\Query\ProjectionQueryScope;
+use Chronhub\Contracts\Query\ProjectionQueryFilter;
 use Illuminate\Support\Facades\Facade;
 
 /**
@@ -21,40 +21,38 @@ final class Project extends Facade
 
     public static function createQuery(string $name = 'default',
                                        array $options = [],
-                                       ?ProjectionQueryScope $queryScope = null): ProjectorFactory
+                                       ?ProjectionQueryFilter $queryFilter = null): ProjectorFactory
     {
         $projector = self::create($name);
 
-        $queryScope = $queryScope ?? $projector->queryScope();
-
         return $projector
             ->createQuery($options)
-            ->withQueryFilter($queryScope->fromIncludedPosition());
+            ->withQueryFilter(
+                $queryFilter ?? $projector->queryScope()->fromIncludedPosition()
+            );
     }
 
     public static function createProjection(string $streamName,
                                             string $name = 'default',
                                             array $options = [],
-                                            ?ProjectionQueryScope $queryScope = null): ProjectorFactory
+                                            ?ProjectionQueryFilter $queryFilter = null): ProjectorFactory
     {
         $projector = self::create($name);
 
-        $queryScope = $queryScope ?? $projector->queryScope();
-
         return $projector
             ->createProjection($streamName, $options)
-            ->withQueryFilter($queryScope->fromIncludedPosition());
+            ->withQueryFilter(
+                $queryFilter ?? $projector->queryScope()->fromIncludedPosition()
+            );
     }
 
     public static function createReadModel(string $streamName,
                                            string|ReadModel $readModel,
                                            string $name = 'default',
                                            array $options = [],
-                                           ?ProjectionQueryScope $queryScope = null): ProjectorFactory
+                                           ?ProjectionQueryFilter $queryFilter = null): ProjectorFactory
     {
         $projector = self::create($name);
-
-        $queryScope = $queryScope ?? $projector->queryScope();
 
         if (is_string($readModel)) {
             $readModel = self::$app->make($readModel);
@@ -62,6 +60,8 @@ final class Project extends Facade
 
         return $projector
             ->createReadModelProjection($streamName, $readModel, $options)
-            ->withQueryFilter($queryScope->fromIncludedPosition());
+            ->withQueryFilter(
+                $queryFilter ?? $projector->queryScope()->fromIncludedPosition()
+            );
     }
 }
