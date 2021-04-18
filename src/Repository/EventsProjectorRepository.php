@@ -5,8 +5,6 @@ namespace Chronhub\Projector\Repository;
 
 use Chronhub\Contracts\Projecting\ProjectionStatus;
 use Chronhub\Contracts\Projecting\ProjectorRepository;
-use Chronhub\Foundation\Exception\QueryFailure;
-use Chronhub\Projector\Exception\ProjectionNotFound;
 use Chronhub\Projector\Support\Event\ProjectorAttemptDeleted;
 use Chronhub\Projector\Support\Event\ProjectorAttemptReset;
 use Chronhub\Projector\Support\Event\ProjectorDeleted;
@@ -16,6 +14,7 @@ use Chronhub\Projector\Support\Event\ProjectorRestarted;
 use Chronhub\Projector\Support\Event\ProjectorStarted;
 use Chronhub\Projector\Support\Event\ProjectorStopped;
 use Illuminate\Contracts\Events\Dispatcher;
+use Throwable;
 
 final class EventsProjectorRepository implements ProjectorRepository
 {
@@ -28,7 +27,7 @@ final class EventsProjectorRepository implements ProjectorRepository
     {
         try {
             $operation();
-        } catch (QueryFailure | ProjectionNotFound $exception) {
+        } catch (Throwable $exception) {
             $this->eventDispatcher->dispatch(
                 new ProjectorFailed($this->repository->getStreamName(), $exception)
             );
