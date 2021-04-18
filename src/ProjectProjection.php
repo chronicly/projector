@@ -22,6 +22,8 @@ final class ProjectProjection implements PersistentProjectionProjector, Projecto
 {
     use HasProjectorFactory, HasPersistentProjector;
 
+    private bool $isStreamCreated = false;
+
     public function __construct(protected ProjectorContext $context,
                                 protected ProjectorRepository $repository,
                                 protected Chronicler $chronicler,
@@ -57,10 +59,10 @@ final class ProjectProjection implements PersistentProjectionProjector, Projecto
 
     private function persistIfStreamIsFirstCommit(StreamName $streamName): void
     {
-        if (!$this->context->isStreamCreated() && !$this->chronicler->hasStream($streamName)) {
+        if (!$this->isStreamCreated && !$this->chronicler->hasStream($streamName)) {
             $this->chronicler->persistFirstCommit(new Stream($streamName));
 
-            $this->context->setStreamCreated();
+            $this->isStreamCreated = true;
         }
     }
 

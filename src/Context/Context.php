@@ -84,16 +84,6 @@ class Context implements ProjectorContext
         }
     }
 
-    public function isStreamCreated(): bool
-    {
-        return $this->isStreamCreated;
-    }
-
-    public function setStreamCreated(): void
-    {
-        $this->isStreamCreated = true;
-    }
-
     public function state(): ProjectionState
     {
         return $this->state;
