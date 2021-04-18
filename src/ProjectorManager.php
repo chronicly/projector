@@ -12,6 +12,7 @@ use Chronhub\Contracts\Projecting\ProjectorContext;
 use Chronhub\Contracts\Projecting\ProjectorFactory;
 use Chronhub\Contracts\Projecting\ProjectorManager as Manager;
 use Chronhub\Contracts\Projecting\ProjectorOption;
+use Chronhub\Contracts\Projecting\ProjectorRepository;
 use Chronhub\Contracts\Projecting\ReadModel;
 use Chronhub\Contracts\Query\ProjectionQueryScope;
 use Chronhub\Contracts\Support\JsonEncoder;
@@ -68,18 +69,7 @@ final class ProjectorManager implements Manager
             new StreamCache($options->streamCacheSize())
         );
 
-        $repository = new ProjectionRepository(
-            $context,
-            $this->projectionProvider,
-            $this->newTimeLock($context),
-            $this->jsonEncoder,
-            $streamName,
-            $this->chronicler
-        );
-
-        if ($this->eventDispatcher) {
-            $repository = new EventsProjectorRepository($repository, $this->eventDispatcher);
-        }
+        $repository = $this->newProjectorRepository($context, $streamName, null);
 
         return new ProjectProjection(
             $context, $repository, $this->chronicler, $this->messageAlias, $streamName
@@ -94,18 +84,7 @@ final class ProjectorManager implements Manager
 
         $context = $this->newProjectorContext($options, new EventCounter(), null);
 
-        $repository = new ReadModelRepository(
-            $context,
-            $this->projectionProvider,
-            $this->newTimeLock($context),
-            $this->jsonEncoder,
-            $streamName,
-            $readModel
-        );
-
-        if ($this->eventDispatcher) {
-            $repository = new EventsProjectorRepository($repository, $this->eventDispatcher);
-        }
+        $repository = $this->newProjectorRepository($context, $streamName, $readModel);
 
         return new ProjectReadModel(
             $context, $repository, $this->chronicler, $this->messageAlias, $streamName, $readModel
@@ -195,5 +174,28 @@ final class ProjectorManager implements Manager
             $eventCounter,
             $streamCache
         );
+    }
+
+    private function newProjectorRepository(ProjectorContext $context,
+                                            string $streamName,
+                                            ?ReadModel $readModel): ProjectorRepository
+    {
+        $repositoryClass = $readModel instanceof ReadModel
+            ? ReadModelRepository::class : ProjectionRepository::class;
+
+        $repository = new $repositoryClass(
+            $context,
+            $this->projectionProvider,
+            $this->newTimeLock($context),
+            $this->jsonEncoder,
+            $streamName,
+            $readModel ?? $this->chronicler
+        );
+
+        if ($this->eventDispatcher) {
+            $repository = new EventsProjectorRepository($repository, $this->eventDispatcher);
+        }
+
+        return $repository;
     }
 }
