@@ -10,7 +10,6 @@ use Chronhub\Contracts\Projecting\ProjectionState;
 use Chronhub\Contracts\Projecting\ProjectionStatus as Status;
 use Chronhub\Contracts\Projecting\ProjectorContext;
 use Chronhub\Contracts\Projecting\ProjectorOption;
-use Chronhub\Contracts\Projecting\StreamCache;
 use Chronhub\Contracts\Projecting\StreamPosition;
 use Chronhub\Contracts\Projecting\StreamPosition as Position;
 use Chronhub\Projector\Concern\HasContextFactory;
@@ -30,8 +29,7 @@ class Context implements ProjectorContext
     public function __construct(protected ProjectorOption $option,
                                 protected Position $position,
                                 protected Clock $clock,
-                                protected ?EventCounter $eventCounter,
-                                protected ?StreamCache $streamCache)
+                                protected ?EventCounter $eventCounter)
     {
         $this->state = new InMemoryState();
         $this->status = ProjectionStatus::IDLE();
@@ -117,11 +115,6 @@ class Context implements ProjectorContext
     public function counter(): ?EventCounter
     {
         return $this->eventCounter;
-    }
-
-    public function cache(): ?StreamCache
-    {
-        return $this->streamCache;
     }
 
     private function bindEventHandlers(ContextualEventHandler $eventHandler): void

@@ -3,9 +3,9 @@ declare(strict_types=1);
 
 namespace Chronhub\Projector;
 
+use Chronhub\Contracts\Manager\ProjectorServiceManager as ServiceManager;
 use Illuminate\Contracts\Support\DeferrableProvider;
 use Illuminate\Support\ServiceProvider;
-use Chronhub\Contracts\Manager\ProjectorServiceManager as ServiceManager;
 
 final class ProjectorServiceProvider extends ServiceProvider implements DeferrableProvider
 {

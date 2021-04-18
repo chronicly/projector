@@ -20,11 +20,7 @@ final class ProjectorManager implements Manager
 
     public function createQuery(array $options = []): ProjectorFactory
     {
-        $context = $this->newProjectorContext(
-            $this->newProjectorOption($options),
-            null,
-            null
-        );
+        $context = $this->newProjectorContext($this->newProjectorOption($options), null);
 
         return new ProjectQuery($context, $this->chronicler);
     }
@@ -33,17 +29,13 @@ final class ProjectorManager implements Manager
     {
         $options = $this->newProjectorOption($options);
 
-        $context = $this->newProjectorContext(
-            $options,
-            new EventCounter(),
-            new StreamCache($options->streamCacheSize())
-        );
+        $context = $this->newProjectorContext($options, new EventCounter());
 
         $repository = $this->newProjectorRepository($context, $streamName, null);
 
-        return new ProjectProjection(
-            $context, $repository, $this->chronicler, $streamName
-        );
+        $streamCache = new StreamCache($options->streamCacheSize());
+
+        return new ProjectProjection($context, $repository, $this->chronicler, $streamName, $streamCache);
     }
 
     public function createReadModelProjection(string $streamName,
@@ -52,13 +44,11 @@ final class ProjectorManager implements Manager
     {
         $options = $this->newProjectorOption($options);
 
-        $context = $this->newProjectorContext($options, new EventCounter(), null);
+        $context = $this->newProjectorContext($options, new EventCounter());
 
         $repository = $this->newProjectorRepository($context, $streamName, $readModel);
 
-        return new ProjectReadModel(
-            $context, $repository, $this->chronicler, $streamName, $readModel
-        );
+        return new ProjectReadModel($context, $repository, $this->chronicler, $streamName, $readModel);
     }
 
     public function queryScope(): ProjectionQueryScope

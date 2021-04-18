@@ -12,11 +12,11 @@ use Chronhub\Contracts\Projecting\PersistentProjectionProjector;
 use Chronhub\Contracts\Projecting\ProjectorContext;
 use Chronhub\Contracts\Projecting\ProjectorFactory;
 use Chronhub\Contracts\Projecting\ProjectorRepository;
+use Chronhub\Contracts\Projecting\StreamCache;
 use Chronhub\Foundation\Message\Message;
 use Chronhub\Projector\Concern\HasPersistentProjector;
 use Chronhub\Projector\Concern\HasProjectorFactory;
 use Chronhub\Projector\Context\ContextualProjection;
-use JetBrains\PhpStorm\Pure;
 
 final class ProjectProjection implements PersistentProjectionProjector, ProjectorFactory
 {
@@ -27,7 +27,8 @@ final class ProjectProjection implements PersistentProjectionProjector, Projecto
     public function __construct(protected ProjectorContext $context,
                                 protected ProjectorRepository $repository,
                                 protected Chronicler $chronicler,
-                                protected string $streamName)
+                                protected string $streamName,
+                                private StreamCache $cache)
     {
     }
 
@@ -51,7 +52,6 @@ final class ProjectProjection implements PersistentProjectionProjector, Projecto
             : $this->chronicler->persistFirstCommit($stream);
     }
 
-    #[Pure]
     protected function createContextualEventHandler(): ContextualEventHandler
     {
         return new ContextualProjection($this, $this->context);
@@ -68,11 +68,11 @@ final class ProjectProjection implements PersistentProjectionProjector, Projecto
 
     private function determineIfStreamAlreadyExists(StreamName $streamName): bool
     {
-        if ($this->context->cache()->has($streamName->toString())) {
+        if ($this->cache->has($streamName->toString())) {
             return true;
         }
 
-        $this->context->cache()->push($streamName->toString());
+        $this->cache->push($streamName->toString());
 
         return $this->chronicler->hasStream($streamName);
     }

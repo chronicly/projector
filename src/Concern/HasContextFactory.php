@@ -112,11 +112,6 @@ trait HasContextFactory
         return new ArrayEventProcessor($this->eventHandlers);
     }
 
-    public function streamsNames(): array
-    {
-        return $this->streamsNames;
-    }
-
     public function queryFilter(): ProjectionQueryFilter
     {
         return $this->queryFilter;

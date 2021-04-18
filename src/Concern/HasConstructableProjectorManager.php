@@ -16,7 +16,6 @@ use Chronhub\Contracts\Support\JsonEncoder;
 use Chronhub\Projector\Context\Context;
 use Chronhub\Projector\Exception\RuntimeException;
 use Chronhub\Projector\Factory\EventCounter;
-use Chronhub\Projector\Factory\StreamCache;
 use Chronhub\Projector\Factory\StreamPosition;
 use Chronhub\Projector\Repository\EventsProjectorRepository;
 use Chronhub\Projector\Repository\ProjectionRepository;
@@ -58,18 +57,14 @@ trait HasConstructableProjectorManager
     }
 
     protected function newProjectorContext(ProjectorOption $option,
-                                           ?EventCounter $eventCounter,
-                                           ?StreamCache $streamCache): ProjectorContext
+                                           ?EventCounter $eventCounter): ProjectorContext
     {
         $streamPosition = new StreamPosition(
             $this->eventStreamProvider, $this->clock,
             $option->retriesMs(), $option->detectionWindows()
         );
 
-        return new Context(
-            $option, $streamPosition, $this->clock,
-            $eventCounter, $streamCache
-        );
+        return new Context($option, $streamPosition, $this->clock, $eventCounter);
     }
 
     protected function newProjectorOption(array $options): ProjectorOption
