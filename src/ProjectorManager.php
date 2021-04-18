@@ -98,7 +98,8 @@ final class ProjectorManager implements Manager
             $context,
             $this->projectionProvider,
             $this->newTimeLock($context),
-            $this->jsonEncoder, $streamName,
+            $this->jsonEncoder,
+            $streamName,
             $readModel
         );
 
