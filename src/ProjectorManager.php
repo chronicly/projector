@@ -12,7 +12,6 @@ use Chronhub\Contracts\Projecting\ProjectorContext;
 use Chronhub\Contracts\Projecting\ProjectorFactory;
 use Chronhub\Contracts\Projecting\ProjectorManager as Manager;
 use Chronhub\Contracts\Projecting\ProjectorOption;
-use Chronhub\Contracts\Projecting\ProjectorRepository as Repository;
 use Chronhub\Contracts\Projecting\ReadModel;
 use Chronhub\Contracts\Query\ProjectionQueryScope;
 use Chronhub\Contracts\Support\JsonEncoder;
@@ -26,7 +25,6 @@ use Chronhub\Projector\Factory\ProjectionStatus;
 use Chronhub\Projector\Factory\StreamCache;
 use Chronhub\Projector\Factory\StreamPosition;
 use Chronhub\Projector\Repository\ProjectionRepository;
-use Chronhub\Projector\Repository\ProjectorRepository;
 use Chronhub\Projector\Repository\ReadModelRepository;
 use Chronhub\Projector\Repository\TimeLock;
 use Chronhub\Projector\Support\Option\ConstructableProjectorOption;
@@ -69,7 +67,10 @@ final class ProjectorManager implements Manager
         );
 
         $repository = new ProjectionRepository(
-            $this->newProjectorRepository($streamName, $context),
+            $context,
+            $this->projectionProvider,
+            $this->newTimeLock($context),
+            $this->jsonEncoder, $streamName,
             $this->chronicler
         );
 
@@ -89,7 +90,10 @@ final class ProjectorManager implements Manager
         );
 
         $repository = new ReadModelRepository(
-            $this->newProjectorRepository($streamName, $context),
+            $context,
+            $this->projectionProvider,
+            $this->newTimeLock($context),
+            $this->jsonEncoder, $streamName,
             $readModel
         );
 
@@ -138,20 +142,12 @@ final class ProjectorManager implements Manager
         }
     }
 
-    private function newProjectorRepository(string $streamName, ProjectorContext $context): Repository
+    private function newTimeLock(ProjectorContext $context): TimeLock
     {
-        $projectorLock = new TimeLock(
+        return new TimeLock(
             $this->clock,
             $context->option()->lockTimoutMs(),
             $context->option()->updateLockThreshold()
-        );
-
-        return new ProjectorRepository(
-            $context,
-            $this->projectionProvider,
-            $projectorLock,
-            $this->jsonEncoder,
-            $streamName
         );
     }
 

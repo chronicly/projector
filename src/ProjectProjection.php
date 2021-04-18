@@ -23,7 +23,6 @@ final class ProjectProjection implements PersistentProjectionProjector, Projecto
 {
     use HasProjectorFactory, HasPersistentProjector;
 
-    #[Pure]
     public function __construct(protected ProjectorContext $context,
                                 protected ProjectorRepository $repository,
                                 protected Chronicler $chronicler,

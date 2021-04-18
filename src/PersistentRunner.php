@@ -51,11 +51,11 @@ final class PersistentRunner
     private function getPipes(): array
     {
         return [
-            new PreparePersistentRunner($this->projector, $this->repository),
+            new PreparePersistentRunner($this->repository),
             new HandleStreamEvent($this->chronicler, $this->repository),
             new PersistOrUpdateLockBeforeResetCounter($this->repository),
             new DispatchSignal(),
-            new UpdateProjectionStatusAndPositions($this->projector, $this->repository)
+            new UpdateProjectionStatusAndPositions($this->repository)
         ];
     }
 }

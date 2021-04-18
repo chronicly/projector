@@ -44,9 +44,7 @@ trait HasPersistentProjector
 
     public function delete(bool $withEmittedEvents): void
     {
-        $callback = $this->repository->delete($withEmittedEvents);
-
-        $callback();
+        $this->repository->delete($withEmittedEvents);
     }
 
     public function getState(): array

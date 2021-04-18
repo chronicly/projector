@@ -8,12 +8,12 @@ use Chronhub\Contracts\Projecting\ProjectorContext;
 
 final class PrepareQueryRunner implements Pipe
 {
-    private bool $hasBeenPrepared = false;
+    private bool $isInitiated = false;
 
     public function __invoke(ProjectorContext $context, callable $next): callable|bool
     {
-        if (!$this->hasBeenPrepared) {
-            $this->hasBeenPrepared = true;
+        if (!$this->isInitiated) {
+            $this->isInitiated = true;
 
             $context->position()->make($context->streamsNames());
         }
