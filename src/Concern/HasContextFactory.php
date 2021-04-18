@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace Chronhub\Projector\Concern;
 
-use Chronhub\Contracts\Messaging\MessageAlias;
 use Chronhub\Contracts\Projecting\EventProcessor;
 use Chronhub\Contracts\Projecting\ProjectorContext;
 use Chronhub\Contracts\Projecting\ProjectorRunner;
@@ -21,7 +20,6 @@ trait HasContextFactory
     protected array $streamsNames = [];
     protected ?ProjectionQueryFilter $queryFilter = null;
     protected ProjectorRunner $runner;
-    protected MessageAlias $messageAlias;
 
     public function initialize(Closure $initCallback): ProjectorContext
     {
@@ -111,7 +109,7 @@ trait HasContextFactory
             return new ClosureEventProcessor($this->eventHandlers);
         }
 
-        return new ArrayEventProcessor($this->eventHandlers, $this->messageAlias);
+        return new ArrayEventProcessor($this->eventHandlers);
     }
 
     public function streamsNames(): array

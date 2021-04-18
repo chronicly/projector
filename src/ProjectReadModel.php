@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace Chronhub\Projector;
 
 use Chronhub\Contracts\Chronicling\Chronicler;
-use Chronhub\Contracts\Messaging\MessageAlias;
 use Chronhub\Contracts\Projecting\ContextualEventHandler;
 use Chronhub\Contracts\Projecting\PersistentReadModelProjector;
 use Chronhub\Contracts\Projecting\ProjectorContext;
@@ -20,11 +19,9 @@ final class ProjectReadModel implements PersistentReadModelProjector, ProjectorF
 {
     use HasPersistentProjector, HasProjectorFactory;
 
-    #[Pure]
     public function __construct(protected ProjectorContext $context,
                                 protected ProjectorRepository $repository,
                                 protected Chronicler $chronicler,
-                                protected MessageAlias $messageAlias,
                                 protected string $streamName,
                                 private ReadModel $readModel)
     {

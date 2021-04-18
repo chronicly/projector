@@ -26,7 +26,7 @@ final class ProjectorManager implements Manager
             null
         );
 
-        return new ProjectQuery($context, $this->chronicler, $this->messageAlias);
+        return new ProjectQuery($context, $this->chronicler);
     }
 
     public function createProjection(string $streamName, array $options = []): ProjectorFactory
@@ -42,7 +42,7 @@ final class ProjectorManager implements Manager
         $repository = $this->newProjectorRepository($context, $streamName, null);
 
         return new ProjectProjection(
-            $context, $repository, $this->chronicler, $this->messageAlias, $streamName
+            $context, $repository, $this->chronicler, $streamName
         );
     }
 
@@ -57,7 +57,7 @@ final class ProjectorManager implements Manager
         $repository = $this->newProjectorRepository($context, $streamName, $readModel);
 
         return new ProjectReadModel(
-            $context, $repository, $this->chronicler, $this->messageAlias, $streamName, $readModel
+            $context, $repository, $this->chronicler, $streamName, $readModel
         );
     }
 

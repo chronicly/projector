@@ -4,13 +4,13 @@ declare(strict_types=1);
 namespace Chronhub\Projector\Factory;
 
 use Chronhub\Contracts\Messaging\Message;
-use Chronhub\Contracts\Messaging\MessageAlias;
 use Chronhub\Contracts\Projecting\ProjectorContext;
 use Chronhub\Contracts\Projecting\ProjectorRepository;
+use Chronhub\Foundation\Support\Facades\AliasMessage;
 
 final class ArrayEventProcessor extends AbstractEventProcessor
 {
-    public function __construct(private array $eventHandlers, private MessageAlias $messageAlias)
+    public function __construct(private array $eventHandlers)
     {
     }
 
@@ -33,7 +33,7 @@ final class ArrayEventProcessor extends AbstractEventProcessor
 
     private function determineEventHandler(Message $message): ?callable
     {
-        $eventAlias = $this->messageAlias->instanceToAlias($message);
+        $eventAlias = AliasMessage::instanceToAlias($message);
 
         return $this->eventHandlers[$eventAlias] ?? null;
     }

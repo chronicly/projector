@@ -6,7 +6,6 @@ namespace Chronhub\Projector;
 use Chronhub\Contracts\Clock\Clock;
 use Chronhub\Contracts\Manager\ChroniclerManager;
 use Chronhub\Contracts\Manager\ProjectorServiceManager as ServiceManager;
-use Chronhub\Contracts\Messaging\MessageAlias;
 use Chronhub\Contracts\Model\EventStreamProvider;
 use Chronhub\Contracts\Model\ProjectionProvider;
 use Chronhub\Contracts\Projecting\ProjectorManager as Manager;
@@ -77,7 +76,6 @@ final class ProjectorServiceManager implements ServiceManager
             $this->container->get(ChroniclerManager::class)->create($config['chronicler']),
             $this->determineEventStreamProvider($config),
             $this->determineProjectionProvider($config),
-            $this->container->get(MessageAlias::class),
             $this->container->make($config['scope']),
             $this->container->get(JsonEncoder::class),
             $this->container->get(Clock::class),

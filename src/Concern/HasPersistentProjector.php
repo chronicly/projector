@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace Chronhub\Projector\Concern;
 
 use Chronhub\Contracts\Chronicling\Chronicler;
-use Chronhub\Contracts\Messaging\MessageAlias;
 use Chronhub\Contracts\Projecting\ContextualEventHandler;
 use Chronhub\Contracts\Projecting\ProjectorContext;
 use Chronhub\Contracts\Projecting\ProjectorRepository;
@@ -16,7 +15,6 @@ trait HasPersistentProjector
     protected ProjectorContext $context;
     protected Chronicler $chronicler;
     protected ProjectorRepository $repository;
-    protected MessageAlias $messageAlias;
     protected string $streamName;
 
     public function run(bool $inBackground): void

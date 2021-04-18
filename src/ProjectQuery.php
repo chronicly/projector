@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace Chronhub\Projector;
 
 use Chronhub\Contracts\Chronicling\Chronicler;
-use Chronhub\Contracts\Messaging\MessageAlias;
 use Chronhub\Contracts\Projecting\ProjectorContext;
 use Chronhub\Contracts\Projecting\ProjectorFactory;
 use Chronhub\Contracts\Projecting\QueryProjector;
@@ -18,8 +17,7 @@ final class ProjectQuery implements QueryProjector, ProjectorFactory
     use HasProjectorFactory;
 
     public function __construct(protected ProjectorContext $context,
-                                private Chronicler $chronicler,
-                                private MessageAlias $messageAlias)
+                                private Chronicler $chronicler)
     {
     }
 

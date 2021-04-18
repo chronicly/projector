@@ -5,7 +5,6 @@ namespace Chronhub\Projector\Concern;
 
 use Chronhub\Contracts\Chronicling\Chronicler;
 use Chronhub\Contracts\Clock\Clock;
-use Chronhub\Contracts\Messaging\MessageAlias;
 use Chronhub\Contracts\Model\EventStreamProvider;
 use Chronhub\Contracts\Model\ProjectionProvider;
 use Chronhub\Contracts\Projecting\ProjectorContext;
@@ -31,7 +30,6 @@ trait HasConstructableProjectorManager
     public function __construct(protected Chronicler $chronicler,
                                 protected EventStreamProvider $eventStreamProvider,
                                 protected ProjectionProvider $projectionProvider,
-                                protected MessageAlias $messageAlias,
                                 protected ProjectionQueryScope $projectionQueryScope,
                                 protected JsonEncoder $jsonEncoder,
                                 protected Clock $clock,
@@ -70,7 +68,7 @@ trait HasConstructableProjectorManager
 
         return new Context(
             $option, $streamPosition, $this->clock,
-            $this->messageAlias, $eventCounter, $streamCache
+            $eventCounter, $streamCache
         );
     }
 

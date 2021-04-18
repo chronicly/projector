@@ -7,7 +7,6 @@ use Chronhub\Chronicler\Stream\Stream;
 use Chronhub\Chronicler\Stream\StreamName;
 use Chronhub\Contracts\Chronicling\Chronicler;
 use Chronhub\Contracts\Messaging\DomainEvent;
-use Chronhub\Contracts\Messaging\MessageAlias;
 use Chronhub\Contracts\Projecting\ContextualEventHandler;
 use Chronhub\Contracts\Projecting\PersistentProjectionProjector;
 use Chronhub\Contracts\Projecting\ProjectorContext;
@@ -26,7 +25,6 @@ final class ProjectProjection implements PersistentProjectionProjector, Projecto
     public function __construct(protected ProjectorContext $context,
                                 protected ProjectorRepository $repository,
                                 protected Chronicler $chronicler,
-                                protected MessageAlias $messageAlias,
                                 protected string $streamName)
     {
     }
