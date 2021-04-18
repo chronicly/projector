@@ -20,7 +20,6 @@ use Chronhub\Projector\Concern\HasReadProjectorManager;
 use Chronhub\Projector\Context\Context;
 use Chronhub\Projector\Exception\RuntimeException;
 use Chronhub\Projector\Factory\EventCounter;
-use Chronhub\Projector\Factory\InMemoryState;
 use Chronhub\Projector\Factory\ProjectionStatus;
 use Chronhub\Projector\Factory\StreamCache;
 use Chronhub\Projector\Factory\StreamPosition;
@@ -73,7 +72,8 @@ final class ProjectorManager implements Manager
             $context,
             $this->projectionProvider,
             $this->newTimeLock($context),
-            $this->jsonEncoder, $streamName,
+            $this->jsonEncoder,
+            $streamName,
             $this->chronicler
         );
 
@@ -90,11 +90,9 @@ final class ProjectorManager implements Manager
                                               ReadModel $readModel,
                                               array $options = []): ProjectorFactory
     {
-        $context = $this->newProjectorContext(
-            $this->newProjectorOption($options),
-            new EventCounter(),
-            null
-        );
+        $options = $this->newProjectorOption($options);
+
+        $context = $this->newProjectorContext($options, new EventCounter(), null);
 
         $repository = new ReadModelRepository(
             $context,
@@ -140,7 +138,7 @@ final class ProjectorManager implements Manager
     private function updateProjectionStatus(string $streamName, ProjectionStatus $projectionStatus): void
     {
         try {
-            $result = $this->projectionProvider->updateProjection(
+            $success = $this->projectionProvider->updateProjection(
                 $streamName,
                 ['status' => $projectionStatus->ofValue()]
             );
@@ -148,7 +146,7 @@ final class ProjectorManager implements Manager
             throw QueryFailure::fromQueryException($exception);
         }
 
-        if (!$result) {
+        if (!$success) {
             $this->assertProjectionNameExists($streamName);
         }
     }
@@ -191,8 +189,6 @@ final class ProjectorManager implements Manager
         return new Context(
             $option,
             $streamPosition,
-            new InMemoryState(),
-            ProjectionStatus::IDLE(),
             $this->clock,
             $this->messageAlias,
             $eventCounter,

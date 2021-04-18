@@ -15,6 +15,8 @@ use Chronhub\Contracts\Projecting\StreamCache;
 use Chronhub\Contracts\Projecting\StreamPosition;
 use Chronhub\Contracts\Projecting\StreamPosition as Position;
 use Chronhub\Projector\Concern\HasContextFactory;
+use Chronhub\Projector\Factory\InMemoryState;
+use Chronhub\Projector\Factory\ProjectionStatus;
 use Closure;
 
 class Context implements ProjectorContext
@@ -23,16 +25,18 @@ class Context implements ProjectorContext
 
     private ?string $currentStreamName = null;
     private bool $isStreamCreated = false;
+    private ProjectionState $state;
+    private ProjectionStatus $status;
 
     public function __construct(protected ProjectorOption $option,
                                 protected Position $position,
-                                protected ProjectionState $state,
-                                protected Status $status,
                                 protected Clock $clock,
                                 protected MessageAlias $messageAlias,
                                 protected ?EventCounter $eventCounter,
                                 protected ?StreamCache $streamCache)
     {
+        $this->state = new InMemoryState();
+        $this->status = ProjectionStatus::IDLE();
     }
 
     public function bindContextualEventHandler(ContextualEventHandler $eventHandler): void
