@@ -69,7 +69,7 @@ final class ProjectorServiceManager implements ServiceManager
     {
         $dispatcher = null;
 
-        if (true === $config['dispatch_projector_events'] ?? false) {
+        if (true === ($config['dispatch_projector_events'] ?? false)) {
             $dispatcher = $this->container->get(Dispatcher::class);
         }
 
