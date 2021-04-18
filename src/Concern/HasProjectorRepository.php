@@ -25,20 +25,20 @@ trait HasProjectorRepository
 
     public function loadState(): void
     {
-        $result = $this->provider->findByName($this->streamName);
+        $projection = $this->provider->findByName($this->streamName);
 
-        if (!$result instanceof ProjectionModel) {
+        if (!$projection instanceof ProjectionModel) {
             $exceptionMessage = "Projection not found with stream name $this->streamName\n";
-            $exceptionMessage .= 'Did you call prepareExecution first on Projector lock instance?';
+            $exceptionMessage .= 'Did you call initiate first on Projector instance?';
 
             throw new ProjectionNotFound($exceptionMessage);
         }
 
         $this->context->position()->merge(
-            $this->jsonEncoder->decode($result->position())
+            $this->jsonEncoder->decode($projection->position())
         );
 
-        $state = $this->jsonEncoder->decode($result->state());
+        $state = $this->jsonEncoder->decode($projection->state());
 
         if (is_array($state) && count($state) > 0) {
             $this->context->state()->setState($state);
@@ -53,14 +53,14 @@ trait HasProjectorRepository
         $idleProjection = ProjectionStatus::IDLE();
 
         try {
-            $result = $this->provider->updateProjection($this->streamName, [
+            $success = $this->provider->updateProjection($this->streamName, [
                 'status' => $idleProjection->getValue()
             ]);
         } catch (QueryException $queryException) {
             throw QueryFailure::fromQueryException($queryException);
         }
 
-        if (!$result) {
+        if (!$success) {
             throw new QueryFailure(
                 "Unable to stop projection for stream name: $this->streamName"
             );
@@ -76,7 +76,7 @@ trait HasProjectorRepository
         $this->timer->acquire();
 
         try {
-            $result = $this->provider->updateProjection($this->streamName, [
+            $success = $this->provider->updateProjection($this->streamName, [
                 'status' => $runningStatus->ofValue(),
                 'locked_until' => $this->timer->current(),
             ]);
@@ -84,7 +84,7 @@ trait HasProjectorRepository
             throw QueryFailure::fromQueryException($queryException);
         }
 
-        if (!$result) {
+        if (!$success) {
             throw new QueryFailure(
                 "Unable to start projection again for stream name: $this->streamName"
             );
@@ -100,22 +100,23 @@ trait HasProjectorRepository
 
     public function loadStatus(): Status
     {
-        $result = $this->provider->findByName($this->streamName);
+        $projection = $this->provider->findByName($this->streamName);
 
-        if (!$result) {
+        if (!$projection instanceof ProjectionModel) {
             return ProjectionStatus::RUNNING();
         }
 
-        return ProjectionStatus::byValue($result->status());
+        return ProjectionStatus::byValue($projection->status());
     }
 
     public function acquireLock(): void
     {
         $runningProjection = ProjectionStatus::RUNNING();
+
         $this->timer->acquire();
 
         try {
-            $result = $this->provider->acquireLock(
+            $success = $this->provider->acquireLock(
                 $this->streamName,
                 $runningProjection->ofValue(),
                 $this->timer->current(),
@@ -125,7 +126,7 @@ trait HasProjectorRepository
             throw QueryFailure::fromQueryException($queryException);
         }
 
-        if (!$result) {
+        if (!$success) {
             throw new ProjectionAlreadyRunning(
                 "Another projection process is already running for stream name: $this->streamName"
             );
@@ -138,7 +139,7 @@ trait HasProjectorRepository
     {
         if ($this->timer->update()) {
             try {
-                $result = $this->provider->updateProjection($this->streamName, [
+                $success = $this->provider->updateProjection($this->streamName, [
                     'locked_until' => $this->timer->current(),
                     'position' => $this->encodeData($this->context->position()->all())
                 ]);
@@ -146,7 +147,7 @@ trait HasProjectorRepository
                 throw QueryFailure::fromQueryException($queryException);
             }
 
-            if (!$result) {
+            if (!$success) {
                 throw new QueryFailure(
                     "An error occurred when updating lock for stream name: $this->streamName"
                 );
@@ -178,7 +179,7 @@ trait HasProjectorRepository
     protected function createProjection(): void
     {
         try {
-            $result = $this->provider->createProjection(
+            $success = $this->provider->createProjection(
                 $this->streamName,
                 $this->context->status()->ofValue()
             );
@@ -186,7 +187,7 @@ trait HasProjectorRepository
             throw QueryFailure::fromQueryException($queryException);
         }
 
-        if (!$result) {
+        if (!$success) {
             throw new QueryFailure(
                 "Unable to create projection for stream name: $this->streamName"
             );
@@ -196,7 +197,7 @@ trait HasProjectorRepository
     protected function persistProjection(): void
     {
         try {
-            $result = $this->provider->updateProjection($this->streamName, [
+            $success = $this->provider->updateProjection($this->streamName, [
                 'position' => $this->encodeData($this->context->position()->all()),
                 'state' => $this->encodeData($this->context->state()->getState()),
                 'locked_until' => $this->timer->refresh(),
@@ -205,7 +206,7 @@ trait HasProjectorRepository
             throw QueryFailure::fromQueryException($queryException);
         }
 
-        if (!$result) {
+        if (!$success) {
             throw new QueryFailure(
                 "Unable to persist projection for stream name: $this->streamName"
             );
@@ -219,7 +220,7 @@ trait HasProjectorRepository
         $this->context->resetStateWithInitialize();
 
         try {
-            $result = $this->provider->updateProjection($this->streamName, [
+            $success = $this->provider->updateProjection($this->streamName, [
                 'position' => $this->encodeData($this->context->position()->all()),
                 'state' => $this->encodeData($this->context->state()->getState()),
                 'status' => $this->context->status()->ofValue()
@@ -228,7 +229,7 @@ trait HasProjectorRepository
             throw QueryFailure::fromQueryException($queryException);
         }
 
-        if (!$result) {
+        if (!$success) {
             throw new QueryFailure(
                 "Unable to reset projection for stream name: $this->streamName"
             );
@@ -238,12 +239,12 @@ trait HasProjectorRepository
     protected function deleteProjection(): void
     {
         try {
-            $result = $this->provider->deleteByName($this->streamName);
+            $success = $this->provider->deleteByName($this->streamName);
         } catch (QueryException $queryException) {
             throw QueryFailure::fromQueryException($queryException);
         }
 
-        if (!$result) {
+        if (!$success) {
             throw new QueryFailure(
                 "Unable to delete projection for stream name: $this->streamName"
             );
@@ -256,7 +257,7 @@ trait HasProjectorRepository
         $this->context->position()->reset();
     }
 
-    protected function encodeData(array $data): string
+    private function encodeData(array $data): string
     {
         if (count($data) > 0) {
             return $this->jsonEncoder->encode($data);
