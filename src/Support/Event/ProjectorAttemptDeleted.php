@@ -6,7 +6,6 @@ namespace Chronhub\Projector\Support\Event;
 final class ProjectorAttemptDeleted
 {
     public function __construct(private string $name,
-                                private array $state,
                                 private bool $withEvents)
     {
     }
@@ -14,11 +13,6 @@ final class ProjectorAttemptDeleted
     public function name(): string
     {
         return $this->name;
-    }
-
-    public function state(): array
-    {
-        return $this->state;
     }
 
     public function withEvents(): bool

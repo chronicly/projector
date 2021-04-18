@@ -127,9 +127,11 @@ trait HasProjectorRepository
         }
 
         if (!$success) {
-            throw new ProjectionAlreadyRunning(
-                "Another projection process is already running for stream name: $this->streamName"
-            );
+            $message = "Acquiring lock failed for stream $this->streamName.\n";
+            $message .= "Another projection process is already running or \n";
+            $message .= "wait till the stopping process complete";
+
+            throw new ProjectionAlreadyRunning($message);
         }
 
         $this->context->setStatus($runningProjection);

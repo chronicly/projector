@@ -15,6 +15,7 @@ return [
             'options' => 'lazy',
             'provider' => 'eloquent',
             'event_stream_provider' => 'eloquent', // key from chronicler config,
+            'dispatch_projector_events' => true, // default false
             'scope' => \Chronhub\Projector\Support\Scope\PgsqlProjectionQueryScope::class
         ],
 

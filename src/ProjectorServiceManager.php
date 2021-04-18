@@ -15,6 +15,7 @@ use Chronhub\Contracts\Support\JsonEncoder;
 use Chronhub\Projector\Exception\RuntimeException;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Arr;
 
 final class ProjectorServiceManager implements ServiceManager
@@ -66,6 +67,12 @@ final class ProjectorServiceManager implements ServiceManager
 
     private function createDefaultProjectorManager(array $config): Manager
     {
+        $dispatcher = null;
+
+        if (true === $config['dispatch_projector_events'] ?? false) {
+            $dispatcher = $this->container->get(Dispatcher::class);
+        }
+
         return new ProjectorManager(
             $this->container->get(ChroniclerManager::class)->create($config['chronicler']),
             $this->determineEventStreamProvider($config),
@@ -74,6 +81,7 @@ final class ProjectorServiceManager implements ServiceManager
             $this->container->make($config['scope']),
             $this->container->get(JsonEncoder::class),
             $this->container->get(Clock::class),
+            $dispatcher,
             $this->determineProjectorOptions($config['options'])
         );
     }

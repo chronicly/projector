@@ -23,8 +23,6 @@ final class ReadModelRepository implements ProjectorRepository
     {
     }
 
-    // todo projector event
-
     public function initiate(): void
     {
         $this->context->runner()->stop(false);

@@ -24,10 +24,12 @@ use Chronhub\Projector\Factory\InMemoryState;
 use Chronhub\Projector\Factory\ProjectionStatus;
 use Chronhub\Projector\Factory\StreamCache;
 use Chronhub\Projector\Factory\StreamPosition;
+use Chronhub\Projector\Repository\EventsProjectorRepository;
 use Chronhub\Projector\Repository\ProjectionRepository;
 use Chronhub\Projector\Repository\ReadModelRepository;
 use Chronhub\Projector\Repository\TimeLock;
 use Chronhub\Projector\Support\Option\ConstructableProjectorOption;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\QueryException;
 
 final class ProjectorManager implements Manager
@@ -41,6 +43,7 @@ final class ProjectorManager implements Manager
                                 private ProjectionQueryScope $projectionQueryScope,
                                 protected JsonEncoder $jsonEncoder,
                                 private Clock $clock,
+                                private ?Dispatcher $eventDispatcher = null,
                                 private ProjectorOption|array $options = [])
     {
     }
@@ -74,6 +77,10 @@ final class ProjectorManager implements Manager
             $this->chronicler
         );
 
+        if ($this->eventDispatcher) {
+            $repository = new EventsProjectorRepository($repository, $this->eventDispatcher);
+        }
+
         return new ProjectProjection(
             $context, $repository, $this->chronicler, $this->messageAlias, $streamName
         );
@@ -96,6 +103,10 @@ final class ProjectorManager implements Manager
             $this->jsonEncoder, $streamName,
             $readModel
         );
+
+        if ($this->eventDispatcher) {
+            $repository = new EventsProjectorRepository($repository, $this->eventDispatcher);
+        }
 
         return new ProjectReadModel(
             $context, $repository, $this->chronicler, $this->messageAlias, $streamName, $readModel
