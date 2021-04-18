@@ -55,11 +55,4 @@ trait HasReadProjectorManager
     {
         return $this->projectionProvider->projectionExists($projectionName);
     }
-
-    protected function assertProjectionNameExists(string $projectionName): void
-    {
-        if (!$this->exists($projectionName)) {
-            throw ProjectionNotFound::withName($projectionName);
-        }
-    }
 }
