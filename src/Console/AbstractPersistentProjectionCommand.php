@@ -19,6 +19,9 @@ use Symfony\Component\Console\Command\SignalableCommandInterface;
  */
 abstract class AbstractPersistentProjectionCommand extends Command implements SignalableCommandInterface
 {
+    protected const DEFAULT_PROJECTOR = 'default';
+    protected const DISPATCH_SIGNAL = false;
+
     protected ?ProjectorFactory $projector = null;
 
     protected function withProjection(string $streamName,
@@ -55,7 +58,7 @@ abstract class AbstractPersistentProjectionCommand extends Command implements Si
             return $this->option('projector');
         }
 
-        return 'default';
+        return self::DEFAULT_PROJECTOR;
     }
 
     protected function dispatchSignal(): bool
@@ -64,7 +67,7 @@ abstract class AbstractPersistentProjectionCommand extends Command implements Si
             return (int)$this->option('signal') === 1;
         }
 
-        return false;
+        return self::DISPATCH_SIGNAL;
     }
 
     private function projectReadModel(string $streamName,
