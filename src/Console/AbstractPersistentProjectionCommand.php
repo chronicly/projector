@@ -6,6 +6,7 @@ namespace Chronhub\Projector\Console;
 use Chronhub\Contracts\Messaging\DomainEvent;
 use Chronhub\Contracts\Projecting\ProjectorFactory;
 use Chronhub\Contracts\Projecting\ReadModel;
+use Chronhub\Contracts\Query\ProjectionQueryFilter;
 use Chronhub\Projector\Support\Facade\Project;
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Command\SignalableCommandInterface;
@@ -22,15 +23,16 @@ abstract class AbstractPersistentProjectionCommand extends Command implements Si
 
     protected function withProjection(string $streamName,
                                       string|ReadModel $readModel = null,
-                                      array $options = []): void
+                                      array $options = [],
+                                      ?ProjectionQueryFilter $queryFilter = null): void
     {
         if ($this->dispatchSignal()) {
             pcntl_async_signals(true);
         }
 
         $this->projector = $readModel
-            ? Project::createReadModel($streamName, $readModel, $this->projectorName(), $options)
-            : Project::createProjection($streamName, $this->projectorName(), $options);
+            ? $this->projectReadModel($streamName, $readModel, $options, $queryFilter)
+            : $this->projectPersistentProjection($streamName, $options, $queryFilter);
     }
 
     public function getSubscribedSignals(): array
@@ -63,5 +65,38 @@ abstract class AbstractPersistentProjectionCommand extends Command implements Si
         }
 
         return false;
+    }
+
+    private function projectReadModel(string $streamName,
+                                      string|ReadModel $readModel,
+                                      array $options = [],
+                                      ?ProjectionQueryFilter $queryFilter = null): ProjectorFactory
+    {
+        if (is_string($readModel)) {
+            $readModel = $this->getLaravel()->make($readModel);
+        }
+
+        $projector = Project::create($this->projectorName())
+            ->createReadModelProjection($streamName, $readModel, $options);
+
+        if ($queryFilter) {
+            $projector->withQueryFilter($queryFilter);
+        }
+
+        return $projector;
+    }
+
+    private function projectPersistentProjection(string $streamName,
+                                                 array $options = [],
+                                                 ?ProjectionQueryFilter $queryFilter = null): ProjectorFactory
+    {
+        $projector = Project::create($this->projectorName())
+            ->createProjection($streamName, $options);
+
+        if ($queryFilter) {
+            $projector->withQueryFilter($queryFilter);
+        }
+
+        return $projector;
     }
 }
