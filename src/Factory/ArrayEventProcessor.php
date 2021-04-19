@@ -20,13 +20,15 @@ final class ArrayEventProcessor extends AbstractEventProcessor
             return false;
         }
 
-        if (!$messageHandler = $this->determineEventHandler($message)) {
-            $repository and $this->persistOnReachedCounter($context, $repository);
+        if (!$eventHandler = $this->determineEventHandler($message)) {
+            if ($repository) {
+                $this->persistOnReachedCounter($context, $repository);
+            }
 
             return !$context->runner()->isStopped();
         }
 
-        $state = $messageHandler($message->eventWithHeaders(), $context->state()->getState());
+        $state = $eventHandler($message->eventWithHeaders(), $context->state()->getState());
 
         return $this->afterProcess($context, $state, $repository);
     }

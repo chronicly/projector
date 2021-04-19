@@ -27,7 +27,7 @@ final class PersistOrUpdateLock implements Pipe
         return $next($context);
     }
 
-    public function handleCounterIsReached(ProjectorContext $context): void
+    private function handleCounterIsReached(ProjectorContext $context): void
     {
         $context->position()->resetRetries();
 

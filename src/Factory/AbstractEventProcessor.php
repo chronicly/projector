@@ -39,10 +39,10 @@ abstract class AbstractEventProcessor implements EventProcessor
         return true;
     }
 
-    protected function afterProcess(ProjectorContext $context, ?array $projectionState, ?ProjectorRepository $repository): bool
+    protected function afterProcess(ProjectorContext $context, ?array $state, ?ProjectorRepository $repository): bool
     {
-        if ($projectionState) {
-            $context->state()->setState($projectionState);
+        if ($state) {
+            $context->state()->setState($state);
         }
 
         if ($repository) {
