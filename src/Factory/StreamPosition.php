@@ -19,6 +19,7 @@ final class StreamPosition implements Position
      */
     private array $container = [];
     private int $retries = 0;
+    private bool $gapDetected = false;
 
     public function __construct(private EventStreamProvider $eventStreamProvider,
                                 private Clock $clock,
@@ -51,6 +52,16 @@ final class StreamPosition implements Position
     public function reset(): void
     {
         $this->container = [];
+    }
+
+    public function gapDetected(): bool
+    {
+        return $this->gapDetected;
+    }
+
+    public function setGapDetected(bool $gapDetected): void
+    {
+        $this->gapDetected = $gapDetected;
     }
 
     public function sleepWithGapDetected(): void

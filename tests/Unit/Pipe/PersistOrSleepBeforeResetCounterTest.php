@@ -7,7 +7,7 @@ use Chronhub\Contracts\Projecting\EventCounter;
 use Chronhub\Contracts\Projecting\ProjectorContext;
 use Chronhub\Contracts\Projecting\ProjectorOption;
 use Chronhub\Contracts\Projecting\ProjectorRepository;
-use Chronhub\Projector\Pipe\PersistOrUpdateLockBeforeResetCounter;
+use Chronhub\Projector\Pipe\PersistOrUpdateLock;
 use Chronhub\Projector\Tests\TestCaseWithProphecy;
 
 final class PersistOrSleepBeforeResetCounterTest extends TestCaseWithProphecy
@@ -33,7 +33,7 @@ final class PersistOrSleepBeforeResetCounterTest extends TestCaseWithProphecy
         $repository = $this->prophesize(ProjectorRepository::class);
         $repository->updateLock()->shouldBeCalled();
 
-        $pipe = new PersistOrUpdateLockBeforeResetCounter($repository->reveal());
+        $pipe = new PersistOrUpdateLock($repository->reveal());
 
         $expectedContext = $pipe($context, function (ProjectorContext $next) {
             return fn() => $next;
@@ -61,7 +61,7 @@ final class PersistOrSleepBeforeResetCounterTest extends TestCaseWithProphecy
         $repository = $this->prophesize(ProjectorRepository::class);
         $repository->persist()->shouldBeCalled();
 
-        $pipe = new PersistOrUpdateLockBeforeResetCounter($repository->reveal());
+        $pipe = new PersistOrUpdateLock($repository->reveal());
 
         $next = $pipe($context, function (ProjectorContext $context) {
             return fn() => $context;

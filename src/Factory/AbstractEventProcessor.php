@@ -24,9 +24,7 @@ abstract class AbstractEventProcessor implements EventProcessor
             $timeOfRecording = $message->header(MessageHeader::TIME_OF_RECORDING);
 
             if ($context->position()->hasGap($currentStreamName, $key, $timeOfRecording)) {
-                $context->position()->sleepWithGapDetected();
-
-                $repository->persist();
+                $context->position()->setGapDetected(true);
 
                 return false;
             }
