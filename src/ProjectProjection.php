@@ -52,7 +52,7 @@ final class ProjectProjection implements PersistentProjectionProjector, Projecto
             : $this->chronicler->persistFirstCommit($stream);
     }
 
-    protected function createContextualEventHandler(): ContextualEventHandler
+    protected function createContextualProjector(): ContextualEventHandler
     {
         return new ContextualProjection($this, $this->context);
     }

@@ -35,15 +35,15 @@ class Context implements ProjectorContext
         $this->status = ProjectionStatus::IDLE();
     }
 
-    public function bindContextualEventHandler(ContextualEventHandler $eventHandler): void
+    public function cast(ContextualEventHandler $eventHandler): void
     {
         $this->validate();
 
-        $initState = $this->bindInitCallback($eventHandler);
+        $initState = $this->castInitCallback($eventHandler);
 
         $this->state->setState($initState);
 
-        $this->bindEventHandlers($eventHandler);
+        $this->castEventHandlers($eventHandler);
     }
 
     public function resetStateWithInitialize(): ?array
@@ -117,7 +117,7 @@ class Context implements ProjectorContext
         return $this->eventCounter;
     }
 
-    private function bindEventHandlers(ContextualEventHandler $eventHandler): void
+    private function castEventHandlers(ContextualEventHandler $eventHandler): void
     {
         if ($this->eventHandlers instanceof Closure) {
             $this->eventHandlers = Closure::bind($this->eventHandlers, $eventHandler);
@@ -128,7 +128,7 @@ class Context implements ProjectorContext
         }
     }
 
-    private function bindInitCallback(ContextualEventHandler $eventHandler): array
+    private function castInitCallback(ContextualEventHandler $eventHandler): array
     {
         if ($this->initCallback instanceof Closure) {
             $callback = Closure::bind($this->initCallback, $eventHandler);

@@ -23,7 +23,7 @@ trait HasPersistentProjector
             new RunnerController($inBackground, false)
         );
 
-        $this->context->bindContextualEventHandler($this->createContextualEventHandler());
+        $this->context->cast($this->createContextualProjector());
 
         $runner = new PersistentRunner($this, $this->chronicler, $this->repository);
 
@@ -55,5 +55,5 @@ trait HasPersistentProjector
         return $this->streamName;
     }
 
-    abstract protected function createContextualEventHandler(): ContextualEventHandler;
+    abstract protected function createContextualProjector(): ContextualEventHandler;
 }

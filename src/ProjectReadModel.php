@@ -28,7 +28,7 @@ final class ProjectReadModel implements PersistentReadModelProjector, ProjectorF
     }
 
     #[Pure]
-    protected function createContextualEventHandler(): ContextualEventHandler
+    protected function createContextualProjector(): ContextualEventHandler
     {
         return new ContextualReadModel($this, $this->context);
     }
