@@ -76,27 +76,25 @@ abstract class AbstractPersistentProjectionCommand extends Command implements Si
             $readModel = $this->getLaravel()->make($readModel);
         }
 
-        $projector = Project::create($this->projectorName())
-            ->createReadModelProjection($streamName, $readModel, $options);
+        $projector = Project::create($this->projectorName());
 
-        if ($queryFilter) {
-            $projector->withQueryFilter($queryFilter);
-        }
+        $queryFilter = $queryFilter ?? $projector->queryScope()->fromIncludedPosition();
 
-        return $projector;
+        return $projector
+            ->createReadModelProjection($streamName, $readModel, $options)
+            ->withQueryFilter($queryFilter);
     }
 
     private function projectPersistentProjection(string $streamName,
                                                  array $options = [],
                                                  ?ProjectionQueryFilter $queryFilter = null): ProjectorFactory
     {
-        $projector = Project::create($this->projectorName())
-            ->createProjection($streamName, $options);
+        $projector = Project::create($this->projectorName());
 
-        if ($queryFilter) {
-            $projector->withQueryFilter($queryFilter);
-        }
+        $queryFilter = $queryFilter ?? $projector->queryScope()->fromIncludedPosition();
 
-        return $projector;
+        return $projector
+            ->createProjection($streamName, $options)
+            ->withQueryFilter($queryFilter);
     }
 }
