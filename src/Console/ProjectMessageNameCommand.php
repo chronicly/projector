@@ -31,6 +31,9 @@ final class ProjectMessageNameCommand extends AbstractPersistentProjectionComman
         return function (AggregateChanged $event) use ($asAlias): void {
             $messageName = $event->header(MessageHeader::EVENT_TYPE);
 
+            // checkMe
+            // if aliasing message name offer more readability
+            // collision can be high with identical alias produced from different namespace
             if ($asAlias) {
                 $messageName = AliasMessage::typeToAlias($messageName);
             }
