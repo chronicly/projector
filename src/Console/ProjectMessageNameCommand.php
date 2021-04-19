@@ -5,6 +5,7 @@ namespace Chronhub\Projector\Console;
 
 use Chronhub\Contracts\Aggregate\AggregateChanged;
 use Chronhub\Contracts\Messaging\MessageHeader;
+use Closure;
 
 final class ProjectMessageNameCommand extends AbstractPersistentProjectionCommand
 {
@@ -16,10 +17,16 @@ final class ProjectMessageNameCommand extends AbstractPersistentProjectionComman
 
         $this->projector
             ->fromAll()
-            ->whenAny(function (AggregateChanged $event): void {
-                $messageName = $event->header(MessageHeader::EVENT_TYPE);
+            ->whenAny($this->eventHandler())
+            ->run(true);
+    }
 
-                $this->linkTo('$mn-' . $messageName, $event);
-            })->run(true);
+    private function eventHandler(): Closure
+    {
+        return function (AggregateChanged $event): void {
+            $messageName = $event->header(MessageHeader::EVENT_TYPE);
+
+            $this->linkTo('$mn-' . $messageName, $event);
+        };
     }
 }

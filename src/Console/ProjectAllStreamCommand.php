@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Chronhub\Projector\Console;
 
 use Chronhub\Contracts\Aggregate\AggregateChanged;
+use Closure;
 
 final class ProjectAllStreamCommand extends AbstractPersistentProjectionCommand
 {
@@ -15,8 +16,14 @@ final class ProjectAllStreamCommand extends AbstractPersistentProjectionCommand
 
         $this->projector
             ->fromAll()
-            ->whenAny(function (AggregateChanged $event): void {
-                $this->emit($event);
-            })->run(true);
+            ->whenAny($this->eventHandler())
+            ->run(true);
+    }
+
+    private function eventHandler(): Closure
+    {
+        return function (AggregateChanged $event): void {
+            $this->emit($event);
+        };
     }
 }
