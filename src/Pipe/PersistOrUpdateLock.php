@@ -27,15 +27,6 @@ final class PersistOrUpdateLock implements Pipe
         return $next($context);
     }
 
-    private function handleCounterIsReached(ProjectorContext $context): void
-    {
-        $context->position()->resetRetries();
-
-        $context->counter()->isReset()
-            ? $this->sleepBeforeUpdateLock($context->option()->sleep())
-            : $this->repository->persist();
-    }
-
     private function handleDetectedGap(StreamPosition $streamPosition): void
     {
         $streamPosition->sleepWithGapDetected();
@@ -43,6 +34,15 @@ final class PersistOrUpdateLock implements Pipe
         $this->repository->persist();
 
         $streamPosition->setGapDetected(false);
+    }
+
+    private function handleCounterIsReached(ProjectorContext $context): void
+    {
+        $context->position()->resetRetries();
+
+        $context->counter()->isReset()
+            ? $this->sleepBeforeUpdateLock($context->option()->sleep())
+            : $this->repository->persist();
     }
 
     private function sleepBeforeUpdateLock(int $sleep): void
