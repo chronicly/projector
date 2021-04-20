@@ -13,7 +13,7 @@ final class UpdateProjectionStatusAndPositions implements Pipe
 
     public function __invoke(ProjectorContext $context, callable $next): callable|bool
     {
-        $this->processOnStatus(false, $context->runner()->inBackground());
+        $this->stopOnLoadingRemoteStatus(false, $context->runner()->inBackground());
 
         $context->position()->make($context->streamsNames());
 

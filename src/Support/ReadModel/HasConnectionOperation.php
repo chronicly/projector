@@ -20,12 +20,6 @@ trait HasConnectionOperation
         $this->queryBuilder()->where($this->getKey(), $id)->update($data);
     }
 
-    /**
-     * @param string    $id
-     * @param string    $column
-     * @param int|float $value
-     * @param array     $extra
-     */
     protected function increment(string $id, string $column, int|float $value, array $extra = []): void
     {
         $this->queryBuilder()
@@ -33,12 +27,6 @@ trait HasConnectionOperation
             ->increment($column, abs($value), $extra);
     }
 
-    /**
-     * @param string    $id
-     * @param string    $column
-     * @param int|float $value
-     * @param array     $extra
-     */
     protected function decrement(string $id, string $column, int|float $value, array $extra = []): void
     {
         $this->queryBuilder()

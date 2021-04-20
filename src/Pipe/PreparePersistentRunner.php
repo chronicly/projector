@@ -18,7 +18,7 @@ final class PreparePersistentRunner implements Pipe
         if (!$this->isInitiated) {
             $this->isInitiated = true;
 
-            if ($this->processOnStatus(true, $context->runner()->inBackground())) {
+            if ($this->stopOnLoadingRemoteStatus(true, $context->runner()->inBackground())) {
                 return true;
             }
 

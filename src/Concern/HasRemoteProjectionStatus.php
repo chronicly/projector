@@ -12,35 +12,50 @@ trait HasRemoteProjectionStatus
     {
     }
 
-    protected function processOnStatus(bool $onFirstProcessing, bool $keepRunning): bool
+    protected function stopOnLoadingRemoteStatus(bool $firstExecution, bool $keepRunning): bool
     {
-        switch ($this->repository->loadStatus()) {
-            case ProjectionStatus::STOPPING():
-                if ($onFirstProcessing) {
-                    $this->repository->loadState();
-                }
+        return match ($this->repository->loadStatus()) {
+            ProjectionStatus::STOPPING() => $this->stop($firstExecution),
+            ProjectionStatus::RESETTING() => $this->reset($firstExecution, $keepRunning),
+            ProjectionStatus::DELETING() => $this->delete($firstExecution),
+            ProjectionStatus::DELETING_EMITTED_EVENTS() => $this->deleteWithEvents($firstExecution),
+            default => false
+        };
+    }
 
-                $this->repository->stop();
-
-                return $onFirstProcessing;
-            case ProjectionStatus::DELETING():
-                $this->repository->delete(false);
-
-                return $onFirstProcessing;
-            case ProjectionStatus::DELETING_EMITTED_EVENTS():
-                $this->repository->delete(true);
-
-                return $onFirstProcessing;
-            case ProjectionStatus::RESETTING():
-                $this->repository->reset();
-
-                if (!$onFirstProcessing && $keepRunning) {
-                    $this->repository->startAgain();
-                }
-
-                return false;
-            default:
-                return false;
+    private function stop(bool $firstExecution): bool
+    {
+        if ($firstExecution) {
+            $this->repository->loadState();
         }
+
+        $this->repository->stop();
+
+        return $firstExecution;
+    }
+
+    private function reset(bool $firstExecution, bool $keepRunning): bool
+    {
+        $this->repository->reset();
+
+        if (!$firstExecution && $keepRunning) {
+            $this->repository->startAgain();
+        }
+
+        return false;
+    }
+
+    private function delete(bool $firstExecution): bool
+    {
+        $this->repository->delete(false);
+
+        return $firstExecution;
+    }
+
+    private function deleteWithEvents(bool $firstExecution): bool
+    {
+        $this->repository->delete(true);
+
+        return $firstExecution;
     }
 }
