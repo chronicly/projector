@@ -22,7 +22,6 @@ class Context implements ProjectorContext
     use HasContextFactory;
 
     private ?string $currentStreamName = null;
-    private bool $isStreamCreated = false;
     private ProjectionState $state;
     private ProjectionStatus $status;
 
