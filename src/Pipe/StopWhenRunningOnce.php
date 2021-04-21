@@ -7,7 +7,7 @@ use Chronhub\Contracts\Projecting\PersistentProjector;
 use Chronhub\Contracts\Projecting\Pipe;
 use Chronhub\Contracts\Projecting\ProjectorContext;
 
-final class StopWhenNotRunningInBackground implements Pipe
+final class StopWhenRunningOnce implements Pipe
 {
     public function __construct(private PersistentProjector $projector)
     {
@@ -16,8 +16,7 @@ final class StopWhenNotRunningInBackground implements Pipe
     public function __invoke(ProjectorContext $context, callable $next): callable|bool
     {
         // to be consistent when dispatching projector events
-        // we stop explicitly the projection when it's not running
-        // in background
+        // we stop explicitly the projection when it's running once
         if (!$context->runner()->inBackground() && !$context->runner()->isStopped()) {
             $this->projector->stop();
         }

@@ -13,7 +13,7 @@ use Chronhub\Projector\Pipe\DispatchSignal;
 use Chronhub\Projector\Pipe\HandleStreamEvent;
 use Chronhub\Projector\Pipe\PersistOrUpdateLock;
 use Chronhub\Projector\Pipe\PreparePersistentRunner;
-use Chronhub\Projector\Pipe\StopWhenNotRunningInBackground;
+use Chronhub\Projector\Pipe\StopWhenRunningOnce;
 use Chronhub\Projector\Pipe\UpdateProjectionStatusAndPositions;
 
 final class PersistentRunner
@@ -48,7 +48,7 @@ final class PersistentRunner
             new PersistOrUpdateLock($this->repository),
             new DispatchSignal(),
             new UpdateProjectionStatusAndPositions($this->repository),
-            new StopWhenNotRunningInBackground($this->projector)
+            new StopWhenRunningOnce($this->projector)
         ];
     }
 }
