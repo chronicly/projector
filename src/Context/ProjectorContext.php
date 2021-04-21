@@ -7,17 +7,14 @@ use Chronhub\Contracts\Clock\Clock;
 use Chronhub\Contracts\Projecting\ContextualEventHandler;
 use Chronhub\Contracts\Projecting\EventCounter;
 use Chronhub\Contracts\Projecting\ProjectionState;
-use Chronhub\Contracts\Projecting\ProjectionStatus as Status;
-use Chronhub\Contracts\Projecting\ProjectorContext;
 use Chronhub\Contracts\Projecting\ProjectorOption;
-use Chronhub\Contracts\Projecting\StreamPosition;
 use Chronhub\Contracts\Projecting\StreamPosition as Position;
 use Chronhub\Projector\Concern\HasContextFactory;
 use Chronhub\Projector\Factory\InMemoryState;
 use Chronhub\Projector\Factory\ProjectionStatus;
 use Closure;
 
-class Context implements ProjectorContext
+class ProjectorContext
 {
     use HasContextFactory;
 
@@ -57,63 +54,11 @@ class Context implements ProjectorContext
             $state = $callback();
 
             if (is_array($state)) {
-                $this->state()->setState($state);
+                $this->state->setState($state);
             }
         }
 
         return $state;
-    }
-
-    public function setCurrentStreamName(string $streamName): void
-    {
-        $this->currentStreamName = $streamName;
-    }
-
-    public function currentStreamName(): ?string
-    {
-        return $this->currentStreamName;
-    }
-
-    public function dispatchSignal(): void
-    {
-        if ($this->option->dispatchSignal()) {
-            pcntl_signal_dispatch();
-        }
-    }
-
-    public function state(): ProjectionState
-    {
-        return $this->state;
-    }
-
-    public function setStatus(Status $status): void
-    {
-        $this->status = $status;
-    }
-
-    public function status(): Status
-    {
-        return $this->status;
-    }
-
-    public function position(): StreamPosition
-    {
-        return $this->position;
-    }
-
-    public function option(): ProjectorOption
-    {
-        return $this->option;
-    }
-
-    public function clock(): Clock
-    {
-        return $this->clock;
-    }
-
-    public function counter(): ?EventCounter
-    {
-        return $this->eventCounter;
     }
 
     private function castEventHandlers(ContextualEventHandler $eventHandler): void

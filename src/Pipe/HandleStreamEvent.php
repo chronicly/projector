@@ -5,15 +5,14 @@ namespace Chronhub\Projector\Pipe;
 
 use Chronhub\Chronicler\Stream\StreamName;
 use Chronhub\Contracts\Chronicling\Chronicler;
-use Chronhub\Contracts\Projecting\Pipe;
-use Chronhub\Contracts\Projecting\ProjectorContext;
 use Chronhub\Contracts\Projecting\ProjectorRepository;
+use Chronhub\Projector\Context\ProjectorContext;
 use Chronhub\Projector\Factory\MergeStreamIterator;
 use Chronhub\Projector\Factory\StreamEventIterator;
 use function array_keys;
 use function array_values;
 
-final class HandleStreamEvent implements Pipe
+final class HandleStreamEvent
 {
     public function __construct(private Chronicler $chronicler,
                                 private ?ProjectorRepository $repository)

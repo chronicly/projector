@@ -3,11 +3,10 @@ declare(strict_types=1);
 
 namespace Chronhub\Projector\Pipe;
 
-use Chronhub\Contracts\Projecting\Pipe;
-use Chronhub\Contracts\Projecting\ProjectorContext;
 use Chronhub\Projector\Concern\HasRemoteProjectionStatus;
+use Chronhub\Projector\Context\ProjectorContext;
 
-final class UpdateStatusAndPositions implements Pipe
+final class UpdateStatusAndPositions
 {
     use HasRemoteProjectionStatus;
 

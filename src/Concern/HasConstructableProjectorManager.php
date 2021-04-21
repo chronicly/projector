@@ -7,13 +7,12 @@ use Chronhub\Contracts\Chronicling\Chronicler;
 use Chronhub\Contracts\Clock\Clock;
 use Chronhub\Contracts\Model\EventStreamProvider;
 use Chronhub\Contracts\Model\ProjectionProvider;
-use Chronhub\Contracts\Projecting\ProjectorContext;
 use Chronhub\Contracts\Projecting\ProjectorOption;
 use Chronhub\Contracts\Projecting\ProjectorRepository;
 use Chronhub\Contracts\Projecting\ReadModel;
 use Chronhub\Contracts\Query\ProjectionQueryScope;
 use Chronhub\Contracts\Support\JsonEncoder;
-use Chronhub\Projector\Context\Context;
+use Chronhub\Projector\Context\ProjectorContext;
 use Chronhub\Projector\Exception\RuntimeException;
 use Chronhub\Projector\Factory\EventCounter;
 use Chronhub\Projector\Factory\StreamPosition;
@@ -64,7 +63,7 @@ trait HasConstructableProjectorManager
             $option->retriesMs(), $option->detectionWindows()
         );
 
-        return new Context($option, $streamPosition, $this->clock, $eventCounter);
+        return new ProjectorContext($option, $streamPosition, $this->clock, $eventCounter);
     }
 
     protected function newProjectorOption(array $options): ProjectorOption

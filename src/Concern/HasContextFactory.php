@@ -3,10 +3,9 @@ declare(strict_types=1);
 
 namespace Chronhub\Projector\Concern;
 
-use Chronhub\Contracts\Projecting\EventProcessor;
-use Chronhub\Contracts\Projecting\ProjectorContext;
 use Chronhub\Contracts\Projecting\ProjectorRunner;
 use Chronhub\Contracts\Query\ProjectionQueryFilter;
+use Chronhub\Projector\Context\ProjectorContext;
 use Chronhub\Projector\Exception\RuntimeException;
 use Chronhub\Projector\Factory\ArrayEventProcessor;
 use Chronhub\Projector\Factory\ClosureEventProcessor;
@@ -103,7 +102,7 @@ trait HasContextFactory
         return $this->initCallback;
     }
 
-    public function eventHandlers(): EventProcessor
+    public function eventHandlers(): callable
     {
         if ($this->eventHandlers instanceof Closure) {
             return new ClosureEventProcessor($this->eventHandlers);

@@ -9,7 +9,6 @@ use Chronhub\Contracts\Chronicling\Chronicler;
 use Chronhub\Contracts\Messaging\DomainEvent;
 use Chronhub\Contracts\Projecting\ContextualEventHandler;
 use Chronhub\Contracts\Projecting\PersistentProjectionProjector;
-use Chronhub\Contracts\Projecting\ProjectorContext;
 use Chronhub\Contracts\Projecting\ProjectorFactory;
 use Chronhub\Contracts\Projecting\ProjectorRepository;
 use Chronhub\Contracts\Projecting\StreamCache;
@@ -17,6 +16,7 @@ use Chronhub\Foundation\Message\Message;
 use Chronhub\Projector\Concern\HasPersistentProjector;
 use Chronhub\Projector\Concern\HasProjectorFactory;
 use Chronhub\Projector\Context\ContextualProjection;
+use Chronhub\Projector\Context\ProjectorContext;
 
 final class ProjectProjection implements PersistentProjectionProjector, ProjectorFactory
 {

@@ -6,11 +6,11 @@ namespace Chronhub\Projector\Repository;
 use Chronhub\Chronicler\Stream\StreamName;
 use Chronhub\Contracts\Chronicling\Chronicler;
 use Chronhub\Contracts\Model\ProjectionProvider;
-use Chronhub\Contracts\Projecting\ProjectorContext;
 use Chronhub\Contracts\Projecting\ProjectorRepository;
 use Chronhub\Contracts\Support\JsonEncoder;
 use Chronhub\Foundation\Exception\StreamNotFound;
 use Chronhub\Projector\Concern\HasProjectorRepository;
+use Chronhub\Projector\Context\ProjectorContext;
 
 final class ProjectionRepository implements ProjectorRepository
 {
@@ -35,7 +35,7 @@ final class ProjectionRepository implements ProjectorRepository
 
         $this->acquireLock();
 
-        $this->context->position()->watch($this->context->streamsNames());
+        $this->context->position->watch($this->context->streamsNames());
 
         $this->loadState();
     }

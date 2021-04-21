@@ -4,9 +4,9 @@ declare(strict_types=1);
 namespace Chronhub\Projector\Factory;
 
 use Chronhub\Contracts\Messaging\Message;
-use Chronhub\Contracts\Projecting\ProjectorContext;
 use Chronhub\Contracts\Projecting\ProjectorRepository;
 use Chronhub\Foundation\Support\Facades\AliasMessage;
+use Chronhub\Projector\Context\ProjectorContext;
 
 final class ArrayEventProcessor extends AbstractEventProcessor
 {
@@ -28,7 +28,7 @@ final class ArrayEventProcessor extends AbstractEventProcessor
             return !$context->runner()->isStopped();
         }
 
-        $state = $eventHandler($message->eventWithHeaders(), $context->state()->getState());
+        $state = $eventHandler($message->eventWithHeaders(), $context->state->getState());
 
         return $this->afterProcess($context, $state, $repository);
     }

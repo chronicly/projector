@@ -6,7 +6,6 @@ namespace Chronhub\Projector\Context;
 use Chronhub\Contracts\Messaging\DomainEvent;
 use Chronhub\Contracts\Projecting\PersistentProjectionProjector;
 use Chronhub\Contracts\Projecting\ProjectionEventHandler as ContextualEventHandler;
-use Chronhub\Contracts\Projecting\ProjectorContext;
 
 final class ContextualProjection implements ContextualEventHandler
 {

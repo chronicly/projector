@@ -4,10 +4,9 @@ declare(strict_types=1);
 namespace Chronhub\Projector\Pipe;
 
 use Chronhub\Contracts\Projecting\PersistentProjector;
-use Chronhub\Contracts\Projecting\Pipe;
-use Chronhub\Contracts\Projecting\ProjectorContext;
+use Chronhub\Projector\Context\ProjectorContext;
 
-final class StopWhenRunningOnce implements Pipe
+final class StopWhenRunningOnce
 {
     public function __construct(private PersistentProjector $projector)
     {

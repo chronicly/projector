@@ -3,19 +3,14 @@ declare(strict_types=1);
 
 namespace Chronhub\Projector\Factory;
 
-use Chronhub\Contracts\Projecting\Pipe;
-use Chronhub\Contracts\Projecting\Pipeline as BasePipeline;
-use Chronhub\Contracts\Projecting\ProjectorContext;
 use Chronhub\Contracts\Projecting\ProjectorRepository;
+use Chronhub\Projector\Context\ProjectorContext;
 use Chronhub\Projector\Exception\ProjectionAlreadyRunning;
 use Closure;
 use Throwable;
 
-final class Pipeline implements BasePipeline
+final class Pipeline
 {
-    /**
-     * @var Pipe[]
-     */
     private array $pipes = [];
     private ProjectorContext $passable;
 

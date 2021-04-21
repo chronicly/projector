@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace Chronhub\Projector\Context;
 
 use Chronhub\Contracts\Projecting\PersistentReadModelProjector;
-use Chronhub\Contracts\Projecting\ProjectorContext;
 use Chronhub\Contracts\Projecting\ReadModel;
 use Chronhub\Contracts\Projecting\ReadModelEventHandler as ContextualEventHandler;
 

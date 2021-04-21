@@ -5,18 +5,19 @@ namespace Chronhub\Projector\Factory;
 
 use Chronhub\Contracts\Messaging\Message;
 use Chronhub\Contracts\Messaging\MessageHeader;
-use Chronhub\Contracts\Projecting\EventProcessor;
-use Chronhub\Contracts\Projecting\ProjectorContext;
 use Chronhub\Contracts\Projecting\ProjectorRepository;
+use Chronhub\Projector\Context\ProjectorContext;
 
-abstract class AbstractEventProcessor implements EventProcessor
+abstract class AbstractEventProcessor
 {
     protected function preProcess(ProjectorContext $context,
                                   Message $message,
                                   int $key,
                                   ?ProjectorRepository $repository): bool
     {
-        $context->dispatchSignal();
+        if ($context->option->dispatchSignal()) {
+            pcntl_signal_dispatch();
+        }
 
         $streamName = $context->currentStreamName;
 
@@ -30,10 +31,10 @@ abstract class AbstractEventProcessor implements EventProcessor
             }
         }
 
-        $context->position()->bind($streamName, $key);
+        $context->position->bind($streamName, $key);
 
         if ($repository) {
-            $context->counter()->increment();
+            $context->eventCounter->increment();
         }
 
         return true;

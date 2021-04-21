@@ -3,12 +3,11 @@ declare(strict_types=1);
 
 namespace Chronhub\Projector\Pipe;
 
-use Chronhub\Contracts\Projecting\Pipe;
-use Chronhub\Contracts\Projecting\ProjectorContext;
 use Chronhub\Contracts\Projecting\ProjectorRepository;
 use Chronhub\Contracts\Projecting\StreamPosition;
+use Chronhub\Projector\Context\ProjectorContext;
 
-final class PersistOrUpdateLock implements Pipe
+final class PersistOrUpdateLock
 {
     public function __construct(private ProjectorRepository $repository)
     {
@@ -17,7 +16,7 @@ final class PersistOrUpdateLock implements Pipe
     public function __invoke(ProjectorContext $context, callable $next): callable|bool
     {
         if ($context->position->gapDetected()) {
-            $this->handleDetectedGap($context->position());
+            $this->handleDetectedGap($context->position);
         } else {
             $this->handleCounterIsReached($context);
         }
@@ -38,7 +37,7 @@ final class PersistOrUpdateLock implements Pipe
 
     private function handleCounterIsReached(ProjectorContext $context): void
     {
-        $context->position()->resetRetries();
+        $context->position->resetRetries();
 
         $context->eventCounter->isReset()
             ? $this->sleepBeforeUpdateLock($context->option->sleep())

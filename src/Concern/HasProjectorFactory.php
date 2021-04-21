@@ -3,9 +3,9 @@ declare(strict_types=1);
 
 namespace Chronhub\Projector\Concern;
 
-use Chronhub\Contracts\Projecting\ProjectorContext;
 use Chronhub\Contracts\Projecting\ProjectorFactory;
 use Chronhub\Contracts\Query\ProjectionQueryFilter;
+use Chronhub\Projector\Context\ProjectorContext;
 use Closure;
 
 trait HasProjectorFactory

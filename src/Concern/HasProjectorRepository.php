@@ -6,9 +6,9 @@ namespace Chronhub\Projector\Concern;
 use Chronhub\Contracts\Model\ProjectionModel;
 use Chronhub\Contracts\Model\ProjectionProvider;
 use Chronhub\Contracts\Projecting\ProjectionStatus as Status;
-use Chronhub\Contracts\Projecting\ProjectorContext;
 use Chronhub\Contracts\Support\JsonEncoder;
 use Chronhub\Foundation\Exception\QueryFailure;
+use Chronhub\Projector\Context\ProjectorContext;
 use Chronhub\Projector\Exception\ProjectionAlreadyRunning;
 use Chronhub\Projector\Exception\ProjectionNotFound;
 use Chronhub\Projector\Factory\ProjectionStatus;
@@ -217,7 +217,7 @@ trait HasProjectorRepository
 
     protected function resetProjection(): void
     {
-        $this->context->position()->reset();
+        $this->context->position->reset();
 
         $this->context->resetStateWithInitialize();
 

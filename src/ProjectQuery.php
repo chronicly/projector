@@ -4,11 +4,11 @@ declare(strict_types=1);
 namespace Chronhub\Projector;
 
 use Chronhub\Contracts\Chronicling\Chronicler;
-use Chronhub\Contracts\Projecting\ProjectorContext;
 use Chronhub\Contracts\Projecting\ProjectorFactory;
 use Chronhub\Contracts\Projecting\QueryProjector;
 use Chronhub\Projector\Concern\HasProjectorFactory;
 use Chronhub\Projector\Context\ContextualQuery;
+use Chronhub\Projector\Context\ProjectorContext;
 use Chronhub\Projector\Factory\RunnerController;
 use function is_array;
 
@@ -41,17 +41,17 @@ final class ProjectQuery implements QueryProjector, ProjectorFactory
 
     public function reset(): void
     {
-        $this->context->position()->reset();
+        $this->context->position->reset();
 
         $state = $this->context->resetStateWithInitialize();
 
         if (!is_array($state)) {
-            $this->context->state()->resetState();
+            $this->context->state->resetState();
         }
     }
 
     public function getState(): array
     {
-        return $this->context->state()->getState();
+        return $this->context->state->getState();
     }
 }

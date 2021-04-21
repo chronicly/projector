@@ -5,9 +5,8 @@ namespace Chronhub\Projector;
 
 use Chronhub\Contracts\Chronicling\Chronicler;
 use Chronhub\Contracts\Projecting\PersistentProjector;
-use Chronhub\Contracts\Projecting\Pipe;
-use Chronhub\Contracts\Projecting\ProjectorContext;
 use Chronhub\Contracts\Projecting\ProjectorRepository;
+use Chronhub\Projector\Context\ProjectorContext;
 use Chronhub\Projector\Factory\Pipeline;
 use Chronhub\Projector\Pipe\DispatchSignal;
 use Chronhub\Projector\Pipe\HandleStreamEvent;
@@ -37,9 +36,6 @@ final class PersistentRunner
         } while ($context->runner()->inBackground() && !$isStopped);
     }
 
-    /**
-     * @return Pipe[]
-     */
     private function getPipes(): array
     {
         return [

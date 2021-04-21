@@ -6,13 +6,13 @@ namespace Chronhub\Projector;
 use Chronhub\Contracts\Chronicling\Chronicler;
 use Chronhub\Contracts\Projecting\ContextualEventHandler;
 use Chronhub\Contracts\Projecting\PersistentReadModelProjector;
-use Chronhub\Contracts\Projecting\ProjectorContext;
 use Chronhub\Contracts\Projecting\ProjectorFactory;
 use Chronhub\Contracts\Projecting\ProjectorRepository;
 use Chronhub\Contracts\Projecting\ReadModel;
 use Chronhub\Projector\Concern\HasPersistentProjector;
 use Chronhub\Projector\Concern\HasProjectorFactory;
 use Chronhub\Projector\Context\ContextualReadModel;
+use Chronhub\Projector\Context\ProjectorContext;
 use JetBrains\PhpStorm\Pure;
 
 final class ProjectReadModel implements PersistentReadModelProjector, ProjectorFactory

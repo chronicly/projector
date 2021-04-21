@@ -3,10 +3,9 @@ declare(strict_types=1);
 
 namespace Chronhub\Projector\Pipe;
 
-use Chronhub\Contracts\Projecting\Pipe;
-use Chronhub\Contracts\Projecting\ProjectorContext;
+use Chronhub\Projector\Context\ProjectorContext;
 
-final class PrepareQueryRunner implements Pipe
+final class PrepareQueryRunner
 {
     private bool $isInitiated = false;
 

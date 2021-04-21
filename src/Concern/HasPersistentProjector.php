@@ -5,8 +5,8 @@ namespace Chronhub\Projector\Concern;
 
 use Chronhub\Contracts\Chronicling\Chronicler;
 use Chronhub\Contracts\Projecting\ContextualEventHandler;
-use Chronhub\Contracts\Projecting\ProjectorContext;
 use Chronhub\Contracts\Projecting\ProjectorRepository;
+use Chronhub\Projector\Context\ProjectorContext;
 use Chronhub\Projector\Factory\RunnerController;
 use Chronhub\Projector\PersistentRunner;
 

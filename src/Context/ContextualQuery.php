@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace Chronhub\Projector\Context;
 
 use Chronhub\Contracts\Projecting\ContextualEventHandler;
-use Chronhub\Contracts\Projecting\ProjectorContext;
 use Chronhub\Contracts\Projecting\QueryProjector;
 
 final class ContextualQuery implements ContextualEventHandler

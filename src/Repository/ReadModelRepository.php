@@ -4,11 +4,11 @@ declare(strict_types=1);
 namespace Chronhub\Projector\Repository;
 
 use Chronhub\Contracts\Model\ProjectionProvider;
-use Chronhub\Contracts\Projecting\ProjectorContext;
 use Chronhub\Contracts\Projecting\ProjectorRepository;
 use Chronhub\Contracts\Projecting\ReadModel;
 use Chronhub\Contracts\Support\JsonEncoder;
 use Chronhub\Projector\Concern\HasProjectorRepository;
+use Chronhub\Projector\Context\ProjectorContext;
 
 final class ReadModelRepository implements ProjectorRepository
 {
@@ -37,7 +37,7 @@ final class ReadModelRepository implements ProjectorRepository
             $this->readModel->initialize();
         }
 
-        $this->context->position()->watch($this->context->streamsNames());
+        $this->context->position->watch($this->context->streamsNames());
 
         $this->loadState();
     }
