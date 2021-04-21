@@ -10,6 +10,8 @@ final class ProjectAllStreamCommand extends AbstractPersistentProjectionCommand
 {
     protected $signature = 'projector:all_stream {--projector=default} {--signal=1}';
 
+    protected $description = 'Optimize queries by projecting all event in one table';
+
     public function handle(): void
     {
         $this->withProjection('$all');

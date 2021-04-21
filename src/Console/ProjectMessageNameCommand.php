@@ -14,6 +14,8 @@ final class ProjectMessageNameCommand extends AbstractPersistentProjectionComman
 
     protected $signature = 'projector:message_name {--projector=default} {--signal=1} {--alias=1}';
 
+    protected $description = 'Optimize queries by projecting event per message name';
+
     public function handle(): void
     {
         $this->withProjection('$by_message_name');

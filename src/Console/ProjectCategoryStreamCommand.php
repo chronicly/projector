@@ -10,6 +10,8 @@ final class ProjectCategoryStreamCommand extends AbstractPersistentProjectionCom
 {
     protected $signature = 'projector:category {--projector=default} {--signal=1}';
 
+    protected $description = 'Optimize queries by projecting event per categories';
+
     public function handle(): void
     {
         $this->withProjection('$by_category');
