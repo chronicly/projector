@@ -27,7 +27,7 @@ final class ReadModelRepository implements ProjectorRepository
     {
         $this->context->runner()->stop(false);
 
-        if (!$this->isProjectionExists()) {
+        if (!$this->exists()) {
             $this->createProjection();
         }
 

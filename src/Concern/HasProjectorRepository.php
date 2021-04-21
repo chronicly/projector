@@ -93,7 +93,7 @@ trait HasProjectorRepository
         $this->context->status = $runningStatus;
     }
 
-    public function isProjectionExists(): bool
+    public function exists(): bool
     {
         return $this->provider->projectionExists($this->streamName);
     }
