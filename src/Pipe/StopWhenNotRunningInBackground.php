@@ -22,6 +22,6 @@ final class StopWhenNotRunningInBackground implements Pipe
             $this->projector->stop();
         }
 
-        return true;
+        return $next($context);
     }
 }
