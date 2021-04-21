@@ -24,7 +24,7 @@ final class StreamPosition implements Position
     public function __construct(private EventStreamProvider $eventStreamProvider,
                                 private Clock $clock,
                                 private array $retriesMs,
-                                private string $detectionWindows = 'PT1S')
+                                private string $detectionWindows = 'PT60S')
     {
     }
 
