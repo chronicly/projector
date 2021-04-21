@@ -59,11 +59,6 @@ final class StreamPosition implements Position
         return $this->gapDetected;
     }
 
-    public function setGapDetected(bool $gapDetected): void
-    {
-        $this->gapDetected = $gapDetected;
-    }
-
     public function sleepWithGapDetected(): void
     {
         usleep($this->retriesMs[$this->retries]);
@@ -76,7 +71,7 @@ final class StreamPosition implements Position
         $this->retries = 0;
     }
 
-    public function hasGap(string $streamName, int $position, PointInTime $time): bool
+    public function detectGap(string $streamName, int $eventPosition, PointInTime $eventTime): bool
     {
         if (count($this->retriesMs) < 1) {
             return false;
@@ -84,15 +79,20 @@ final class StreamPosition implements Position
 
         $now = $this->clock->pointInTime()->sub($this->detectionWindows);
 
-        if ($now->after($time)) {
+        if ($now->after($eventTime)) {
             return false;
         }
 
-        if ($this->container[$streamName] + 1 === $position) {
+        if ($this->container[$streamName] + 1 === $eventPosition) {
             return false;
         }
 
-        return array_key_exists($this->retries, $this->retriesMs);
+        return $this->gapDetected = array_key_exists($this->retries, $this->retriesMs);
+    }
+
+    public function resetGapDetected(): void
+    {
+        $this->gapDetected = false;
     }
 
     public function all(): array

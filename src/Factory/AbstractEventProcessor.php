@@ -12,7 +12,7 @@ abstract class AbstractEventProcessor
 {
     protected function preProcess(ProjectorContext $context,
                                   Message $message,
-                                  int $key,
+                                  int $position,
                                   ?ProjectorRepository $repository): bool
     {
         if ($context->option->dispatchSignal()) {
@@ -24,14 +24,12 @@ abstract class AbstractEventProcessor
         if ($repository) {
             $timeOfRecording = $message->header(MessageHeader::TIME_OF_RECORDING);
 
-            if ($context->position->hasGap($streamName, $key, $timeOfRecording)) {
-                $context->position->setGapDetected(true);
-
+            if ($context->position->detectGap($streamName, $position, $timeOfRecording)) {
                 return false;
             }
         }
 
-        $context->position->bind($streamName, $key);
+        $context->position->bind($streamName, $position);
 
         if ($repository) {
             $context->eventCounter->increment();

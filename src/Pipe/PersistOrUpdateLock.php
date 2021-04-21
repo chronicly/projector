@@ -32,7 +32,7 @@ final class PersistOrUpdateLock
 
         $this->repository->persist();
 
-        $streamPosition->setGapDetected(false);
+        $streamPosition->resetGapDetected();
     }
 
     private function handleCounterIsReached(ProjectorContext $context): void
