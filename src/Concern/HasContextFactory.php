@@ -92,11 +92,6 @@ trait HasContextFactory
         return $this->runner;
     }
 
-    public function initCallback(): ?Closure
-    {
-        return $this->initCallback;
-    }
-
     public function eventHandlers(): callable
     {
         if ($this->eventHandlers instanceof Closure) {
@@ -116,7 +111,7 @@ trait HasContextFactory
         return $this->queryFilter;
     }
 
-    public function validate(): void
+    protected function validate(): void
     {
         if (count($this->streamsNames) === 0) {
             throw new RuntimeException("Projection streams all|names|categories not set");
