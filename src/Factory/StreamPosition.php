@@ -28,23 +28,23 @@ final class StreamPosition implements Position
     {
     }
 
-    public function make(array $streamNames): void
+    public function watch(array $streamNames): void
     {
         $container = [];
 
-        foreach ($this->gatherStreamNames($streamNames) as $realStreamName) {
+        foreach ($this->loadStreams($streamNames) as $realStreamName) {
             $container[$realStreamName] = 0;
         }
 
         $this->container = array_merge($container, $this->container);
     }
 
-    public function merge(array $streamsPositions): void
+    public function discover(array $streamsPositions): void
     {
         $this->container = array_merge($this->container, $streamsPositions);
     }
 
-    public function setAt(string $streamName, int $position): void
+    public function bind(string $streamName, int $position): void
     {
         $this->container[$streamName] = $position;
     }
@@ -76,7 +76,7 @@ final class StreamPosition implements Position
         $this->retries = 0;
     }
 
-    public function hasGap(string $currentStreamName, int $eventPosition, PointInTime $eventTimeOfRecording): bool
+    public function hasGap(string $streamName, int $position, PointInTime $time): bool
     {
         if (count($this->retriesMs) < 1) {
             return false;
@@ -84,11 +84,11 @@ final class StreamPosition implements Position
 
         $now = $this->clock->pointInTime()->sub($this->detectionWindows);
 
-        if ($now->after($eventTimeOfRecording)) {
+        if ($now->after($time)) {
             return false;
         }
 
-        if ($this->container[$currentStreamName] + 1 === $eventPosition) {
+        if ($this->container[$streamName] + 1 === $position) {
             return false;
         }
 
@@ -104,7 +104,7 @@ final class StreamPosition implements Position
      * @param array $streamNames
      * @return string[]
      */
-    private function gatherStreamNames(array $streamNames): array
+    private function loadStreams(array $streamNames): array
     {
         if (isset($streamNames['all'])) {
             return $this->eventStreamProvider->allStreamWithoutInternal();

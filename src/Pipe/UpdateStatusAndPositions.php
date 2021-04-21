@@ -7,7 +7,7 @@ use Chronhub\Contracts\Projecting\Pipe;
 use Chronhub\Contracts\Projecting\ProjectorContext;
 use Chronhub\Projector\Concern\HasRemoteProjectionStatus;
 
-final class UpdateProjectionStatusAndPositions implements Pipe
+final class UpdateStatusAndPositions implements Pipe
 {
     use HasRemoteProjectionStatus;
 
@@ -15,7 +15,7 @@ final class UpdateProjectionStatusAndPositions implements Pipe
     {
         $this->stopOnLoadingRemoteStatus(false, $context->runner()->inBackground());
 
-        $context->position()->make($context->streamsNames());
+        $context->position()->watch($context->streamsNames());
 
         return $next($context);
     }

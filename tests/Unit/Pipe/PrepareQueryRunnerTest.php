@@ -23,7 +23,7 @@ final class PrepareQueryRunnerTest extends TestCaseWithProphecy
 
         $context->streamsNames()->willReturn(['foo', 'bar']);
 
-        $streamPosition->make(['foo', 'bar'])->shouldBeCalled();
+        $streamPosition->watch(['foo', 'bar'])->shouldBeCalled();
 
         $pipe = new PrepareQueryRunner();
 

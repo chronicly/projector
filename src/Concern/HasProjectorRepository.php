@@ -34,7 +34,7 @@ trait HasProjectorRepository
             throw new ProjectionNotFound($exceptionMessage);
         }
 
-        $this->context->position()->merge(
+        $this->context->position()->discover(
             $this->jsonEncoder->decode($projection->position())
         );
 

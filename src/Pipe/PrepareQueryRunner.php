@@ -15,7 +15,7 @@ final class PrepareQueryRunner implements Pipe
         if (!$this->isInitiated) {
             $this->isInitiated = true;
 
-            $context->position()->make($context->streamsNames());
+            $context->position()->watch($context->streamsNames());
         }
 
         return $next($context);

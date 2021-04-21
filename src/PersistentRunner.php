@@ -14,7 +14,7 @@ use Chronhub\Projector\Pipe\HandleStreamEvent;
 use Chronhub\Projector\Pipe\PersistOrUpdateLock;
 use Chronhub\Projector\Pipe\PreparePersistentRunner;
 use Chronhub\Projector\Pipe\StopWhenRunningOnce;
-use Chronhub\Projector\Pipe\UpdateProjectionStatusAndPositions;
+use Chronhub\Projector\Pipe\UpdateStatusAndPositions;
 
 final class PersistentRunner
 {
@@ -47,7 +47,7 @@ final class PersistentRunner
             new HandleStreamEvent($this->chronicler, $this->repository),
             new PersistOrUpdateLock($this->repository),
             new DispatchSignal(),
-            new UpdateProjectionStatusAndPositions($this->repository),
+            new UpdateStatusAndPositions($this->repository),
             new StopWhenRunningOnce($this->projector)
         ];
     }

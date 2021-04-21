@@ -37,7 +37,7 @@ final class ReadModelRepository implements ProjectorRepository
             $this->readModel->initialize();
         }
 
-        $this->context->position()->make($this->context->streamsNames());
+        $this->context->position()->watch($this->context->streamsNames());
 
         $this->loadState();
     }

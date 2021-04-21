@@ -18,19 +18,19 @@ abstract class AbstractEventProcessor implements EventProcessor
     {
         $context->dispatchSignal();
 
-        $currentStreamName = $context->currentStreamName();
+        $streamName = $context->currentStreamName();
 
         if ($repository) {
             $timeOfRecording = $message->header(MessageHeader::TIME_OF_RECORDING);
 
-            if ($context->position()->hasGap($currentStreamName, $key, $timeOfRecording)) {
+            if ($context->position()->hasGap($streamName, $key, $timeOfRecording)) {
                 $context->position()->setGapDetected(true);
 
                 return false;
             }
         }
 
-        $context->position()->setAt($currentStreamName, $key);
+        $context->position()->bind($streamName, $key);
 
         if ($repository) {
             $context->counter()->increment();
