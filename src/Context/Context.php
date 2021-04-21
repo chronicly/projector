@@ -21,14 +21,14 @@ class Context implements ProjectorContext
 {
     use HasContextFactory;
 
-    private ?string $currentStreamName = null;
-    private ProjectionState $state;
-    private ProjectionStatus $status;
+    public ?string $currentStreamName = null;
+    public ProjectionState $state;
+    public ProjectionStatus $status;
 
-    public function __construct(protected ProjectorOption $option,
-                                protected Position $position,
-                                protected Clock $clock,
-                                protected ?EventCounter $eventCounter)
+    public function __construct(public ProjectorOption $option,
+                                public Position $position,
+                                public Clock $clock,
+                                public ?EventCounter $eventCounter)
     {
         $this->state = new InMemoryState();
         $this->status = ProjectionStatus::IDLE();

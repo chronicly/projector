@@ -34,14 +34,14 @@ trait HasProjectorRepository
             throw new ProjectionNotFound($exceptionMessage);
         }
 
-        $this->context->position()->discover(
+        $this->context->position->discover(
             $this->jsonEncoder->decode($projection->position())
         );
 
         $state = $this->jsonEncoder->decode($projection->state());
 
         if (is_array($state) && count($state) > 0) {
-            $this->context->state()->setState($state);
+            $this->context->state->setState($state);
         }
     }
 
@@ -66,7 +66,7 @@ trait HasProjectorRepository
             );
         }
 
-        $this->context->setStatus($idleProjection);
+        $this->context->status = $idleProjection;
     }
 
     public function startAgain(): void
@@ -90,7 +90,7 @@ trait HasProjectorRepository
             );
         }
 
-        $this->context->setStatus($runningStatus);
+        $this->context->status = $runningStatus;
     }
 
     public function isProjectionExists(): bool
@@ -134,7 +134,7 @@ trait HasProjectorRepository
             throw new ProjectionAlreadyRunning($message);
         }
 
-        $this->context->setStatus($runningProjection);
+        $this->context->status = $runningProjection;
     }
 
     public function updateLock(): void
@@ -143,7 +143,7 @@ trait HasProjectorRepository
             try {
                 $success = $this->provider->updateProjection($this->streamName, [
                     'locked_until' => $this->timer->current(),
-                    'position' => $this->encodeData($this->context->position()->all())
+                    'position' => $this->encodeData($this->context->position->all())
                 ]);
             } catch (QueryException $queryException) {
                 throw QueryFailure::fromQueryException($queryException);
@@ -170,7 +170,7 @@ trait HasProjectorRepository
             throw QueryFailure::fromQueryException($queryException);
         }
 
-        $this->context->setStatus($idleProjection);
+        $this->context->status = $idleProjection;
     }
 
     public function getStreamName(): string
@@ -183,7 +183,7 @@ trait HasProjectorRepository
         try {
             $success = $this->provider->createProjection(
                 $this->streamName,
-                $this->context->status()->ofValue()
+                $this->context->status->ofValue()
             );
         } catch (QueryException $queryException) {
             throw QueryFailure::fromQueryException($queryException);
@@ -200,8 +200,8 @@ trait HasProjectorRepository
     {
         try {
             $success = $this->provider->updateProjection($this->streamName, [
-                'position' => $this->encodeData($this->context->position()->all()),
-                'state' => $this->encodeData($this->context->state()->getState()),
+                'position' => $this->encodeData($this->context->position->all()),
+                'state' => $this->encodeData($this->context->state->getState()),
                 'locked_until' => $this->timer->refresh(),
             ]);
         } catch (QueryException $queryException) {
@@ -223,9 +223,9 @@ trait HasProjectorRepository
 
         try {
             $success = $this->provider->updateProjection($this->streamName, [
-                'position' => $this->encodeData($this->context->position()->all()),
-                'state' => $this->encodeData($this->context->state()->getState()),
-                'status' => $this->context->status()->ofValue()
+                'position' => $this->encodeData($this->context->position->all()),
+                'state' => $this->encodeData($this->context->state->getState()),
+                'status' => $this->context->status->ofValue()
             ]);
         } catch (QueryException $queryException) {
             throw QueryFailure::fromQueryException($queryException);
@@ -256,7 +256,7 @@ trait HasProjectorRepository
 
         $this->context->resetStateWithInitialize();
 
-        $this->context->position()->reset();
+        $this->context->position->reset();
     }
 
     private function encodeData(array $data): string
