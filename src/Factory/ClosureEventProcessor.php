@@ -20,7 +20,7 @@ final class ClosureEventProcessor extends AbstractEventProcessor
             return false;
         }
 
-        $state = ($this->eventHandlers)($message->eventWithHeaders(), $context->state()->getState());
+        $state = ($this->eventHandlers)($message->eventWithHeaders(), $context->state->getState());
 
         return $this->afterProcess($context, $state, $repository);
     }

@@ -15,7 +15,7 @@ final class UpdateStatusAndPositions implements Pipe
     {
         $this->stopOnLoadingRemoteStatus(false, $context->runner()->inBackground());
 
-        $context->position()->watch($context->streamsNames());
+        $context->position->watch($context->streamsNames());
 
         return $next($context);
     }

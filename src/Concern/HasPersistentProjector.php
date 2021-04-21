@@ -47,7 +47,7 @@ trait HasPersistentProjector
 
     public function getState(): array
     {
-        return $this->context->state()->getState();
+        return $this->context->state->getState();
     }
 
     public function getStreamName(): string

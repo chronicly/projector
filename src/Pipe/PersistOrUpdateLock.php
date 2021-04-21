@@ -16,13 +16,13 @@ final class PersistOrUpdateLock implements Pipe
 
     public function __invoke(ProjectorContext $context, callable $next): callable|bool
     {
-        if ($context->position()->gapDetected()) {
+        if ($context->position->gapDetected()) {
             $this->handleDetectedGap($context->position());
         } else {
             $this->handleCounterIsReached($context);
         }
 
-        $context->counter()->reset();
+        $context->eventCounter->reset();
 
         return $next($context);
     }
@@ -40,8 +40,8 @@ final class PersistOrUpdateLock implements Pipe
     {
         $context->position()->resetRetries();
 
-        $context->counter()->isReset()
-            ? $this->sleepBeforeUpdateLock($context->option()->sleep())
+        $context->eventCounter->isReset()
+            ? $this->sleepBeforeUpdateLock($context->option->sleep())
             : $this->repository->persist();
     }
 

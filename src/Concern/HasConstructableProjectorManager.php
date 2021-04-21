@@ -84,8 +84,8 @@ trait HasConstructableProjectorManager
     {
         return new TimeLock(
             $this->clock,
-            $context->option()->lockTimoutMs(),
-            $context->option()->updateLockThreshold()
+            $context->option->lockTimoutMs(),
+            $context->option->updateLockThreshold()
         );
     }
 }

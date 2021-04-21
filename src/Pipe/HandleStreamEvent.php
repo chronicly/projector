@@ -27,7 +27,7 @@ final class HandleStreamEvent implements Pipe
         $eventHandlers = $context->eventHandlers();
 
         foreach ($streams as $eventStreamKey => $message) {
-            $context->setCurrentStreamName($streams->streamName());
+            $context->currentStreamName = $streams->streamName();
 
             $eventHandled = $eventHandlers($context, $message, $eventStreamKey, $this->repository);
 
@@ -36,7 +36,7 @@ final class HandleStreamEvent implements Pipe
             }
         }
 
-        $context->position()->resetRetries();
+        $context->position->resetRetries();
 
         return $next($context);
     }
@@ -46,7 +46,7 @@ final class HandleStreamEvent implements Pipe
         $iterator = [];
         $queryFilter = $context->queryFilter();
 
-        foreach ($context->position()->all() as $streamName => $position) {
+        foreach ($context->position->all() as $streamName => $position) {
             $queryFilter->setCurrentPosition($position + 1);
 
             $events = $this->chronicler->retrieveWithQueryFilter(

@@ -10,7 +10,9 @@ final class DispatchSignal implements Pipe
 {
     public function __invoke(ProjectorContext $context, callable $next): callable|bool
     {
-        $context->dispatchSignal();
+        if ($context->option->dispatchSignal()) {
+            pcntl_signal_dispatch();
+        }
 
         return $next($context);
     }

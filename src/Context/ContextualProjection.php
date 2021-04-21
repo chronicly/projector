@@ -32,6 +32,6 @@ final class ContextualProjection implements ContextualEventHandler
 
     public function streamName(): ?string
     {
-        return $this->context->currentStreamName();
+        return $this->context->currentStreamName;
     }
 }

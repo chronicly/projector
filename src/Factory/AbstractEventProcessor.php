@@ -18,13 +18,13 @@ abstract class AbstractEventProcessor implements EventProcessor
     {
         $context->dispatchSignal();
 
-        $streamName = $context->currentStreamName();
+        $streamName = $context->currentStreamName;
 
         if ($repository) {
             $timeOfRecording = $message->header(MessageHeader::TIME_OF_RECORDING);
 
-            if ($context->position()->hasGap($streamName, $key, $timeOfRecording)) {
-                $context->position()->setGapDetected(true);
+            if ($context->position->hasGap($streamName, $key, $timeOfRecording)) {
+                $context->position->setGapDetected(true);
 
                 return false;
             }
@@ -42,7 +42,7 @@ abstract class AbstractEventProcessor implements EventProcessor
     protected function afterProcess(ProjectorContext $context, ?array $state, ?ProjectorRepository $repository): bool
     {
         if ($state) {
-            $context->state()->setState($state);
+            $context->state->setState($state);
         }
 
         if ($repository) {
@@ -54,18 +54,18 @@ abstract class AbstractEventProcessor implements EventProcessor
 
     protected function persistOnReachedCounter(ProjectorContext $context, ProjectorRepository $repository): void
     {
-        $persistBlockSize = $context->option()->persistBlockSize();
+        $persistBlockSize = $context->option->persistBlockSize();
 
-        if ($context->counter()->equals($persistBlockSize)) {
+        if ($context->eventCounter->equals($persistBlockSize)) {
             $repository->persist();
 
-            $context->counter()->reset();
+            $context->eventCounter->reset();
 
-            $context->setStatus($repository->loadStatus());
+            $context->status = $repository->loadStatus();
 
             $keepProjectionRunning = [ProjectionStatus::RUNNING(), ProjectionStatus::IDLE()];
 
-            if (!in_array($context->status(), $keepProjectionRunning)) {
+            if (!in_array($context->status, $keepProjectionRunning)) {
                 $context->runner()->stop(true);
             }
         }
