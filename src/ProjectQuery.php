@@ -9,7 +9,6 @@ use Chronhub\Contracts\Projecting\QueryProjector;
 use Chronhub\Projector\Concern\HasProjectorFactory;
 use Chronhub\Projector\Context\ContextualQuery;
 use Chronhub\Projector\Context\ProjectorContext;
-use Chronhub\Projector\Factory\RunnerController;
 use function is_array;
 
 final class ProjectQuery implements QueryProjector, ProjectorFactory
@@ -23,9 +22,7 @@ final class ProjectQuery implements QueryProjector, ProjectorFactory
 
     public function run(bool $inBackground): void
     {
-        $this->context->withRunner(
-            new RunnerController($inBackground, false)
-        );
+        $this->context->runner()->runInBackground($inBackground);
 
         $this->context->cast(new ContextualQuery($this, $this->context));
 

@@ -3,12 +3,12 @@ declare(strict_types=1);
 
 namespace Chronhub\Projector\Concern;
 
-use Chronhub\Contracts\Projecting\ProjectorRunner;
 use Chronhub\Contracts\Query\ProjectionQueryFilter;
 use Chronhub\Projector\Context\ProjectorContext;
 use Chronhub\Projector\Exception\RuntimeException;
 use Chronhub\Projector\Factory\ArrayEventProcessor;
 use Chronhub\Projector\Factory\ClosureEventProcessor;
+use Chronhub\Projector\Factory\RunnerController;
 use Closure;
 use function count;
 
@@ -18,7 +18,7 @@ trait HasContextFactory
     protected Closure|array|null $eventHandlers = null;
     protected array $streamsNames = [];
     protected ?ProjectionQueryFilter $queryFilter = null;
-    protected ProjectorRunner $runner;
+    protected RunnerController $runner;
 
     public function initialize(Closure $initCallback): ProjectorContext
     {
@@ -87,12 +87,7 @@ trait HasContextFactory
         return $this;
     }
 
-    public function withRunner(ProjectorRunner $runnerController): void
-    {
-        $this->runner = $runnerController;
-    }
-
-    public function runner(): ProjectorRunner
+    public function runner(): RunnerController
     {
         return $this->runner;
     }

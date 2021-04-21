@@ -12,6 +12,7 @@ use Chronhub\Contracts\Projecting\StreamPosition as Position;
 use Chronhub\Projector\Concern\HasContextFactory;
 use Chronhub\Projector\Factory\InMemoryState;
 use Chronhub\Projector\Factory\ProjectionStatus;
+use Chronhub\Projector\Factory\RunnerController;
 use Closure;
 
 class ProjectorContext
@@ -29,6 +30,7 @@ class ProjectorContext
     {
         $this->state = new InMemoryState();
         $this->status = ProjectionStatus::IDLE();
+        $this->runner = new RunnerController();
     }
 
     public function cast(ContextualEventHandler $eventHandler): void

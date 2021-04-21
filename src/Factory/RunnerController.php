@@ -3,12 +3,14 @@ declare(strict_types=1);
 
 namespace Chronhub\Projector\Factory;
 
-use Chronhub\Contracts\Projecting\ProjectorRunner;
-
-final class RunnerController implements ProjectorRunner
+final class RunnerController
 {
-    public function __construct(private bool $runInBackground, private bool $isStopped)
+    private bool $runInBackground = false;
+    private bool $isStopped = false;
+
+    public function runInBackground(bool $runInBackground): void
     {
+        $this->runInBackground = $runInBackground;
     }
 
     public function inBackground(): bool
