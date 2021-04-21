@@ -13,6 +13,7 @@ use Chronhub\Projector\Pipe\DispatchSignal;
 use Chronhub\Projector\Pipe\HandleStreamEvent;
 use Chronhub\Projector\Pipe\PersistOrUpdateLock;
 use Chronhub\Projector\Pipe\PreparePersistentRunner;
+use Chronhub\Projector\Pipe\StopWhenNotRunningInBackground;
 use Chronhub\Projector\Pipe\UpdateProjectionStatusAndPositions;
 
 final class PersistentRunner
@@ -32,16 +33,7 @@ final class PersistentRunner
         do {
             $isStopped = $pipeline
                 ->send($context)
-                ->then(function (ProjectorContext $context): bool {
-                    // to be consistent when dispatching projector events
-                    // we stop explicitly the projection when it's not running
-                    // in background
-                    if (!$context->runner()->inBackground()) {
-                        $this->projector->stop();
-                    }
-
-                    return $context->runner()->isStopped();
-                });
+                ->then(fn(ProjectorContext $context): bool => $context->runner()->isStopped());
         } while ($context->runner()->inBackground() && !$isStopped);
     }
 
@@ -55,7 +47,8 @@ final class PersistentRunner
             new HandleStreamEvent($this->chronicler, $this->repository),
             new PersistOrUpdateLock($this->repository),
             new DispatchSignal(),
-            new UpdateProjectionStatusAndPositions($this->repository)
+            new UpdateProjectionStatusAndPositions($this->repository),
+            new StopWhenNotRunningInBackground($this->projector)
         ];
     }
 }
