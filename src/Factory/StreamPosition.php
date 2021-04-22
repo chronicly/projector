@@ -66,6 +66,11 @@ final class StreamPosition implements Position
         $this->retries++;
     }
 
+    public function resetGapDetected(): void
+    {
+        $this->gapDetected = false;
+    }
+
     public function resetRetries(): void
     {
         $this->retries = 0;
@@ -88,11 +93,6 @@ final class StreamPosition implements Position
         }
 
         return $this->gapDetected = array_key_exists($this->retries, $this->retriesMs);
-    }
-
-    public function resetGapDetected(): void
-    {
-        $this->gapDetected = false;
     }
 
     public function all(): array

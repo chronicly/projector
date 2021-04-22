@@ -15,7 +15,7 @@ final class ReadProjectionCommand extends Command
                                 {field : available field (state position status)}
                                 {--projector=default}';
 
-    protected $description = 'Find status, stream position or state by projection stream name';
+    protected $description = 'Fetch status, stream position or state by projection stream name';
 
     private ProjectorManager $projector;
 

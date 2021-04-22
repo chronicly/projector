@@ -17,8 +17,8 @@ trait HasRemoteProjectionStatus
         return match ($this->repository->loadStatus()) {
             ProjectionStatus::STOPPING() => $this->stop($firstExecution),
             ProjectionStatus::RESETTING() => $this->reset($firstExecution, $keepRunning),
-            ProjectionStatus::DELETING() => $this->delete($firstExecution),
-            ProjectionStatus::DELETING_EMITTED_EVENTS() => $this->deleteWithEvents($firstExecution),
+            ProjectionStatus::DELETING() => $this->delete($firstExecution, false),
+            ProjectionStatus::DELETING_EMITTED_EVENTS() => $this->delete($firstExecution, true),
             default => false
         };
     }
@@ -45,16 +45,9 @@ trait HasRemoteProjectionStatus
         return false;
     }
 
-    private function delete(bool $firstExecution): bool
+    private function delete(bool $firstExecution, bool $withEmittedEvents): bool
     {
-        $this->repository->delete(false);
-
-        return $firstExecution;
-    }
-
-    private function deleteWithEvents(bool $firstExecution): bool
-    {
-        $this->repository->delete(true);
+        $this->repository->delete($withEmittedEvents);
 
         return $firstExecution;
     }
