@@ -18,9 +18,11 @@ final class TimeLock
     {
     }
 
-    public function acquire(): void
+    public function acquire(): string
     {
         $this->lastLockUpdate = $this->now();
+
+        return $this->current();
     }
 
     public function update(): bool

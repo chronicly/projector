@@ -73,12 +73,11 @@ trait HasProjectorRepository
     {
         $this->context->runner()->stop(false);
         $runningStatus = ProjectionStatus::RUNNING();
-        $this->timer->acquire();
 
         try {
             $success = $this->provider->updateProjection($this->streamName, [
                 'status' => $runningStatus->ofValue(),
-                'locked_until' => $this->timer->current(),
+                'locked_until' => $this->timer->acquire(),
             ]);
         } catch (QueryException $queryException) {
             throw QueryFailure::fromQueryException($queryException);
@@ -113,13 +112,11 @@ trait HasProjectorRepository
     {
         $runningProjection = ProjectionStatus::RUNNING();
 
-        $this->timer->acquire();
-
         try {
             $success = $this->provider->acquireLock(
                 $this->streamName,
                 $runningProjection->ofValue(),
-                $this->timer->current(),
+                $this->timer->acquire(),
                 $this->timer->lastLockUpdate()->toString(),
             );
         } catch (QueryException $queryException) {
