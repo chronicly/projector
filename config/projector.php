@@ -97,13 +97,13 @@ return [
         'load_commands' => true,
 
         'commands' => [
-            \Chronhub\Projector\Console\ReadProjectionCommand::class,
-            \Chronhub\Projector\Console\WriteProjectionCommand::class,
+            \Chronhub\Projector\Support\Console\ReadProjectionCommand::class,
+            \Chronhub\Projector\Support\Console\WriteProjectionCommand::class,
 
             // commands below are only meant to optimize projection queries
-            \Chronhub\Projector\Console\ProjectAllStreamCommand::class,
-            \Chronhub\Projector\Console\ProjectCategoryStreamCommand::class,
-            \Chronhub\Projector\Console\ProjectMessageNameCommand::class
+            \Chronhub\Projector\Support\Console\ProjectAllStreamCommand::class,
+            \Chronhub\Projector\Support\Console\ProjectCategoryStreamCommand::class,
+            \Chronhub\Projector\Support\Console\ProjectMessageNameCommand::class
         ]
     ]
 ];

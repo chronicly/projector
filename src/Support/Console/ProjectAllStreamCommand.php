@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Chronhub\Projector\Console;
+namespace Chronhub\Projector\Support\Console;
 
 use Chronhub\Contracts\Aggregate\AggregateChanged;
 use Closure;
