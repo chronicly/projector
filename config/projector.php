@@ -65,7 +65,7 @@ return [
     */
     'options' => [
 
-        'default' => \Chronhub\Projector\Support\Option\ConstructableProjectorOption::class,
+        'default' => [],
 
         'lazy' => \Chronhub\Projector\Support\Option\LazyProjectorOption::class,
 
