@@ -21,7 +21,7 @@ trait HasContextFactory
     protected Closure|array|null $eventHandlers = null;
     protected array $streamsNames = [];
     protected ?ProjectionQueryFilter $queryFilter = null;
-    protected null|int|string $timer = null;
+    protected null|ProjectorTimer $timer = null;
     protected RunnerController $runner;
 
     public function initialize(Closure $initCallback): ProjectorContext
@@ -52,7 +52,7 @@ trait HasContextFactory
             throw new RuntimeException("Projection timer already set");
         }
 
-        $this->timer = $timer;
+        $this->timer = new ProcessTimer($this->clock, $timer);
 
         return $this;
     }
@@ -128,11 +128,7 @@ trait HasContextFactory
 
     public function timer(): ProjectorTimer
     {
-        if (null === $this->timer) {
-            return new NullTimer();
-        }
-
-        return new ProcessTimer($this->clock, $this->timer);
+        return $this->timer ?? new NullTimer();
     }
 
     protected function validate(): void
