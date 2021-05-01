@@ -6,13 +6,17 @@ namespace Chronhub\Projector\Support\Timer;
 use Chronhub\Contracts\Clock\Clock;
 use Chronhub\Contracts\Clock\PointInTime;
 use Chronhub\Contracts\Projecting\ProjectorTimer;
+use Chronhub\Projector\Exception\RuntimeException;
 
 final class ProcessTimer implements ProjectorTimer
 {
-    private ?int $endAt;
+    private ?int $endAt = null;
 
     public function __construct(private Clock $clock, private int|string $timer)
     {
+        if (is_integer($timer) && $timer < 1) {
+            throw new RuntimeException("Integer projector timer must be greater than zero, current is $timer");
+        }
     }
 
     public function start(): void
@@ -26,7 +30,7 @@ final class ProcessTimer implements ProjectorTimer
 
     public function isExpired(): bool
     {
-        return microtime(true) >= $this->endAt;
+        return $this->clock->dateTime()->getTimestamp() >= $this->endAt;
     }
 
     private function determineTimer(PointInTime $pointInTime): int

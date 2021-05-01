@@ -53,6 +53,8 @@ trait HasContextFactory
         }
 
         $this->timer = $timer;
+
+        return $this;
     }
 
     public function fromStreams(string ...$streamNames): ProjectorContext
