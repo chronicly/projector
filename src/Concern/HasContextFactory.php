@@ -3,12 +3,15 @@ declare(strict_types=1);
 
 namespace Chronhub\Projector\Concern;
 
+use Chronhub\Contracts\Projecting\ProjectorTimer;
 use Chronhub\Contracts\Query\ProjectionQueryFilter;
 use Chronhub\Projector\Context\ProjectorContext;
 use Chronhub\Projector\Exception\RuntimeException;
 use Chronhub\Projector\Factory\ArrayEventProcessor;
 use Chronhub\Projector\Factory\ClosureEventProcessor;
 use Chronhub\Projector\Factory\RunnerController;
+use Chronhub\Projector\Support\Timer\NullTimer;
+use Chronhub\Projector\Support\Timer\ProcessTimer;
 use Closure;
 use function count;
 
@@ -18,6 +21,7 @@ trait HasContextFactory
     protected Closure|array|null $eventHandlers = null;
     protected array $streamsNames = [];
     protected ?ProjectionQueryFilter $queryFilter = null;
+    protected null|int|string $timer = null;
     protected RunnerController $runner;
 
     public function initialize(Closure $initCallback): ProjectorContext
@@ -40,6 +44,15 @@ trait HasContextFactory
         $this->queryFilter = $queryFilter;
 
         return $this;
+    }
+
+    public function withTimer(int|string $timer): ProjectorContext
+    {
+        if (null !== $this->timer) {
+            throw new RuntimeException("Projection timer already set");
+        }
+
+        $this->timer = $timer;
     }
 
     public function fromStreams(string ...$streamNames): ProjectorContext
@@ -109,6 +122,15 @@ trait HasContextFactory
     public function queryFilter(): ProjectionQueryFilter
     {
         return $this->queryFilter;
+    }
+
+    public function timer(): ProjectorTimer
+    {
+        if (null === $this->timer) {
+            return new NullTimer();
+        }
+
+        return new ProcessTimer($this->clock, $this->timer);
     }
 
     protected function validate(): void

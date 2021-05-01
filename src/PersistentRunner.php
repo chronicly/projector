@@ -9,6 +9,7 @@ use Chronhub\Contracts\Projecting\ProjectorRepository;
 use Chronhub\Projector\Context\ProjectorContext;
 use Chronhub\Projector\Factory\Pipeline;
 use Chronhub\Projector\Pipe\DispatchSignal;
+use Chronhub\Projector\Pipe\HandleProcessTimer;
 use Chronhub\Projector\Pipe\HandleStreamEvent;
 use Chronhub\Projector\Pipe\PersistOrUpdateLock;
 use Chronhub\Projector\Pipe\PreparePersistentRunner;
@@ -39,6 +40,7 @@ final class PersistentRunner
     private function getPipes(): array
     {
         return [
+            new HandleProcessTimer($this->projector),
             new PreparePersistentRunner($this->repository),
             new HandleStreamEvent($this->chronicler, $this->repository),
             new PersistOrUpdateLock($this->repository),

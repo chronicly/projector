@@ -26,6 +26,13 @@ trait HasProjectorFactory
         return $this;
     }
 
+    public function until(int|string $time): ProjectorFactory
+    {
+        $this->context->withTimer($time);
+
+        return $this;
+    }
+
     public function fromStreams(string ...$streamNames): ProjectorFactory
     {
         $this->context->fromStreams(...$streamNames);
