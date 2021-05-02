@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace Chronhub\Projector\Tests\Unit\Pipe;
 
-use Chronhub\Contracts\Projecting\ProjectorContext;
 use Chronhub\Contracts\Projecting\StreamPosition;
+use Chronhub\Projector\Context\ProjectorContext;
 use Chronhub\Projector\Pipe\PrepareQueryRunner;
 use Chronhub\Projector\Tests\TestCaseWithProphecy;
 use ReflectionProperty;
@@ -19,9 +19,9 @@ final class PrepareQueryRunnerTest extends TestCaseWithProphecy
         $streamPosition = $this->prophesize(StreamPosition::class);
         $context = $this->prophesize(ProjectorContext::class);
 
-        $context->position()->willReturn($streamPosition);
+        $context->position->willReturn($streamPosition);
 
-        $context->streamsNames()->willReturn(['foo', 'bar']);
+        $context->streamsNames->willReturn(['foo', 'bar']);
 
         $streamPosition->watch(['foo', 'bar'])->shouldBeCalled();
 

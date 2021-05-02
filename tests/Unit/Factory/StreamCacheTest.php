@@ -28,7 +28,7 @@ final class StreamCacheTest extends TestCase
     public function it_raise_exception_with_cache_size_less_or_equals_than_zero(int $cacheSize): void
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Size must be greater than 0');
+        $this->expectExceptionMessage('Stream cache size must be greater than 0');
 
         new StreamCache($cacheSize);
     }

@@ -4,9 +4,9 @@ declare(strict_types=1);
 namespace Chronhub\Projector\Tests\Unit\Pipe;
 
 use Chronhub\Contracts\Projecting\EventCounter;
-use Chronhub\Contracts\Projecting\ProjectorContext;
 use Chronhub\Contracts\Projecting\ProjectorOption;
 use Chronhub\Contracts\Projecting\ProjectorRepository;
+use Chronhub\Projector\Context\ProjectorContext;
 use Chronhub\Projector\Pipe\PersistOrUpdateLock;
 use Chronhub\Projector\Tests\TestCaseWithProphecy;
 

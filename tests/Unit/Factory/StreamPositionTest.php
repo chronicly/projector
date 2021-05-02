@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Chronhub\Projector\Tests\Unit\Factory;
 
+use Chronhub\Contracts\Clock\Clock;
 use Chronhub\Contracts\Model\EventStreamProvider;
 use Chronhub\Projector\Exception\RuntimeException;
 use Chronhub\Projector\Factory\StreamPosition;
@@ -12,12 +13,24 @@ use Prophecy\Prophecy\ObjectProphecy;
 final class StreamPositionTest extends TestCaseWithProphecy
 {
     private EventStreamProvider|ObjectProphecy $eventStreamProvider;
+    private Clock|ObjectProphecy $clock;
 
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->eventStreamProvider = $this->prophesize(EventStreamProvider::class);
+        $this->clock = $this->prophesize(Clock::class);
+    }
+
+    protected function streamPositionInstance(): \Chronhub\Contracts\Projecting\StreamPosition
+    {
+        return new StreamPosition(
+            $this->eventStreamProvider->reveal(),
+            $this->clock->reveal(),
+            ['1', '5', '10'],
+            'PT10S'
+        );
     }
 
     /**
@@ -25,7 +38,7 @@ final class StreamPositionTest extends TestCaseWithProphecy
      */
     public function it_can_be_constructed_with_empty_streams(): void
     {
-        $streamsPositions = new StreamPosition($this->eventStreamProvider->reveal());
+        $streamsPositions = $this->streamPositionInstance();
 
         $this->assertEmpty($streamsPositions->all());
     }
@@ -40,13 +53,14 @@ final class StreamPositionTest extends TestCaseWithProphecy
             ->willReturn(['foo', 'bar'])
             ->shouldBeCalled();
 
-        $streamsPosition = new StreamPosition($this->eventStreamProvider->reveal());
-        $streamsPosition->watch(['all' => true]);
+        $streamsPositions = $this->streamPositionInstance();
+
+        $streamsPositions->watch(['all' => true]);
 
         $this->assertEquals([
             'foo' => 0,
             'bar' => 0
-        ], $streamsPosition->all());
+        ], $streamsPositions->all());
     }
 
     /**
@@ -54,21 +68,14 @@ final class StreamPositionTest extends TestCaseWithProphecy
      */
     public function it_gather_provided_stream_names(): void
     {
-        $fooStream = 'foo';
-        $barStream = 'bar';
+        $streamsPositions = $this->streamPositionInstance();
 
-        $this->eventStreamProvider
-            ->filterByStreams([$fooStream, $barStream])
-            ->willReturn([$fooStream, $barStream])
-            ->shouldBeCalled();
-
-        $streamsPosition = new StreamPosition($this->eventStreamProvider->reveal());
-        $streamsPosition->watch(['names' => ['foo', 'bar']]);
+        $streamsPositions->watch(['names' => ['foo', 'bar']]);
 
         $this->assertEquals([
             'foo' => 0,
             'bar' => 0
-        ], $streamsPosition->all());
+        ], $streamsPositions->all());
     }
 
     /**
@@ -81,33 +88,9 @@ final class StreamPositionTest extends TestCaseWithProphecy
 
         $this->eventStreamProvider->filterByStreams([])->shouldNotBeCalled();
 
-        $streamsPosition = new StreamPosition($this->eventStreamProvider->reveal());
-        $streamsPosition->watch([]);
-    }
+        $streamsPositions = $this->streamPositionInstance();
 
-    /**
-     * @test
-     */
-    public function it_raise_exception_if_at_least_one_provided_stream_name_does_not_exists(): void
-    {
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('One or many stream names were not found in event stream table');
-
-        $fooStream = 'foo';
-        $barStream = 'bar';
-
-        $this->eventStreamProvider
-            ->filterByStreams([$fooStream, $barStream])
-            ->willReturn([$barStream])
-            ->shouldBeCalled();
-
-        $streamsPosition = new StreamPosition($this->eventStreamProvider->reveal());
-        $streamsPosition->watch(['names' => ['foo', 'bar']]);
-
-        $this->assertEquals([
-            'foo' => 0,
-            'bar' => 0
-        ], $streamsPosition->all());
+        $streamsPositions->watch([]);
     }
 
     /**
@@ -120,10 +103,11 @@ final class StreamPositionTest extends TestCaseWithProphecy
             ->willReturn(['foo-123', 'bar-124'])
             ->shouldBeCalled();
 
-        $streamsPosition = new StreamPosition($this->eventStreamProvider->reveal());
-        $streamsPosition->watch(['categories' => ['foo-123', 'bar-124']]);
+        $streamsPositions = $this->streamPositionInstance();
 
-        $this->assertEquals(['foo-123' => 0, 'bar-124' => 0], $streamsPosition->all());
+        $streamsPositions->watch(['categories' => ['foo-123', 'bar-124']]);
+
+        $this->assertEquals(['foo-123' => 0, 'bar-124' => 0], $streamsPositions->all());
     }
 
     /**
@@ -131,20 +115,16 @@ final class StreamPositionTest extends TestCaseWithProphecy
      */
     public function it_can_merge_streams_when_loading_state_from_remote(): void
     {
-        $this->eventStreamProvider
-            ->filterByStreams(['foo'])
-            ->willReturn(['foo'])
-            ->shouldBeCalled();
+        $streamsPositions = $this->streamPositionInstance();
 
-        $streamsPosition = new StreamPosition($this->eventStreamProvider->reveal());
-        $streamsPosition->watch(['names' => ['foo']]);
+        $streamsPositions->watch(['names' => ['foo']]);
 
-        $streamsPosition->discover(['bar' => 1]);
+        $streamsPositions->discover(['bar' => 1]);
 
         $this->assertEquals([
             'foo' => 0,
             'bar' => 1
-        ], $streamsPosition->all());
+        ], $streamsPositions->all());
     }
 
     /**
@@ -157,17 +137,18 @@ final class StreamPositionTest extends TestCaseWithProphecy
             ->willReturn(['foo', 'bar'])
             ->shouldBeCalled();
 
-        $streamsPosition = new StreamPosition($this->eventStreamProvider->reveal());
-        $streamsPosition->watch(['all' => true]);
+        $streamsPositions = $this->streamPositionInstance();
+
+        $streamsPositions->watch(['all' => true]);
 
         $this->assertEquals([
             'foo' => 0,
             'bar' => 0
-        ], $streamsPosition->all());
+        ], $streamsPositions->all());
 
-        $streamsPosition->reset();
+        $streamsPositions->reset();
 
-        $this->assertEquals([], $streamsPosition->all());
+        $this->assertEquals([], $streamsPositions->all());
     }
 
     /**
@@ -180,20 +161,21 @@ final class StreamPositionTest extends TestCaseWithProphecy
             ->willReturn(['foo', 'bar'])
             ->shouldBeCalled();
 
-        $streamsPosition = new StreamPosition($this->eventStreamProvider->reveal());
-        $streamsPosition->watch(['all' => true]);
+        $streamsPositions = $this->streamPositionInstance();
+
+        $streamsPositions->watch(['all' => true]);
 
         $this->assertEquals([
             'foo' => 0,
             'bar' => 0
-        ], $streamsPosition->all());
+        ], $streamsPositions->all());
 
-        $streamsPosition->bind('foo', 5);
-        $streamsPosition->bind('bar', 10);
+        $streamsPositions->bind('foo', 5);
+        $streamsPositions->bind('bar', 10);
 
         $this->assertEquals([
             'foo' => 5,
             'bar' => 10
-        ], $streamsPosition->all());
+        ], $streamsPositions->all());
     }
 }
