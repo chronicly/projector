@@ -7,7 +7,7 @@ use Chronhub\Contracts\Chronicling\Chronicler;
 use Chronhub\Projector\Context\ProjectorContext;
 use Chronhub\Projector\Factory\Pipeline;
 use Chronhub\Projector\Pipe\DispatchSignal;
-use Chronhub\Projector\Pipe\HandleProcessTimer;
+use Chronhub\Projector\Pipe\HandleCountdown;
 use Chronhub\Projector\Pipe\HandleStreamEvent;
 use Chronhub\Projector\Pipe\PrepareQueryRunner;
 
@@ -33,7 +33,7 @@ final class QueryRunner
     private function getPipes(): array
     {
         return [
-            new HandleProcessTimer(null),
+            new HandleCountdown(null),
             new PrepareQueryRunner(),
             new HandleStreamEvent($this->chronicler, null),
             new DispatchSignal()

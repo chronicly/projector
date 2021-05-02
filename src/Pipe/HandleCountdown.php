@@ -6,7 +6,7 @@ namespace Chronhub\Projector\Pipe;
 use Chronhub\Contracts\Projecting\PersistentProjector;
 use Chronhub\Projector\Context\ProjectorContext;
 
-final class HandleProcessTimer
+final class HandleCountdown
 {
     public function __construct(private ?PersistentProjector $projector)
     {
