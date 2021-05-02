@@ -14,7 +14,7 @@ final class HandleGap
 
     public function __invoke(ProjectorContext $context, callable $next): callable|bool
     {
-        $context->position->gapDetected()
+        $context->position->hasGap()
             ? $this->persistProjection($context)
             : $context->position->resetRetries();
 
@@ -23,10 +23,10 @@ final class HandleGap
 
     private function persistProjection(ProjectorContext $context): void
     {
-        $context->position->sleepWithGapDetected();
+        $context->position->sleepForGap();
 
         $this->repository->persist();
 
-        $context->position->resetGapDetected();
+        $context->position->resetGap();
     }
 }

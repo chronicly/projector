@@ -16,7 +16,7 @@ final class StreamCache implements Cache
     public function __construct(int $size)
     {
         if ($size <= 0) {
-            throw new InvalidArgumentException('Size must be greater than 0');
+            throw new InvalidArgumentException('Stream cache size must be greater than 0');
         }
 
         $this->size = $size;

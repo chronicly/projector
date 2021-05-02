@@ -14,7 +14,7 @@ final class PersistOrUpdateLock
 
     public function __invoke(ProjectorContext $context, callable $next): callable|bool
     {
-        if (!$context->position->gapDetected()) {
+        if (!$context->position->hasGap()) {
             $context->eventCounter->isReset()
                 ? $this->sleepBeforeUpdateLock($context->option->sleep())
                 : $this->repository->persist();
