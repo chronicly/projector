@@ -124,8 +124,8 @@ trait HasProjectorRepository
         }
 
         if (!$success) {
-            $message = "Acquiring lock failed for stream $this->streamName:\n";
-            $message .= "Another projection process is already running or ";
+            $message = "Acquiring lock failed for stream $this->streamName: ";
+            $message .= "another projection process is already running or ";
             $message .= "wait till the stopping process complete";
 
             throw new ProjectionAlreadyRunning($message);

@@ -6,7 +6,7 @@ namespace Chronhub\Projector\Pipe;
 use Chronhub\Contracts\Projecting\ProjectorRepository;
 use Chronhub\Projector\Context\ProjectorContext;
 
-final class PersistOrUpdateLock
+final class HandleGap
 {
     public function __construct(private ProjectorRepository $repository)
     {
@@ -14,19 +14,19 @@ final class PersistOrUpdateLock
 
     public function __invoke(ProjectorContext $context, callable $next): callable|bool
     {
-        if (!$context->position->gapDetected()) {
-            $context->eventCounter->isReset()
-                ? $this->sleepBeforeUpdateLock($context->option->sleep())
-                : $this->repository->persist();
-        }
+        $context->position->gapDetected()
+            ? $this->persistProjection($context)
+            : $context->position->resetRetries();
 
         return $next($context);
     }
 
-    private function sleepBeforeUpdateLock(int $sleep): void
+    private function persistProjection(ProjectorContext $context): void
     {
-        usleep($sleep);
+        $context->position->sleepWithGapDetected();
 
-        $this->repository->updateLock();
+        $this->repository->persist();
+
+        $context->position->resetGapDetected();
     }
 }
