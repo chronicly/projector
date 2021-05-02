@@ -17,7 +17,7 @@ final class PreparePersistentRunner
         if (!$this->isInitiated) {
             $this->isInitiated = true;
 
-            if ($this->stopOnLoadingRemoteStatus(true, $context->runner()->inBackground())) {
+            if ($this->stopOnLoadingRemoteStatus($context->runner()->inBackground())) {
                 return true;
             }
 

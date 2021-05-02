@@ -12,7 +12,17 @@ trait HasRemoteProjectionStatus
     {
     }
 
-    protected function stopOnLoadingRemoteStatus(bool $firstExecution, bool $keepRunning): bool
+    protected function stopOnLoadingRemoteStatus(bool $keepRunning): bool
+    {
+        return $this->discoverRemoteProjectionStatus(true, $keepRunning);
+    }
+
+    protected function loadRemoteStatus(bool $keepRunning): void
+    {
+        $this->discoverRemoteProjectionStatus(false, $keepRunning);
+    }
+
+    private function discoverRemoteProjectionStatus(bool $firstExecution, bool $keepRunning): bool
     {
         return match ($this->repository->loadStatus()) {
             ProjectionStatus::STOPPING() => $this->markAsStop($firstExecution),

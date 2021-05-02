@@ -12,7 +12,7 @@ final class UpdateStatusAndPositions
 
     public function __invoke(ProjectorContext $context, callable $next): callable|bool
     {
-        $this->stopOnLoadingRemoteStatus(false, $context->runner()->inBackground());
+        $this->loadRemoteStatus($context->runner()->inBackground());
 
         $context->position->watch($context->streamsNames());
 
