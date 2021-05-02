@@ -68,7 +68,7 @@ class ProjectorContext
         if ($this->eventHandlers instanceof Closure) {
             $this->eventHandlers = Closure::bind($this->eventHandlers, $eventHandler);
         } else {
-            foreach ($this->eventHandlers as $eventName => &$handler) {
+            foreach ($this->eventHandlers as &$handler) {
                 $handler = Closure::bind($handler, $eventHandler);
             }
         }
