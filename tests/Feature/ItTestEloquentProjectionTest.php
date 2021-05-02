@@ -10,7 +10,7 @@ use Chronhub\Foundation\Clock\PointInTime;
 use Chronhub\Foundation\Clock\SystemClock;
 use Chronhub\Projector\Model\Projection;
 use Chronhub\Projector\ProjectorServiceProvider;
-use Chronhub\Projector\Support\LockTime;
+use Chronhub\Projector\Repository\TimeLock;
 use Chronhub\Projector\Tests\TestWithOrchestra;
 use Illuminate\Support\Facades\Schema;
 
@@ -147,7 +147,9 @@ final class ItTestEloquentProjectionTest extends TestWithOrchestra
      */
     public function it_acquire_lock_and_update_status_with_null_locked_until(): void
     {
-        $now = (new SystemClock)->pointInTime()->toString();
+        $clock = new SystemClock();
+
+        $now = $clock->pointInTime()->toString();
 
         $this->projectionProvider->createProjection('user', 'idle');
 
@@ -155,9 +157,9 @@ final class ItTestEloquentProjectionTest extends TestWithOrchestra
 
         $this->assertNull($nullLock);
 
-        $waitTime = LockTime::fromNow()->createLockUntil(100000);
+        $timeLock = new TimeLock($clock, 100000, 1);
 
-        $result = $this->projectionProvider->acquireLock('user', 'running', $waitTime, $now);
+        $result = $this->projectionProvider->acquireLock('user', 'running', $timeLock->acquire(), $now);
 
         $this->assertEquals('running', $this->projectionProvider->findByName('user')->status());
         $this->assertTrue($result);
@@ -166,7 +168,7 @@ final class ItTestEloquentProjectionTest extends TestWithOrchestra
 
         $this->assertNotEquals($nullLock, $newLock);
 
-        $this->assertEquals($waitTime, $newLock);
+        $this->assertEquals($timeLock->current(), $newLock);
     }
 
     /**
@@ -174,31 +176,33 @@ final class ItTestEloquentProjectionTest extends TestWithOrchestra
      */
     public function it_acquire_lock_and_update_status_with_locked_until_less_than_now(): void
     {
-        $now = (new SystemClock)->pointInTime()->toString();
+        $clock = new SystemClock();
+
+        $now = $clock->pointInTime()->toString();
 
         $this->projectionProvider->createProjection('user', 'idle');
 
         $nullLock = $this->projectionProvider->findByName('user')->lockedUntil();
         $this->assertNull($nullLock);
 
-        $waitTime = LockTime::fromNow()->createLockUntil(100000);
+        $timeLock = new TimeLock($clock, 100000, 1);
 
-        $result = $this->projectionProvider->acquireLock('user', 'running', $waitTime, $now);
+        $result = $this->projectionProvider->acquireLock('user', 'running', $timeLock->acquire(), $now);
         $this->assertTrue($result);
 
         $this->assertEquals('running', $this->projectionProvider->findByName('user')->status());
         $newLock = $this->projectionProvider->findByName('user')->lockedUntil();
 
         $this->assertNotEquals($nullLock, $newLock);
-        $this->assertEquals($waitTime, $newLock);
+        $this->assertEquals($timeLock->current(), $newLock);
 
         // fail
-        $result = $this->projectionProvider->acquireLock('user', 'running', $waitTime, $now);
+        $result = $this->projectionProvider->acquireLock('user', 'running', $timeLock->acquire(), $now);
         $this->assertFalse($result);
 
         //
         $now = PointInTime::fromString($now)->add('PT1H')->toString();
-        $result = $this->projectionProvider->acquireLock('user', 'running', $waitTime, $now);
+        $result = $this->projectionProvider->acquireLock('user', 'running', $timeLock->acquire(), $now);
         $this->assertTrue($result);
     }
 

@@ -80,6 +80,8 @@ final class ItAssertProjectorManagerTest extends InMemoryTestWithOrchestra
 
         $projector->reset('user');
 
+        sleep(1);
+
         $this->assertTrue($projector->exists('user'));
         $this->assertEquals(ProjectionStatus::RESETTING, $projector->statusOf('user'));
         $this->assertEquals(["user" => 1], $projector->streamPositionsOf('user'));

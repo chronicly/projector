@@ -46,6 +46,8 @@ final class ItProjectProjectionTest extends InMemoryTestWithOrchestra
 
         $this->setupSecondCommit();
 
+        sleep(1);
+
         $projection->run(false);
 
         $this->assertEquals([], $projection->getState());
@@ -82,6 +84,8 @@ final class ItProjectProjectionTest extends InMemoryTestWithOrchestra
         $this->assertEquals(1, $projection->getState()['count']);
 
         $this->setupSecondCommit();
+
+        sleep(1);
 
         $projection->run(false);
 
