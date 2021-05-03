@@ -17,7 +17,7 @@ final class PgsqlProjectionQueryScopeTest extends TestCaseWithProphecy
     {
         $builder = $this->prophesize(Builder::class);
         $builder->where('no', '>=', 5)->willReturn($builder)->shouldBeCalled();
-        $builder->orderBy('created_at')->willReturn($builder)->shouldBeCalled();
+        $builder->orderBy('no')->willReturn($builder)->shouldBeCalled();
 
         $scope = new PgsqlProjectionQueryScope();
         $filter = $scope->fromIncludedPosition();

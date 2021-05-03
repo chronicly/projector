@@ -3,31 +3,29 @@ declare(strict_types=1);
 
 namespace Chronhub\Projector\Tests\Unit\Pipe;
 
-use Chronhub\Contracts\Projecting\StreamPosition;
 use Chronhub\Projector\Context\ProjectorContext;
 use Chronhub\Projector\Pipe\PrepareQueryRunner;
+use Chronhub\Projector\Tests\Double\HasTestingProjectorContext;
 use Chronhub\Projector\Tests\TestCaseWithProphecy;
 use ReflectionProperty;
 
 final class PrepareQueryRunnerTest extends TestCaseWithProphecy
 {
+    use HasTestingProjectorContext;
+
     /**
      * @test
      */
     public function it_prepare_streams_positions(): void
     {
-        $streamPosition = $this->prophesize(StreamPosition::class);
-        $context = $this->prophesize(ProjectorContext::class);
+        $this->positions->watch(['names' => ['foo', 'bar']])->shouldBeCalled();
 
-        $context->position->willReturn($streamPosition);
-
-        $context->streamsNames->willReturn(['foo', 'bar']);
-
-        $streamPosition->watch(['foo', 'bar'])->shouldBeCalled();
+        $context = $this->newProjectorContext(false);
+        $context->fromStreams('foo', 'bar');
 
         $pipe = new PrepareQueryRunner();
 
-        $next = $pipe($context->reveal(), function (ProjectorContext $context) {
+        $next = $pipe($context, function (ProjectorContext $context) {
             return fn() => $context;
         });
 
@@ -37,18 +35,18 @@ final class PrepareQueryRunnerTest extends TestCaseWithProphecy
     /**
      * @test
      */
-    public function it_prepare_streams_positions_once(): void
+    public function it_skip_watching_streams_if_it_as_already_been_prepared(): void
     {
-        $context = $this->prophesize(ProjectorContext::class);
-        $context->position()->shouldNotBeCalled();
+        $this->positions->watch([])->shouldNotBeCalled();
 
+        $context = $this->newProjectorContext(false);
         $pipe = new PrepareQueryRunner();
 
-        $ref = new ReflectionProperty($pipe, 'hasBeenPrepared');
+        $ref = new ReflectionProperty($pipe, 'isInitiated');
         $ref->setAccessible(true);
         $ref->setValue($pipe, true);
 
-        $next = $pipe($context->reveal(), function (ProjectorContext $context) {
+        $next = $pipe($context, function (ProjectorContext $context) {
             return fn() => $context;
         });
 

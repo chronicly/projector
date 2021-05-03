@@ -5,7 +5,6 @@ namespace Chronhub\Projector\Tests\Unit\Support\Scope;
 
 use Chronhub\Projector\Exception\RuntimeException;
 use Chronhub\Projector\Support\Scope\MysqlProjectionQueryScope;
-use Chronhub\Projector\Support\Scope\PgsqlProjectionQueryScope;
 use Chronhub\Projector\Tests\TestCaseWithProphecy;
 use Illuminate\Database\Query\Builder;
 
@@ -18,7 +17,7 @@ final class MysqlProjectionQueryScopeTest extends TestCaseWithProphecy
     {
         $builder = $this->prophesize(Builder::class);
         $builder->where('no', '>=', 5)->willReturn($builder)->shouldBeCalled();
-        $builder->orderBy('created_at')->willReturn($builder)->shouldBeCalled();
+        $builder->orderBy('no')->willReturn($builder)->shouldBeCalled();
 
         $scope = new MysqlProjectionQueryScope();
         $filter = $scope->fromIncludedPosition();
